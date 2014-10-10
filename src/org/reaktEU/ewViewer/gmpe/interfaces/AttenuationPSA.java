@@ -1,7 +1,7 @@
 package org.reaktEU.ewViewer.gmpe;
 
-public interface AttenuationPGV {
+public interface AttenuationPSA {
 	
-	public Shaking getPsa(double magnitude, double sourceLat, double sourceLon, double targetLat, double targetLon, double depthM, String amplificationType, String amplificationValueSI, double period)
+	public Shaking getPsa(double magnitude, double sourceLat, double sourceLon, double sourceDepthM, double targetLat, double targetLon, double targetElevM, String amplificationType, double amplificationProxyValueSI, double period)
 
 }
