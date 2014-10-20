@@ -1,6 +1,6 @@
-package org.reaktEU.ewViewer.gmice;
+package org.reaktEU.ewViewer.gmice.interfaces;
 
-import org.reaktEU.ewViewer.data;
+import org.reaktEU.ewViewer.data.Shaking;;
 
 public interface IntensityFromVelocity {
 	
