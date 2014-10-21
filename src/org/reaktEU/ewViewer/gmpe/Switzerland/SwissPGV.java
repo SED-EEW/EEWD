@@ -82,7 +82,7 @@ public class SwissPGV implements AttenuationPGV{
 	
 	    double d = Math.log10(Ru);
 		
-	    double logpgv = cofs[0][0] +  cofs[0][1] * Mw +  cofs[0][2] * Math.pow(Mw,2) +  cofs[0][3] * Math.pow(Mw,3) +  cofs[0][4] * Math.pow(Mw,4) +  cofs[0][5] * Math.pow(Mw,5) +  cofs[0][6] * Math.pow(Mw,6) + ( cofs[0][7] +  cofs[0][8] * Mw +  cofs[0][9] * Math.pow(Mw,2) +  cofs[0][10] * Math.pow(Mw,3)) * d + ( cofs[0][11] +  cofs[0][12] * Mw +  cofs[0][13] * Math.pow(Mw,2) +  cofs[0][14] * Math.pow(Mw,3)) * Math.pow(d,2) + ( cofs[0][15] +  cofs[0][16] * Mw +  cofs[0][17] * Math.pow(Mw,2) +  cofs[0][18] * Math.pow(Mw,3)) * Math.pow(d,3) + ( cofs[0][19] +  cofs[0][20] * Mw +  cofs[0][21] * Math.pow(Mw,2) +  cofs[0][22] * Math.pow(Mw,3)) * Math.pow(d,4);
+	    double logpgv = cofs[10][0] +  cofs[10][1] * Mw +  cofs[10][2] * Math.pow(Mw,2) +  cofs[10][3] * Math.pow(Mw,3) +  cofs[10][4] * Math.pow(Mw,4) +  cofs[10][5] * Math.pow(Mw,5) +  cofs[10][6] * Math.pow(Mw,6) + ( cofs[10][7] +  cofs[10][8] * Mw +  cofs[10][9] * Math.pow(Mw,2) +  cofs[10][10] * Math.pow(Mw,3)) * d + ( cofs[10][11] +  cofs[10][12] * Mw +  cofs[10][13] * Math.pow(Mw,2) +  cofs[10][14] * Math.pow(Mw,3)) * Math.pow(d,2) + ( cofs[0][15] +  cofs[10][16] * Mw +  cofs[10][17] * Math.pow(Mw,2) +  cofs[10][18] * Math.pow(Mw,3)) * Math.pow(d,3) + ( cofs[10][19] +  cofs[10][20] * Mw +  cofs[10][21] * Math.pow(Mw,2) +  cofs[10][22] * Math.pow(Mw,3)) * Math.pow(d,4);
 		
 	    // Now add site term
 	 
