@@ -9,12 +9,13 @@ package org.reaktEU.ewViewer.gmpe.Switzerland;
 // import useful packages
 
 import org.gavaghan.geodesy.*; // used to compute the hypocentral distance;
+import org.quakeml.xmlns.bedRt.x12.EventParameters;
 import org.reaktEU.ewViewer.gmpe.interfaces.*;
 import org.reaktEU.ewViewer.data.*;
 
 public class SwissPGA implements AttenuationPGA{
 	   
-	    public Shaking getPga(double Mag, double sourceLat, double sourceLon, double sourceDepthM, double targetLat, double targetLon, double ElevM, String ampType, double deltaIvalue){
+	    public Shaking getPga(double Mag, double sourceLat, double sourceLon, double sourceDepthM, double targetLat, double targetLon, double ElevM, String ampType, double deltaIvalue, EventParameters ParamfromQuakeML){
 	    
 	    // Returns median PGA, 16th-percentile PGA, 84th percentile PGA
 	    // Mag is the magnitude from the EW message
