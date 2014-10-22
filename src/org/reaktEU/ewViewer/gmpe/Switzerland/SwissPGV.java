@@ -13,11 +13,13 @@ import org.quakeml.xmlns.bedRt.x12.EventParameters;
 import org.reaktEU.ewViewer.gmpe.interfaces.*;
 import org.reaktEU.ewViewer.data.*;
 
+import static java.lang.Math.*;
+
 public class SwissPGV implements AttenuationPGV{
 	   
 	    public Shaking getPgv(double Mag, double sourceLat, double sourceLon, double sourceDepthM, double targetLat, double targetLon, double ElevM, String ampType, double deltaIvalue,EventParameters ParamfromQuakeML){
 	    
-	    // Returns median PGV, 16th-percentile PGV, 84th percentile PGV
+	    // Returns median PGV, 16th-percentile PGV, 84th percentile PGV in m/s
 	    // Mag is the magnitude from the EW message
 	    // ampType in Switzerland is deltaI, i.e. intensity increments 	
    
@@ -64,7 +66,7 @@ public class SwissPGV implements AttenuationPGV{
 	 
 	    GeodeticCalculator geoCalc = new GeodeticCalculator();
 	    Ellipsoid reference = Ellipsoid.WGS84;
-	    GlobalPosition eq = new GlobalPosition(sourceLat, sourceLon, sourceDepthM); // earthquake focus
+	    GlobalPosition eq = new GlobalPosition(sourceLat, sourceLon, -sourceDepthM); // earthquake focus
 	    GlobalPosition point = new GlobalPosition(targetLat, targetLon, ElevM); // target point
 	    double distance = geoCalc.calculateGeodeticCurve(reference, eq, point).getEllipsoidalDistance(); // Distance between Point A and Point B
         double Rh = distance / 1000; // in kilometers
@@ -76,13 +78,13 @@ public class SwissPGV implements AttenuationPGV{
 		
 	    // define the distance cut-off
 		
-	    double Ru = Math.max(rmin,Rrup);
+	    double Ru = max(rmin,Rrup);
 		
 	    // define the distance metric used in the attenuation formulas
 	
-	    double d = Math.log10(Ru);
+	    double d = log10(Ru);
 		
-	    double logpgv = cofs[10][0] +  cofs[10][1] * Mw +  cofs[10][2] * Math.pow(Mw,2) +  cofs[10][3] * Math.pow(Mw,3) +  cofs[10][4] * Math.pow(Mw,4) +  cofs[10][5] * Math.pow(Mw,5) +  cofs[10][6] * Math.pow(Mw,6) + ( cofs[10][7] +  cofs[10][8] * Mw +  cofs[10][9] * Math.pow(Mw,2) +  cofs[10][10] * Math.pow(Mw,3)) * d + ( cofs[10][11] +  cofs[10][12] * Mw +  cofs[10][13] * Math.pow(Mw,2) +  cofs[10][14] * Math.pow(Mw,3)) * Math.pow(d,2) + ( cofs[0][15] +  cofs[10][16] * Mw +  cofs[10][17] * Math.pow(Mw,2) +  cofs[10][18] * Math.pow(Mw,3)) * Math.pow(d,3) + ( cofs[10][19] +  cofs[10][20] * Mw +  cofs[10][21] * Math.pow(Mw,2) +  cofs[10][22] * Math.pow(Mw,3)) * Math.pow(d,4);
+	    double logpgv = cofs[10][0] +  cofs[10][1] * Mw +  cofs[10][2] * pow(Mw,2) +  cofs[10][3] * pow(Mw,3) +  cofs[10][4] * pow(Mw,4) +  cofs[10][5] * pow(Mw,5) +  cofs[10][6] * pow(Mw,6) + ( cofs[10][7] +  cofs[10][8] * Mw +  cofs[10][9] * pow(Mw,2) +  cofs[10][10] * pow(Mw,3)) * d + ( cofs[10][11] +  cofs[10][12] * Mw +  cofs[10][13] * pow(Mw,2) +  cofs[10][14] * pow(Mw,3)) * pow(d,2) + ( cofs[0][15] +  cofs[10][16] * Mw +  cofs[10][17] * pow(Mw,2) +  cofs[10][18] * pow(Mw,3)) * pow(d,3) + ( cofs[10][19] +  cofs[10][20] * Mw +  cofs[10][21] * pow(Mw,2) +  cofs[10][22] * pow(Mw,3)) * pow(d,4);
 		
 	    // Now add site term
 	 
@@ -94,12 +96,12 @@ public class SwissPGV implements AttenuationPGV{
 		double logpgvsiteplus = logpgvsite + sigma;
 		double logpgvsiteminus = logpgvsite - sigma; 
 	
-	    // Now in cm/s
+	    // Now in m/s
 	    
 	    Shaking PGV = new Shaking();
-	    PGV.setShakingExpected(Math.pow(10,logpgvsite));
-	    PGV.setShaking84percentile(Math.pow(10,logpgvsiteplus));
-	    PGV.setShaking16percentile(Math.pow(10,logpgvsiteminus));
+	    PGV.setShakingExpected( pow(10,logpgvsite) / 100 );
+	    PGV.setShaking84percentile( pow(10,logpgvsiteplus) / 100 );
+	    PGV.setShaking16percentile( pow(10,logpgvsiteminus) / 100 );
 	    
 	    // Now should return Shaking ...
 	    

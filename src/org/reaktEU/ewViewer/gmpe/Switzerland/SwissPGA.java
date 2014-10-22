@@ -13,11 +13,13 @@ import org.quakeml.xmlns.bedRt.x12.EventParameters;
 import org.reaktEU.ewViewer.gmpe.interfaces.*;
 import org.reaktEU.ewViewer.data.*;
 
+import static java.lang.Math.*;
+
 public class SwissPGA implements AttenuationPGA{
 	   
 	    public Shaking getPga(double Mag, double sourceLat, double sourceLon, double sourceDepthM, double targetLat, double targetLon, double ElevM, String ampType, double deltaIvalue, EventParameters ParamfromQuakeML){
 	    
-	    // Returns median PGA, 16th-percentile PGA, 84th percentile PGA
+	    // Returns median PGA, 16th-percentile PGA, 84th percentile PGA in m/s2
 	    // Mag is the magnitude from the EW message
 	    // ampType in Switzerland is deltaI, i.e. intensity increments 	
    
@@ -64,7 +66,7 @@ public class SwissPGA implements AttenuationPGA{
 	 
 	    GeodeticCalculator geoCalc = new GeodeticCalculator();
 	    Ellipsoid reference = Ellipsoid.WGS84;
-	    GlobalPosition eq = new GlobalPosition(sourceLat, sourceLon, sourceDepthM); // earthquake focus
+	    GlobalPosition eq = new GlobalPosition(sourceLat, sourceLon, -sourceDepthM); // earthquake focus
 	    GlobalPosition point = new GlobalPosition(targetLat, targetLon, ElevM); // target point
 	    double distance = geoCalc.calculateGeodeticCurve(reference, eq, point).getEllipsoidalDistance(); // Distance between Point A and Point B
         double Rh = distance / 1000; // in kilometers
@@ -76,15 +78,15 @@ public class SwissPGA implements AttenuationPGA{
 		
 	    // define the distance cut-off
 		
-	    double Ru = Math.max(rmin,Rrup);
+	    double Ru = max(rmin,Rrup);
 		
 	    // define the distance metric used in the attenuation formulas
 	
-	    double d = Math.log10(Ru);
+	    double d = log10(Ru);
 		
 	    // Compute ground-motion prediction in log10 first
 	
-	    double logpga = cofs[0][0] +  cofs[0][1] * Mw +  cofs[0][2] * Math.pow(Mw,2) +  cofs[0][3] * Math.pow(Mw,3) +  cofs[0][4] * Math.pow(Mw,4) +  cofs[0][5] * Math.pow(Mw,5) +  cofs[0][6] * Math.pow(Mw,6) + ( cofs[0][7] +  cofs[0][8] * Mw +  cofs[0][9] * Math.pow(Mw,2) +  cofs[0][10] * Math.pow(Mw,3)) * d + ( cofs[0][11] +  cofs[0][12] * Mw +  cofs[0][13] * Math.pow(Mw,2) +  cofs[0][14] * Math.pow(Mw,3)) * Math.pow(d,2) + ( cofs[0][15] +  cofs[0][16] * Mw +  cofs[0][17] * Math.pow(Mw,2) +  cofs[0][18] * Math.pow(Mw,3)) * Math.pow(d,3) + ( cofs[0][19] +  cofs[0][20] * Mw +  cofs[0][21] * Math.pow(Mw,2) +  cofs[0][22] * Math.pow(Mw,3)) * Math.pow(d,4);
+	    double logpga = cofs[0][0] +  cofs[0][1] * Mw +  cofs[0][2] * pow(Mw,2) +  cofs[0][3] * pow(Mw,3) +  cofs[0][4] * pow(Mw,4) +  cofs[0][5] * pow(Mw,5) +  cofs[0][6] * pow(Mw,6) + ( cofs[0][7] +  cofs[0][8] * Mw +  cofs[0][9] * pow(Mw,2) +  cofs[0][10] * pow(Mw,3)) * d + ( cofs[0][11] +  cofs[0][12] * Mw +  cofs[0][13] * pow(Mw,2) +  cofs[0][14] * pow(Mw,3)) * pow(d,2) + ( cofs[0][15] +  cofs[0][16] * Mw +  cofs[0][17] * pow(Mw,2) +  cofs[0][18] * pow(Mw,3)) * pow(d,3) + ( cofs[0][19] +  cofs[0][20] * Mw +  cofs[0][21] * pow(Mw,2) +  cofs[0][22] * pow(Mw,3)) * pow(d,4);
 	
 	    // Now add site term
 	 
@@ -96,12 +98,12 @@ public class SwissPGA implements AttenuationPGA{
 	    double logpgasiteplus = logpgasite + sigma;
 	    double logpgasiteminus = logpgasite - sigma; 
 	
-	    // Now in %g
+	    // Now in m/s2
 	    
 	    Shaking PGA = new Shaking();
-	    PGA.setShakingExpected(Math.pow(10,logpgasite) / 981);
-	    PGA.setShaking84percentile(Math.pow(10,logpgasiteplus) / 981);
-	    PGA.setShaking16percentile(Math.pow(10,logpgasiteminus) / 981);
+	    PGA.setShakingExpected( pow(10,logpgasite) / 100);
+	    PGA.setShaking84percentile( pow(10,logpgasiteplus) / 100);
+	    PGA.setShaking16percentile( pow(10,logpgasiteminus) / 100);
 	    
 	    // Now should return Shaking ...
 	    

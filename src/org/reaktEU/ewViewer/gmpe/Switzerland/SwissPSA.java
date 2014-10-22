@@ -13,15 +13,17 @@ import org.quakeml.xmlns.bedRt.x12.EventParameters;
 import org.reaktEU.ewViewer.gmpe.interfaces.*;
 import org.reaktEU.ewViewer.data.*;
 
+import static java.lang.Math.*;
+
 public class SwissPSA implements AttenuationPSA{
 	   
 	    public Shaking getPSA(double Mag, double sourceLat, double sourceLon, double sourceDepthM, double targetLat, double targetLon, double ElevM, String ampType, double deltaIvalue, double spectralPeriod, EventParameters ParamfromQuakeML){
 	    
-	    // Returns median PSA, 16th-percentile PSA, 84th percentile PSA for a given spectral period T
+	    // Returns median PSA, 16th-percentile PSA, 84th percentile PSA in m/s2 for a given spectral period T
 	    // Mag is the magnitude from the EW message
 	    // ampType in Switzerland is deltaI, i.e. intensity increments 	
    
-	    // GMP coefficients are region dependent, i.e. different in the Swiss Alps and in the Swiss Foreland
+	    // Coefficients are region dependent, i.e. different in the Swiss Alps and in the Swiss Foreland
         
 	    double y = sourceLat;
         double x = 0.39 * sourceLon + 44;
@@ -30,6 +32,7 @@ public class SwissPSA implements AttenuationPSA{
 	    double[][] cofs = new double[11][23];
 	    int cnt = 0; // init
 	    double sigma = 0; //init
+	    double amp = 1; //init
 		
     
 	
@@ -66,7 +69,7 @@ public class SwissPSA implements AttenuationPSA{
 	 
 	    GeodeticCalculator geoCalc = new GeodeticCalculator();
 	    Ellipsoid reference = Ellipsoid.WGS84;
-	    GlobalPosition eq = new GlobalPosition(sourceLat, sourceLon, sourceDepthM); // earthquake focus
+	    GlobalPosition eq = new GlobalPosition(sourceLat, sourceLon, -sourceDepthM); // earthquake focus
 	    GlobalPosition point = new GlobalPosition(targetLat, targetLon, ElevM); // target point
 	    double distance = geoCalc.calculateGeodeticCurve(reference, eq, point).getEllipsoidalDistance(); // Distance between Point A and Point B
         double Rh = distance / 1000; // in kilometers
@@ -78,57 +81,65 @@ public class SwissPSA implements AttenuationPSA{
 		
 	    // define the distance cut-off
 		
-	    double Ru = Math.max(rmin,Rrup);
+	    double Ru = max(rmin,Rrup);
 		
 	    // define the distance metric used in the attenuation formulas
 	
-	    double d = Math.log10(Ru);
+	    double d = log10(Ru);
 		
 	    // pick the right coefficients according to the spectral period
 	    
 	    if (spectralPeriod == 0.01) {
 	    	cnt = 1;
 	    	sigma = 0.3346;
+	    	amp = 2.58;
 	    	
 	    } else if (spectralPeriod == 0.02) {
 	    	cnt = 2;
 	    	sigma = 0.3346;
+	    	amp = 2.57;
 	    	
 	    } else if (spectralPeriod == 0.03) {
 	    	cnt = 3;
 	    	sigma = 0.3346;
-	    	 
+	    	amp = 2.57;
+	    	
 	    } else if (spectralPeriod == 0.05) {
 	    	cnt = 4;
 	    	sigma = 0.3348;
+	    	amp = 2.56;
 	    	
 	    } else if (spectralPeriod == 0.1) {
 	    	cnt = 5;
 	    	sigma = 0.2953;
-	    	
+	    	amp = 2.55;
 	    	
 	    } else if (spectralPeriod == 0.2) {
 	    	cnt = 6;
 	    	sigma = 0.2884;
+	    	amp = 2.52;
 	    	
 	    } else if (spectralPeriod == 0.4) {
 	    	cnt = 7;
 	    	sigma = 0.2641;
+	    	amp = 2.47;
 	    	
 	    } else if (spectralPeriod == 1) {
 	    	cnt = 8;
 	    	sigma = 0.2751;
+	    	amp = 2.29;
 	    	
 	    } else if (spectralPeriod == 2) {
 	    	cnt = 9;
 	    	sigma = 0.2840;
+	    	amp = 2.01;
 	    }
 	    
-	    double logpsa = cofs[cnt][0] +  cofs[cnt][1] * Mw +  cofs[cnt][2] * Math.pow(Mw,2) +  cofs[cnt][3] * Math.pow(Mw,3) +  cofs[cnt][4] * Math.pow(Mw,4) +  cofs[cnt][5] * Math.pow(Mw,5) +  cofs[cnt][6] * Math.pow(Mw,6) + ( cofs[cnt][7] +  cofs[cnt][8] * Mw +  cofs[cnt][9] * Math.pow(Mw,2) +  cofs[cnt][10] * Math.pow(Mw,3)) * d + ( cofs[cnt][11] +  cofs[cnt][12] * Mw +  cofs[cnt][13] * Math.pow(Mw,2) +  cofs[cnt][14] * Math.pow(Mw,3)) * Math.pow(d,2) + ( cofs[cnt][15] +  cofs[cnt][16] * Mw +  cofs[cnt][17] * Math.pow(Mw,2) +  cofs[cnt][18] * Math.pow(Mw,3)) * Math.pow(d,3) + ( cofs[cnt][19] +  cofs[cnt][20] * Mw +  cofs[cnt][21] * Math.pow(Mw,2) +  cofs[cnt][22] * Math.pow(Mw,3)) * Math.pow(d,4);
+	    double logpsa = cofs[cnt][0] +  cofs[cnt][1] * Mw +  cofs[cnt][2] * pow(Mw,2) +  cofs[cnt][3] * pow(Mw,3) +  cofs[cnt][4] * pow(Mw,4) +  cofs[cnt][5] * pow(Mw,5) +  cofs[cnt][6] * pow(Mw,6) + ( cofs[cnt][7] +  cofs[cnt][8] * Mw +  cofs[cnt][9] * pow(Mw,2) +  cofs[cnt][10] * pow(Mw,3)) * d + ( cofs[cnt][11] +  cofs[cnt][12] * Mw +  cofs[cnt][13] * pow(Mw,2) +  cofs[cnt][14] * pow(Mw,3)) * pow(d,2) + ( cofs[cnt][15] +  cofs[cnt][16] * Mw +  cofs[cnt][17] * pow(Mw,2) +  cofs[cnt][18] * pow(Mw,3)) * pow(d,3) + ( cofs[cnt][19] +  cofs[cnt][20] * Mw +  cofs[cnt][21] * pow(Mw,2) +  cofs[cnt][22] * pow(Mw,3)) * pow(d,4);
 		
 	    // Now add site term
 	 
-	    double logpsasite = logpsa + (deltaIvalue / 2.35);
+	    double logpsasite = logpsa + (deltaIvalue / amp);
 		
 		// Now compute plus/minus sigma bounds
 		
@@ -136,12 +147,12 @@ public class SwissPSA implements AttenuationPSA{
 		double logpsasiteplus = logpsasite + sigma;
 		double logpsasiteminus = logpsasite - sigma; 
 	
-	    // Now in %g
+	    // Now in m/s2
 	    
 	    Shaking PSA = new Shaking();
-	    PSA.setShakingExpected(Math.pow(10,logpsasite) / 981);
-	    PSA.setShaking84percentile(Math.pow(10,logpsasiteplus) / 981);
-	    PSA.setShaking16percentile(Math.pow(10,logpsasiteminus) / 981);
+	    PSA.setShakingExpected( pow(10,logpsasite) / 100 );
+	    PSA.setShaking84percentile( pow(10,logpsasiteplus) / 100 );
+	    PSA.setShaking16percentile( pow(10,logpsasiteminus) / 100 );
 	    
 	    // Now should return Shaking ...
 	    
