@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://quakeml.org/xmlns/vstypes/0.1"
+           xmlns:vs="http://quakeml.org/xmlns/vstypes/0.1"
+           xmlns="http://quakeml.org/xmlns/vstypes/0.1"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+  <xs:simpleType name="likelihood">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        A quality parameter for an early warning earthquake location. The higher the value, the better the location.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:float"/>
+  </xs:simpleType>
+</xs:schema>

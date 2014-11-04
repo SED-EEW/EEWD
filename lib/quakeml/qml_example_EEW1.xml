@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<q:quakeml xmlns="http://quakeml.org/xmlns/bed-rt/1.2" xmlns:q="http://quakeml.org/xmlns/quakeml-rt/1.2" xmlns:ext="http://quakeml.org/xmlns/vstypes/0.1">
+  <eventParameters publicID="smi:ch.ethz.sed/EEW/1">
+  </eventParameters>
+</q:quakeml>

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<q:quakeml xmlns="http://quakeml.org/xmlns/bed-rt/1.2"
+           xmlns:q="http://quakeml.org/xmlns/quakeml-rt/1.2"
+           xmlns:vs="http://quakeml.org/xmlns/vstypes/0.1">
+  <eventParameters publicID="smi:ch.ethz.sed/EEW/1">
+    <pick publicID="smi:ch.ethz.sed/event/2806038g">
+        <time>
+            <value>2009-09-13T00:00:00.123</value>
+        </time>
+        <time>
+            <value>2009-09-13T00:00:00.123</value>
+            <value>2009-09-13T00:00:00.123</value>
+        </time>
+        <filterID>smi:ch.ethz.sed/event/2806038g</filterID>
+    </pick>
+    <event publicID="smi:ch.ethz.sed/event/2806038g">
+      <preferredOriginID>smi:ch.ethz.sed/event/2806038g/origin/1</preferredOriginID>
+      <preferredOriginID>smi:ch.ethz.sed/event/2806038g/origin/2</preferredOriginID>
+      <preferredMagnitudeID>smi:ch.ethz.sed/event/2806038g/magnitude/1</preferredMagnitudeID>
+      <originReference>smi:ch.ethz.sed/event/2806038g/origin/1</originReference>
+      <!--To stop an alert a QuakeML message with eventType="not existing" could be sent.-->
+      <type>earthquake</type>
+      <!-- Likelihood would need to be defined as an extension to the event type. In the 
+         same way other extensions could be defined to other elements. -->
+      <vs:likelihood>-9.9</vs:likelihood>
+    </event>
+    <origin publicID="smi:ch.ethz.sed/event/2806038g/origin/1">
+      <time>
+        <value>2014-07-21T07:44:00.000</value>
+        <!-- Placeholder will not be used in QuakeML; uncertainties are optional; all optional values will only be sent if they are meaningful -->
+        <uncertainty>-9.9</uncertainty>
+      </time>
+      <latitude>
+        <value>-999.9</value>
+        <uncertainty>-999.9</uncertainty>
+      </latitude>
+      <longitude>
+        <value>-999.9</value>
+        <uncertainty>-999.9</uncertainty>
+      </longitude>
+      <depth>
+        <value>-9.9</value>
+        <uncertainty>-9.9</uncertainty>
+      </depth>
+      <arrival publicID="smi:ch.ethz.sed/PICK/20140721064354/ARRIVAL">
+        <pickID>smi:ch.ethz.sed/PICK/20140721064354</pickID>
+        <phase>P</phase>
+      </arrival>
+      <arrival publicID="smi:ch.ethz.sed/PICK/20140721064355/ARRIVAL">
+        <pickID>smi:ch.ethz.sed/PICK/20140721064355</pickID>
+        <phase>P</phase>
+      </arrival>
+      <arrival publicID="smi:ch.ethz.sed/PICK/20140721064356/ARRIVAL">
+        <pickID>smi:ch.ethz.sed/PICK/20140721064356</pickID>
+        <phase>P</phase>
+      </arrival>
+      <arrival publicID="smi:ch.ethz.sed/PICK/20140721064357/ARRIVAL">
+        <pickID>smi:ch.ethz.sed/PICK/20140721064357</pickID>
+        <phase>P</phase>
+      </arrival>
+    </origin>
+    <magnitude publicID="smi:ch.ethz.sed/event/2806038g/magnitude/1">
+      <mag>
+        <value>-9.9</value>
+        <uncertainty>0.3</uncertainty>
+      </mag>
+      <type>MVs</type>
+      <originID>smi:ch.ethz.sed/event/2806038g/origin/1</originID>
+      <stationCount>4</stationCount>
+    </magnitude>
+    <!-- NOTE: In the amplitude description below the length of the 
+         windows is described by the timeWindow element and the time is the pick time referred to
+         by the pickID. This is supposed to be the translation of the window element. Please 
+         let me know if I misunderstood something here. Units of Amplitudes have to be SI or derived from SI.
+         If something other than the QuakeML standard units are used the correct unit has to be implied from the amplitude type. -->
+    <amplitude publicID="smi:ch.ethz.sed/event/2806038g/amplitude/1">
+      <pickID>smi:ch.ethz.sed/PICK/20140721064354</pickID>
+      <type>Pd</type>
+      <genericAmplitude>
+        <value>-9.9</value>
+      </genericAmplitude>
+      <unit>m</unit>
+      <timeWindow>
+        <begin>3</begin>
+        <end>2</end>
+        <reference>2014-07-21T07:44:33.546Z</reference>
+      </timeWindow>
+      <waveformID networkCode="XX" stationCode="YY" channelCode="ZZ"/>
+    </amplitude>
+    <amplitude publicID="smi:ch.ethz.sed/event/2806038g/amplitude/2">
+      <pickID>smi:ch.ethz.sed/PICK/20140721064354</pickID>
+      <type>TauC</type>
+      <genericAmplitude>
+        <value>-9.9</value>
+      </genericAmplitude>
+      <unit>s</unit>
+      <timeWindow>
+        <begin>3</begin>
+        <end>2</end>
+        <reference>2014-07-21T07:44:33.546Z</reference>
+      </timeWindow>
+      <waveformID networkCode="XX" stationCode="YY" channelCode="ZZ"/>
+    </amplitude>
+    <amplitude publicID="smi:ch.ethz.sed/event/2806038g/amplitude/3">
+      <pickID>smi:ch.ethz.sed/PICK/20140721064354</pickID>
+      <type>PGV</type>
+      <genericAmplitude>
+        <value>-9.9</value>
+      </genericAmplitude>
+      <unit>m/s</unit>
+      <timeWindow>
+        <begin>3</begin>
+        <end>2</end>
+        <reference>2014-07-21T07:44:33.546Z</reference>
+      </timeWindow>
+      <waveformID networkCode="XX" stationCode="YY" channelCode="ZZ"/>
+    </amplitude>
+    <pick publicID="smi:ch.ethz.sed/PICK/20140721064354">
+      <time>
+        <value>2014-07-18T06:43:48.766666Z</value>
+      </time>
+      <waveformID networkCode="XX" stationCode="YY" channelCode="ZZ"/>
+    </pick>
+    <pick publicID="smi:ch.ethz.sed/PICK/20140721064355">
+      <time>
+        <value>2014-07-18T06:43:49.766666Z</value>
+      </time>
+      <waveformID networkCode="XX" stationCode="YY" channelCode="ZZ"/>
+    </pick>
+    <pick publicID="smi:ch.ethz.sed/PICK/20140721064356">
+      <time>
+        <value>2014-07-18T06:43:50.766666Z</value>
+      </time>
+      <waveformID networkCode="XX" stationCode="YY" channelCode="ZZ"/>
+    </pick>
+    <pick publicID="smi:ch.ethz.sed/PICK/20140721064357">
+      <time>
+        <value>2014-07-18T06:43:51.766666Z</value>
+      </time>
+      <waveformID networkCode="XX" stationCode="YY" channelCode="ZZ"/>
+    </pick>
+  </eventParameters>
+</q:quakeml>
+<!-- This can be validated as proper QuakeML with the following command line: 
+$ xmllint \-\-noout \-\-schema QuakeML-RT-BED-1.2.xsd \-\-schema QuakeML-RT-1.2.xsd qml_example_EEW.xml
+-->
