@@ -13,16 +13,16 @@ import org.reaktEU.ewViewer.data.*;
 
 import static java.lang.Math.*;
 
-public class BEA2014PGV implements AttenuationPGA {
+public class BEA2014PSA implements AttenuationPGA {
 
-    public Shaking getPGV(double Mag, double sourceLat, double sourceLon, double sourceDepthM, double targetLat, double targetLon, double ElevM, String ampType, double VS30value, EventParameters ParamfromQuakeML) {
+    public Shaking getPSA(double Mag, double sourceLat, double sourceLon, double sourceDepthM, double targetLat, double targetLon, double ElevM, String ampType, double VS30value, EventParameters ParamfromQuakeML) {
 
-	    // Returns median PGV, 16th-percentile PGA, 84th percentile PGA in m/s
+	    // Returns median PSA, 16th-percentile PGA, 84th percentile PGA in m/s
         // Mag is the magnitude from the EW message
         // ampType is VS30
         
         double Mw = Mag;	// reasonable assumption for CH, other regions should perform some investigations ...
-        
+        int cnt = 0; // init
         
         double[][] cofs = {{4.3397, 4.46839, 4.5724, 4.55255, 4.51119, 4.49571, 4.49224, 4.51726, 4.46559, 4.46834, 4.3715, 4.34198, -1.37164, 4.14832, 4.09246, 4.08324, 4.07207, 3.77954, 3.69447, 3.45408, 3.38901, 3.06601, 2.89391, 4.27391, 3.24249},
         		           {-1.60402, -1.68536, -1.63863, -1.57947, -1.4471, -1.37039, -1.36679, -1.40078, -1.40973, -1.42893, -1.40655, -1.39751, 17.7584, -1.37169, -1.37736, -1.38649, -1.38735, -1.27343, -1.26477, -1.27364, -1.28283, -1.23427, -1.16461, -1.57821, -1.57556},
@@ -67,38 +67,68 @@ public class BEA2014PGV implements AttenuationPGA {
         double Rref = 1;
         double Mh = 6.75;
         double Vref = 800;
-        doubel FM =0; //init
+        double FM = 0; //init
         
-        double FD = ( cofs[1][24] + cofs[2][24] * ( Mw - Mref ) ) * log10( sqrt( pow(Rh,2) + pow(cofs[3][24],2) ) / Rref ) - cofs[4][24] * ( sqrt( pow(Rh,2) + pow(cofs[3][24],2) ) - Rref );
-        
-        if (Mw <= Mh) {
-        	FM = cofs[5][24] * ( Mw -Mh ) + cofs[6][24] * pow(( Mw - Mh ),2);
-        } else {
-        	FM = cofs[7][24] * ( Mw -Mh );
+        // pick the right coefficients according to the spectral period
+        if (spectralPeriod == 0.01) { // using published coeffs for 0.02
+            cnt = 0;
+            
+        } else if (spectralPeriod == 0.02) {
+            cnt = 0;
+            
+        } else if (spectralPeriod == 0.03) { // using published coeffs for 0.04
+            cnt = 1;
+            
+        } else if (spectralPeriod == 0.05) { // using published coeffs for 0.04
+            cnt = 1;
+            
+        } else if (spectralPeriod == 0.1) {
+            cnt = 3;
+
+        } else if (spectralPeriod == 0.2) {
+            cnt = 5;
+
+        } else if (spectralPeriod == 0.4) {
+            cnt = 9;
+
+        } else if (spectralPeriod == 1) {
+            cnt = 16;
+ 
+        } else if (spectralPeriod == 2) {
+            cnt = 20;
+
         }
         
-        double FSOF = ( cofs[9][24] + cofs[10][24] + cofs[11][24] ) /3;
+        double FD = ( cofs[1][cnt] + cofs[2][cnt] * ( Mw - Mref ) ) * log10( sqrt( pow(Rh,2) + pow(cofs[3][cnt],2) ) / Rref ) - cofs[4][cnt] * ( sqrt( pow(Rh,2) + pow(cofs[3][cnt],2) ) - Rref );
         
-        double logpgv = cofs[0][24] + FD + FM + FSOF;
+        if (Mw <= Mh) {
+        	FM = cofs[5][cnt] * ( Mw -Mh ) + cofs[6][cnt] * pow(( Mw - Mh ),2);
+        } else {
+        	FM = cofs[7][cnt] * ( Mw -Mh );
+        }
+        
+        double FSOF = ( cofs[9][cnt] + cofs[10][cnt] + cofs[11][cnt] ) /3;
+        
+        double logpsa = cofs[0][cnt] + FD + FM + FSOF;
         
         // Now add site term
         
-        double logpgvsite = logpgv + cofs[8][24] * log10(VS30value / Vref);
+        double logpsasite = logpsa + cofs[8][cnt] * log10(VS30value / Vref);
 
         // Now compute plus/minus sigma bounds
         
-        double sigma = cofs[15][24];
-        double logpgvsiteplus = logpgvsite + sigma;
-        double logpgvsiteminus = logpgvsite - sigma;
+        double sigma = cofs[15][cnt];
+        double logpsasiteplus = logpsasite + sigma;
+        double logpsasiteminus = logpsasite - sigma;
 
         // Now in m/s
-        Shaking PGV = new Shaking();
-        PGV.setShakingExpected(pow(10, logpgvsite) / 100 );
-        PGV.setShaking84percentile(pow(10, logpgvsiteplus) / 100 );
-        PGV.setShaking16percentile(pow(10, logpgvsiteminus) / 100 );
+        Shaking PSA = new Shaking();
+        PSA.setShakingExpected(pow(10, logpsasite) / 100 );
+        PSA.setShaking84percentile(pow(10, logpsasiteplus) / 100 );
+        PSA.setShaking16percentile(pow(10, logpsasiteminus) / 100 );
 
         // Now should return Shaking ...
-        return (PGV);
+        return (PSA);
 
     }
 }
