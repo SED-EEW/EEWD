@@ -18,6 +18,8 @@ import com.bbn.openmap.proj.Length;
 import com.bbn.openmap.util.PaletteHelper;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Image;
+import java.awt.MediaTracker;
 import java.awt.Paint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -29,6 +31,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.reaktEU.ewViewer.Application;
 
 /**
  *
@@ -38,41 +41,36 @@ public class TargetLayer extends OMGraphicHandlerLayer implements MapMouseListen
 
     private static final Logger LOG = LogManager.getLogger(TargetLayer.class);
 
-    protected List<POI> targets = null;
-    protected ImageIcon icon = null;
+    protected List<POI> targets;
+    protected ImageIcon icon;
     protected boolean showingInfoLine = false;
 
-    protected boolean showNames = false;
-    protected boolean showBlindZone = true;
+    protected boolean showNames;
+    protected boolean showBlindZone;
     protected double blindZoneRadius;
 
     protected int size;
 
     protected Box paletteBox = null;
-    protected JCheckBox showNamesButton = null;
-    protected JCheckBox showBlindZoneButton = null;
+    protected JCheckBox showNamesCheckBox = null;
+    protected JCheckBox showBlindZoneCheckBox = null;
 
     public static final Paint BlindZoneFillPaint = new Color(0, 128, 255, 64);
     public static final Paint BlindZoneLinePaint = new Color(0, 128, 255);
 
     public static final String ShowNamesProperty = "showNames";
     public static final String ShowBlindZoneProperty = "showBlindZone";
-    public static final String BlindZoneRadiusProperty = "blindZoneRadius";
 
     public TargetLayer(List<POI> targets) {
+        Application app = Application.getInstance();
+
         this.targets = targets;
-        icon = new ImageIcon(getClass().getResource("/org/reaktEU/ewViewer/resources/icons/target.png"));
 
-        setBlindZone(40.0);
-    }
-
-    /**
-     *
-     * @param blindZoneRadius radius in km a target can not be alerted of an
-     * approaching S-wave
-     */
-    public void setBlindZone(double blindZoneRadius) {
-        this.blindZoneRadius = blindZoneRadius;
+        blindZoneRadius = app.getProperty(Application.PropertyBlindZoneRadius, 40.0);
+        icon = new ImageIcon(app.getProperty(Application.PropertyTargetIcon,
+                                                   "data/icons/target.png"));
+        showBlindZone = blindZoneRadius > 0.0;
+        showNames = app.getProperty(Application.PropertyShowTargetName, false);
     }
 
     public synchronized OMGraphicList prepare() {
@@ -87,7 +85,7 @@ public class TargetLayer extends OMGraphicHandlerLayer implements MapMouseListen
             // symbol
             int halfHeight;
             OMGraphicAdapter symbol;
-            if (icon != null) {
+            if (icon != null && icon.getImageLoadStatus() == MediaTracker.COMPLETE) {
                 halfHeight = (int) ((icon.getIconHeight() + 0.5) / 2.0);
                 symbol = new OMRaster(target.latitude, target.longitude,
                                       -(int) ((icon.getIconWidth() + 0.5) / 2.0),
@@ -217,15 +215,18 @@ public class TargetLayer extends OMGraphicHandlerLayer implements MapMouseListen
                 }
             };
 
-            showNamesButton = new JCheckBox("Show Station Names");
-            showNamesButton.addActionListener(al);
-            showNamesButton.setActionCommand(ShowNamesProperty);
+            showNamesCheckBox = new JCheckBox("Show Station Names");
+            showNamesCheckBox.addActionListener(al);
+            showNamesCheckBox.setActionCommand(ShowNamesProperty);
+            showNamesCheckBox.setSelected(showNames);
 
-            showBlindZoneButton = new JCheckBox("Show Blind Zone");
-            showBlindZoneButton.addActionListener(al);
-            showBlindZoneButton.setActionCommand(ShowBlindZoneProperty);
+            showBlindZoneCheckBox = new JCheckBox("Show Blind Zone");
+            showBlindZoneCheckBox.addActionListener(al);
+            showBlindZoneCheckBox.setActionCommand(ShowBlindZoneProperty);
+            showBlindZoneCheckBox.setSelected(showBlindZone);
 
-            layerPanel.add(showNamesButton);
+            layerPanel.add(showNamesCheckBox);
+            layerPanel.add(showBlindZoneCheckBox);
             paletteBox.add(layerPanel);
         }
         return paletteBox;

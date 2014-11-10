@@ -11,6 +11,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.reaktEU.ewViewer.Application;
+import static org.reaktEU.ewViewer.Application.PropertyTimeoutAfterOriginTime;
 
 /**
  *
@@ -27,8 +29,11 @@ public class EventTimeScheduler implements Runnable {
     private EventData event;
     private boolean dirty;
 
-    public EventTimeScheduler(int maxUpdateSeconds) {
-        maxUpdateMillis = maxUpdateSeconds * 1000;
+    public EventTimeScheduler() {
+        double maxUpdateSeconds = Application.getInstance().getProperty(
+                PropertyTimeoutAfterOriginTime, 60.0);
+
+        maxUpdateMillis = (long) (maxUpdateSeconds * 1000);
         updateListeners = new HashSet();
 
         event = null;

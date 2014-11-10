@@ -1,4 +1,4 @@
-package org.reaktEU.ewViewer.gmice.interfaces;
+package org.reaktEU.ewViewer.gmice;
 
 import org.reaktEU.ewViewer.data.Shaking;
 

@@ -16,6 +16,8 @@ import java.util.Comparator;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.reaktEU.ewViewer.Application;
+import static org.reaktEU.ewViewer.Application.PropertyEventArchive;
 
 /**
  *
@@ -37,9 +39,11 @@ public class EventArchive {
     protected File logDir;
     protected File scenarioDir;
 
-    public EventArchive(String archivePath) {
-        logDir = new File(archivePath + "/" + LOG_DIR);
-        scenarioDir = new File(archivePath + "/" + SCENARIO_DIR);
+    public EventArchive() {
+        String path = Application.getInstance().getProperty(PropertyEventArchive,
+                                                            "data/events");
+        logDir = new File(path + "/" + LOG_DIR);
+        scenarioDir = new File(path + "/" + SCENARIO_DIR);
     }
 
     public List<String> getEventList(EventType type) {

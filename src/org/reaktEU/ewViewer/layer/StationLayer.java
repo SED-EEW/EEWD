@@ -25,6 +25,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.reaktEU.ewViewer.Application;
 
 /**
  *
@@ -48,8 +49,11 @@ public class StationLayer extends OMGraphicHandlerLayer implements MapMouseListe
     public static final String ShowNamesProperty = "showNames";
 
     public StationLayer(List<POI> stations) {
+        Application app = Application.getInstance();
         this.stations = stations;
         setSize(12);
+
+        showNames = app.getProperty(Application.PropertyShowStationName, false);
         //setProjectionChangePolicy(new com.bbn.openmap.layer.policy.NullProjectionChangePolicy());
     }
 

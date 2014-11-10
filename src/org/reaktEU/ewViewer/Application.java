@@ -60,17 +60,27 @@ public class Application implements Listener, QMLListener, ActionListener {
 
     public static final String PropertyMapProperties = "mapProperties";
     public static final String PropertyEventArchive = "eventArchive";
-    public static final String PropertyStationFile = "stationFile";
-    public static final String PropertyTargetFile = "targetFile";
 
+    // target
+    public static final String PropertyTargetFile = "targetFile";
+    public static final String PropertyTargetIcon = "targetIcon";
+    public static final String PropertyShowTargetName = "showTargetName";
     public static final String PropertyBlindZoneRadius = "blindZoneRadius";
+
+    // station
+    public static final String PropertyStationFile = "stationFile";
     public static final String PropertyShowStations = "showStations";
+    public static final String PropertyShowStationName = "showStationName";
     public static final String PropertyShowUsedStations = "showUsedStations";
     public static final String PropertyShowStationShaking = "showStationShaking";
     public static final String PropertyShowStationAlert = "showStationAlert";
+
+    // event
     public static final String PropertyVP = "vp";
     public static final String PropertyVS = "vs";
+    public static final String PropertyEventIcon = "eventIcon";
     public static final String PropertyTimeoutAfterOriginTime = "timeoutAfterOriginTime";
+
     public static final String PropertyUsePGA = "usePGA";
     public static final String PropertyUsePGV = "usePGV";
     public static final String PropertyUseI = "useI";
@@ -96,6 +106,8 @@ public class Application implements Listener, QMLListener, ActionListener {
 
     private static final String ActionEventBrowser = "eventBrowser";
 
+    private static Application instance = null;
+
     // gui components
     private MapPanel mapPanel;
     private OpenMapFrame openMapFrame = null;
@@ -114,7 +126,8 @@ public class Application implements Listener, QMLListener, ActionListener {
     private final List<POI> stations;
 
     public Application(Properties props) {
-        this.properties = props;
+        instance = this;
+        properties = props;
 
         String mapProps = properties.getProperty(PropertyMapProperties,
                                                  "file:data/openmap.properties");
@@ -136,12 +149,10 @@ public class Application implements Listener, QMLListener, ActionListener {
         }
 
         // search event archive directory
-        String eventDir = properties.getProperty(PropertyEventArchive, "data/events");
-        eventArchive = new EventArchive(eventDir);
+        eventArchive = new EventArchive();
 
         // regular updates of ongoing event
-        eventTimeScheduler = new EventTimeScheduler(
-                getPropertyInt(PropertyTimeoutAfterOriginTime, 60));
+        eventTimeScheduler = new EventTimeScheduler();
 
         // scenario scheduler (sequence of event updates)
         eventFileScheduler = new EventFileScheduler();
@@ -166,13 +177,47 @@ public class Application implements Listener, QMLListener, ActionListener {
         });
     }
 
-    public final int getPropertyInt(String key, int def) {
+    public static final Application getInstance() {
+        return instance;
+    }
+
+    public String getProperty(String key, String def) {
+        return properties.getProperty(key, def);
+    }
+
+    public final boolean getProperty(String key, boolean def) {
+        String value = properties.getProperty(key);
+        if (value != null) {
+            try {
+                return Boolean.parseBoolean(value);
+            } catch (NumberFormatException nfe) {
+                LOG.warn(String.format("invalid boolean found in property: %s",
+                                       key));
+            }
+        }
+        return def;
+    }
+
+    public final int getProperty(String key, int def) {
         String value = properties.getProperty(key);
         if (value != null) {
             try {
                 return Integer.parseInt(value);
             } catch (NumberFormatException nfe) {
                 LOG.warn(String.format("invalid integer found in property: %s",
+                                       key));
+            }
+        }
+        return def;
+    }
+
+    public final double getProperty(String key, double def) {
+        String value = properties.getProperty(key);
+        if (value != null) {
+            try {
+                return Double.parseDouble(value);
+            } catch (NumberFormatException nfe) {
+                LOG.warn(String.format("invalid double found in property: %s",
                                        key));
             }
         }

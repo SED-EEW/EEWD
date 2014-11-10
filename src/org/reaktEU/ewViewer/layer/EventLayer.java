@@ -15,11 +15,12 @@ import org.reaktEU.ewViewer.data.EventTimeListener;
 import org.reaktEU.ewViewer.data.GeoCalc;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.MediaTracker;
 import java.awt.Paint;
-import java.net.URL;
 import javax.swing.ImageIcon;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.reaktEU.ewViewer.Application;
 
 /**
  *
@@ -29,7 +30,9 @@ public class EventLayer extends OMGraphicHandlerLayer implements EventTimeListen
 
     private static final Logger LOG = LogManager.getLogger(EventLayer.class);
 
-    protected ImageIcon icon = null;
+    protected ImageIcon icon;
+    protected double vp;
+    protected double vs;
 
     protected EventData event = null;
     protected Long originTimeOffset = null;
@@ -38,10 +41,12 @@ public class EventLayer extends OMGraphicHandlerLayer implements EventTimeListen
     public static final Paint SWavePaint = new Color(222, 38, 38);
 
     public EventLayer() {
-        URL url = getClass().getResource("/org/reaktEU/ewViewer/resources/icons/event.png");
-        if (url != null) {
-            icon = new ImageIcon(url);
-        }
+        Application app = Application.getInstance();
+
+        icon = new ImageIcon(app.getProperty(Application.PropertyEventIcon,
+                                             "data/icons/event.png"));
+        vp = app.getProperty(Application.PropertyVP, 5.5);
+        vs = app.getProperty(Application.PropertyVS, 3.3);
     }
 
     @Override
@@ -52,8 +57,6 @@ public class EventLayer extends OMGraphicHandlerLayer implements EventTimeListen
 
         OMGraphicList list = new OMGraphicList();
         if (originTimeOffset != null && originTimeOffset > 0) {
-            double vp = 5.5; // km/s
-            double vs = 3.3;
             double hrp = vp * originTimeOffset;
             double hrs = vs * originTimeOffset;
             double rp = GeoCalc.SeismicWaveSurfaceDistance(event.depth * 1000, hrp, event.latitude);
@@ -74,7 +77,7 @@ public class EventLayer extends OMGraphicHandlerLayer implements EventTimeListen
         }
 
         OMGraphicAdapter symbol;
-        if (icon != null) {
+        if (icon != null && icon.getImageLoadStatus() == MediaTracker.COMPLETE) {
             symbol = new OMRaster(event.latitude, event.longitude,
                                   -(int) ((icon.getIconWidth() + 0.5) / 2.0),
                                   -(int) ((icon.getIconHeight() + 0.5) / 2.0),

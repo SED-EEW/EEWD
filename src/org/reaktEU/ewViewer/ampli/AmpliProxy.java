@@ -1,4 +1,4 @@
-package org.reaktEU.ewViewer.ampli.interfaces;
+package org.reaktEU.ewViewer.ampli;
 
 public interface AmpliProxy {
 
