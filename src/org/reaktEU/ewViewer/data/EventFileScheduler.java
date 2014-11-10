@@ -27,11 +27,9 @@ public class EventFileScheduler implements Runnable {
     protected long offset;
 
     protected List<QMLListener> messageListeners;
-    protected List<ProgressListener> progressListeners;
 
     public EventFileScheduler() {
         this.messageListeners = new ArrayList();
-        this.progressListeners = new ArrayList();
         this.executor = null;
         cancel();
     }
@@ -39,12 +37,6 @@ public class EventFileScheduler implements Runnable {
     synchronized public void addQMLListener(QMLListener qmlListener) {
         if (qmlListener != null) {
             messageListeners.add(qmlListener);
-        }
-    }
-
-    synchronized public void setProgressListener(ProgressListener progressListener) {
-        if (progressListener != null) {
-            progressListeners.add(progressListener);
         }
     }
 
@@ -90,9 +82,6 @@ public class EventFileScheduler implements Runnable {
                 .getEventParameters();
         for (QMLListener l : messageListeners) {
             l.processQML(eventParameters, offset);
-        }
-        for (ProgressListener l : progressListeners) {
-            l.onProgress(progress, sequence.size());
         }
         ++progress;
     }

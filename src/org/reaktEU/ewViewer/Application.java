@@ -34,7 +34,9 @@ import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -56,11 +58,43 @@ import org.quakeml.xmlns.bedRt.x12.EventParameters;
 // System.getProperty("user.home")
 public class Application implements Listener, QMLListener, ActionListener {
 
+    public static final String PropertyMapProperties = "mapProperties";
+    public static final String PropertyEventArchive = "eventArchive";
+    public static final String PropertyStationFile = "stationFile";
+    public static final String PropertyTargetFile = "targetFile";
+
+    public static final String PropertyBlindZoneRadius = "blindZoneRadius";
+    public static final String PropertyShowStations = "showStations";
+    public static final String PropertyShowUsedStations = "showUsedStations";
+    public static final String PropertyShowStationShaking = "showStationShaking";
+    public static final String PropertyShowStationAlert = "showStationAlert";
+    public static final String PropertyVP = "vp";
+    public static final String PropertyVS = "vs";
+    public static final String PropertyTimeoutAfterOriginTime = "timeoutAfterOriginTime";
+    public static final String PropertyUsePGA = "usePGA";
+    public static final String PropertyUsePGV = "usePGV";
+    public static final String PropertyUseI = "useI";
+    public static final String PropertyUseSpectra = "useSpectra";
+    public static final String PropertyUseSpectrumT = "useSpectrumT";
+    public static final String PropertyUseOther = "useOther";
+    public static final String PropertyOtherName = "otherName";
+    public static final String PropertyPeriods = "periods";
+    public static final String PropertyUseFequencies = "useFrequencies";
+    public static final String PropertySpectraAreDRS = "spectraAreDRS";
+    public static final String PropertyUseTables = "useTables";
+    public static final String PropertyUseEquations = "useEquations";
+    public static final String PropertyRIsHypocentral = "rIsHypocentral";
+    public static final String PropertyAmpliProxyName = "ampliProxyName";
+    public static final String PropertyAmpliProxyValueAtTarget = "ampliProxyValueAtTarget";
+    public static final String PropertyIntensityParameter = "intensityParameter";
+    public static final String PropertyScenarioParameter = "scenarioParameter";
+    public static final String PropertyRadiusOfInfluence = "radiusOfInfluence";
+    public static final String PropertyStationDisplacementThreshold = "stationDisplacementThreshold";
+    public static final String PropertyStationTauCThreshold = "stationTauCThreshold";
+
     private static final Logger LOG = LogManager.getLogger(Application.class);
 
     private static final String ActionEventBrowser = "eventBrowser";
-
-    private static final String PropertyEventArchive = "eventArchive";
 
     // gui components
     private MapPanel mapPanel;
@@ -71,47 +105,56 @@ public class Application implements Listener, QMLListener, ActionListener {
 
     // data handling
     private Client client = null;
-    private EventArchive eventArchive = null;
-    private EventTimeScheduler eventTimeScheduler = null;
-    private EventFileScheduler eventFileScheduler = null;
-    private List<POI> targets = null;
-    private List<POI> stations = null;
 
-    public Application() {
-        this((PropertyHandler) null);
-    }
+    private Properties properties;
+    private final EventArchive eventArchive;
+    private final EventTimeScheduler eventTimeScheduler;
+    private final EventFileScheduler eventFileScheduler;
+    private final List<POI> targets;
+    private final List<POI> stations;
 
-    public Application(PropertyHandler propertyHandler) {
-        // search event archive directory
-        String eventDir = null;
-        if (propertyHandler != null) {
-            Properties p = propertyHandler.getProperties();
-            eventDir = p.getProperty(PropertyEventArchive);
+    public Application(Properties props) {
+        this.properties = props;
+
+        String mapProps = properties.getProperty(PropertyMapProperties,
+                                                 "file:data/openmap.properties");
+
+        PropertyHandler mapPropertyHandler = null;
+        try {
+            //mapPropertyHandler = new PropertyHandler.Builder().setPropertiesFile((String) null).setPropertyPrefix("main").build();
+            PropertyHandler.Builder builder = new PropertyHandler.Builder();
+            builder.setPropertiesFile(mapProps);
+            //builder.setPropertyPrefix("main");
+            mapPropertyHandler = builder.build();
+        } catch (MalformedURLException murle) {
+            LOG.warn(murle.getMessage(), murle);
+        } catch (IOException ioe) {
+            LOG.warn(ioe.getMessage(), ioe);
         }
-//        if (eventDir == null) {
-//            String home = System.getProperty("user.home");
-//            if (home != null) {
-//                eventDir = home.concat("/.eewd/events");
-//            }
-//        }
-//        if (eventDir != null) {
-//            eventArchive = new EventArchive(eventDir);
-//        }
-        eventArchive = new EventArchive("data/events");
+        if (mapPropertyHandler == null) {
+            mapPropertyHandler = new PropertyHandler();
+        }
+
+        // search event archive directory
+        String eventDir = properties.getProperty(PropertyEventArchive, "data/events");
+        eventArchive = new EventArchive(eventDir);
 
         // regular updates of ongoing event
-        eventTimeScheduler = new EventTimeScheduler();
+        eventTimeScheduler = new EventTimeScheduler(
+                getPropertyInt(PropertyTimeoutAfterOriginTime, 60));
 
         // scenario scheduler (sequence of event updates)
         eventFileScheduler = new EventFileScheduler();
         eventFileScheduler.addQMLListener(this);
 
         // read targets and stations // read targets and stations
-        stations = readPOIs("data/stations.csv");
-        targets = readPOIs("data/targets.csv");
+        stations = readPOIs(properties.getProperty(PropertyStationFile,
+                                                   "data/stations.csv"));
+        targets = readPOIs(properties.getProperty(PropertyTargetFile,
+                                                  "data/targets.csv"));
 
         // configure gui components
-        configureMapPanel(propertyHandler);
+        configureMapPanel(mapPropertyHandler);
 
         // Schedule a job for the event-dispatching thread:
         // creating and showing this application's GUI.
@@ -121,6 +164,19 @@ public class Application implements Listener, QMLListener, ActionListener {
                 showInFrame();
             }
         });
+    }
+
+    public final int getPropertyInt(String key, int def) {
+        String value = properties.getProperty(key);
+        if (value != null) {
+            try {
+                return Integer.parseInt(value);
+            } catch (NumberFormatException nfe) {
+                LOG.warn(String.format("invalid integer found in property: %s",
+                                       key));
+            }
+        }
+        return def;
     }
 
     public EventArchive getEventArchive() {
@@ -321,31 +377,36 @@ public class Application implements Listener, QMLListener, ActionListener {
      */
     static public void main(String args[]) {
         Debug.init();
+
+        // read property location from command line parameter
         ArgParser ap = new ArgParser("EEWD");
         ap.add("properties",
                "A resource, file path or URL to properties file\n Ex: http://myhost.com/xyz.props or file:/myhome/abc.pro\n See Java Documentation for java.net.URL class for more details",
                1);
-
         ap.parse(args);
 
-        String propArgs = null;
+        String propURL = "file:eewd.properties";
         String[] arg = ap.getArgValues("properties");
         if (arg != null) {
-            propArgs = arg[0];
+            propURL = arg[0];
         }
 
-        PropertyHandler propertyHandler = null;
+        Properties props = null;
         try {
-            propertyHandler = new PropertyHandler.Builder().setPropertiesFile(propArgs).setPropertyPrefix("main").build();
-        } catch (MalformedURLException murle) {
-            LOG.warn(murle.getMessage(), murle);
+            URL url = new URL(propURL);
+            InputStream in = url.openStream();
+            props = new Properties();
+            props.load(in);
+        } catch (MalformedURLException mue) {
+            LOG.fatal("invalid property file location", mue);
         } catch (IOException ioe) {
-            LOG.warn(ioe.getMessage(), ioe);
+            LOG.fatal("could not read property file", ioe);
         }
-        if (propertyHandler == null) {
-            propertyHandler = new PropertyHandler();
+        if (props == null) {
+            System.exit(1);
         }
-        Application app = new Application(propertyHandler);
+
+        Application app = new Application(props);
 
         //app.listen();
     }

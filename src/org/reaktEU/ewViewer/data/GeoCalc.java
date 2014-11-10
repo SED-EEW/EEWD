@@ -5,7 +5,7 @@
 package org.reaktEU.ewViewer.data;
 
 /**
- * Provides conversion and distance calculations on geodetic and cartesian
+ * Provides conversion and distance calculations on geodetic and Cartesian
  * coordinates
  *
  * @author Stephan Herrnkind <herrnkind@gempa.de>

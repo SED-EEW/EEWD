@@ -38,7 +38,7 @@ public class EventLayer extends OMGraphicHandlerLayer implements EventTimeListen
     public static final Paint SWavePaint = new Color(222, 38, 38);
 
     public EventLayer() {
-        URL url = getClass().getResource("/de/gempa/eewd/resources/icons/event.png");
+        URL url = getClass().getResource("/org/reaktEU/ewViewer/resources/icons/event.png");
         if (url != null) {
             icon = new ImageIcon(url);
         }
