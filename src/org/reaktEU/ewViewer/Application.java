@@ -395,11 +395,11 @@ public class Application implements Listener, QMLListener, ActionListener {
                     continue;
                 }
                 pois.add(new POI(
-                        parts[4], // name
-                        Double.parseDouble(parts[1]), // latitude
-                        Double.parseDouble(parts[0]), // longitude
-                        Double.parseDouble(parts[2]), // altitude
-                        Double.parseDouble(parts[3]) // amplification
+                        parts[0], // name
+                        Double.parseDouble(parts[2]), // latitude
+                        Double.parseDouble(parts[1]), // longitude
+                        Double.parseDouble(parts[3]), // altitude
+                        Double.parseDouble(parts[4]) // amplification
                 ));
 
             }
