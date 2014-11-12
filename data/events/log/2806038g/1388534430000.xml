@@ -60,7 +60,7 @@
     </origin>
     <magnitude publicID="smi:ch.ethz.sed/event/2806038g/magnitude/1">
       <mag>
-        <value>4.7</value>
+        <value>7.5</value>
         <uncertainty>0.3</uncertainty>
       </mag>
       <type>MVs</type>

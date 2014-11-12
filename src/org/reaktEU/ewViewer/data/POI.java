@@ -4,6 +4,8 @@
  */
 package org.reaktEU.ewViewer.data;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,6 +21,9 @@ public class POI {
     public double latitude;
     public double longitude;
     public double altitude;
+    public double amplification;
+
+    public Map<Shaking.Type, Shaking> shakingValues;
 
     public POI(String name, double latitude, double longitude,
                double altitude) {
@@ -26,6 +31,11 @@ public class POI {
         this.latitude = latitude;
         this.longitude = longitude;
         this.altitude = altitude;
+
+        // TODO
+        this.amplification = 0.7;
+
+        this.shakingValues = new ConcurrentHashMap();
     }
 
     @Override

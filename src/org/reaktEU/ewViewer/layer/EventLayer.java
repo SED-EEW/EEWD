@@ -45,8 +45,8 @@ public class EventLayer extends OMGraphicHandlerLayer implements EventTimeListen
 
         icon = new ImageIcon(app.getProperty(Application.PropertyEventIcon,
                                              "data/icons/event.png"));
-        vp = app.getProperty(Application.PropertyVP, 5.5);
-        vs = app.getProperty(Application.PropertyVS, 3.3);
+        vp = app.getProperty(Application.PropertyVP, Application.DefaultVP);
+        vs = app.getProperty(Application.PropertyVS, Application.DefaultVS);
     }
 
     @Override
@@ -61,7 +61,6 @@ public class EventLayer extends OMGraphicHandlerLayer implements EventTimeListen
             double hrs = vs * originTimeOffset;
             double rp = GeoCalc.SeismicWaveSurfaceDistance(event.depth * 1000, hrp, event.latitude);
             double rs = GeoCalc.SeismicWaveSurfaceDistance(event.depth * 1000, hrs, event.latitude);
-            System.out.println("hrp: " + hrp + ", rp: " + rp);
 
             OMCircle pWave = new OMCircle(event.latitude, event.longitude,
                                           rp, Length.METER);

@@ -23,11 +23,10 @@ public class EventTimeScheduler implements Runnable {
     private static final Logger LOG = LogManager.getLogger(EventTimeScheduler.class);
     private static final long UpdateInterval = 250;
 
-    private long maxUpdateMillis;
-    private Set<EventTimeListener> updateListeners;
+    private final long maxUpdateMillis;
+    private final Set<EventTimeListener> updateListeners;
     private ScheduledExecutorService executor;
     private EventData event;
-    private boolean dirty;
 
     public EventTimeScheduler() {
         double maxUpdateSeconds = Application.getInstance().getProperty(
@@ -37,7 +36,6 @@ public class EventTimeScheduler implements Runnable {
         updateListeners = new HashSet();
 
         event = null;
-        dirty = false;
     }
 
     synchronized public void addUpdateListener(EventTimeListener listener) {
@@ -61,7 +59,7 @@ public class EventTimeScheduler implements Runnable {
         Long offset = null;
         if (event != null) {
             offset = System.currentTimeMillis() - event.time;
-            LOG.debug(event.eventID + ": " + offset);
+            LOG.trace(event.eventID + ": " + offset);
             if (offset > maxUpdateMillis) {
                 offset = null;
                 cancel();

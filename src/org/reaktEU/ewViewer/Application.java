@@ -49,6 +49,7 @@ import net.ser1.stomp.Listener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.quakeml.xmlns.bedRt.x12.EventParameters;
+import org.reaktEU.ewViewer.data.ShakingCalculator;
 
 // TODO:
 // int cores = Runtime.getRuntime().availableProcessors();
@@ -106,6 +107,9 @@ public class Application implements Listener, QMLListener, ActionListener {
 
     private static final String ActionEventBrowser = "eventBrowser";
 
+    public static final double DefaultVP = 5.5;
+    public static final double DefaultVS = 3.3;
+
     private static Application instance = null;
 
     // gui components
@@ -124,6 +128,7 @@ public class Application implements Listener, QMLListener, ActionListener {
     private final EventFileScheduler eventFileScheduler;
     private final List<POI> targets;
     private final List<POI> stations;
+    private final ShakingCalculator shakingCalculator;
 
     public Application(Properties props) {
         instance = this;
@@ -163,6 +168,8 @@ public class Application implements Listener, QMLListener, ActionListener {
                                                    "data/stations.csv"));
         targets = readPOIs(properties.getProperty(PropertyTargetFile,
                                                   "data/targets.csv"));
+
+        shakingCalculator = new ShakingCalculator(targets, stations);
 
         // configure gui components
         configureMapPanel(mapPropertyHandler);
@@ -387,6 +394,7 @@ public class Application implements Listener, QMLListener, ActionListener {
 
     @Override
     public void processQML(EventParameters eventParameters, long offset) {
+        LOG.info("received event update");
         if (eventParameters == null) {
             return;
         }
@@ -399,6 +407,7 @@ public class Application implements Listener, QMLListener, ActionListener {
                 LOG.debug(t1 + ", " + offset + ", " + t2 + ", " + event.time);
             }
             eventTimeScheduler.setEvent(event);
+            shakingCalculator.processEvent(event);
             LOG.trace(event.toString());
         } catch (EventData.InvalidEventDataException ex) {
             LOG.warn(ex.getMessage());

@@ -4,7 +4,6 @@
  */
 package org.reaktEU.ewViewer.data;
 
-import java.util.Date;
 import java.util.Objects;
 import org.quakeml.xmlns.bedRt.x12.Event;
 import org.quakeml.xmlns.bedRt.x12.EventParameters;

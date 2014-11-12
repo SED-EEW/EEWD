@@ -10,6 +10,8 @@ import org.reaktEU.ewViewer.data.GeoCalc;
 import org.reaktEU.ewViewer.data.POI;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import static java.lang.Math.abs;
@@ -19,6 +21,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
 import javax.swing.ComboBoxModel;
+import javax.swing.SwingUtilities;
+import org.reaktEU.ewViewer.data.Shaking;
+import org.reaktEU.ewViewer.gmpe.AttenuationInt;
+import org.reaktEU.ewViewer.gmpe.AttenuationPGA;
+import org.reaktEU.ewViewer.gmpe.AttenuationPGV;
+import org.reaktEU.ewViewer.gmpe.AttenuationPSA;
 
 /**
  *
@@ -288,8 +296,13 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
     // End of variables declaration//GEN-END:variables
 
     private final List<POI> targets;
-    private EventData event;
+    private final double vs;
     private final DateFormat df;
+
+    private EventData event;
+    private Long originTimeOffset;
+    private boolean eventChanged;
+    private boolean timeChanged;
 
     private SpectrumPlot graph = null;
     private ComboBoxModel targetComboModel = null;
@@ -300,10 +313,18 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
      * @param targets
      */
     public EventPanel(List<POI> targets) {
+        Application app = Application.getInstance();
+
         this.targets = targets;
-        event = null;
+
+        vs = app.getProperty(Application.PropertyVS, Application.DefaultVS);
         df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+        event = null;
+        originTimeOffset = null;
+        eventChanged = true;
+        timeChanged = true;
 
         initComponents();
 
@@ -327,9 +348,14 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
                     }
                 }
             });
+            targetCombo.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    update();
+                }
+            });
         }
 
-        processEventTime(null, null);
+        update();
 
         List<Integer> scores = Arrays.asList(42, 13, 5, 19, 33, 65, 11, 12, 14, 15);
 
@@ -348,29 +374,46 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
 
     @Override
     synchronized public void processEventTime(EventData event, Long originTimeOffset) {
-        boolean enabled = event != null;
+        eventChanged = event != this.event;
+        timeChanged = originTimeOffset != this.originTimeOffset;
         this.event = event;
-        for (Component c : getComponents()) {
-            c.setEnabled(enabled);
+        this.originTimeOffset = originTimeOffset;
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                update();
+            }
+        });
+    }
+
+    synchronized private void update() {
+        if (eventChanged) {
+            boolean enabled = event != null;
+            for (Component c : getComponents()) {
+                c.setEnabled(enabled);
+            }
+
+            // update event information
+            if (event == null) {
+                eventLabel.setText("-");
+                timeLabel.setText("-");
+                magnitudeLabel.setText("-");
+                locationLabel.setText("-");
+                depthLabel.setText("-");
+            } else {
+                eventLabel.setText(event.eventID);
+                magnitudeLabel.setText(String.format("%.1f", event.magnitude));
+                locationLabel.setText(String.format("%.2f%s %.2f%s",
+                                                    abs(event.latitude),
+                                                    event.latitude < 0 ? "S" : "N",
+                                                    abs(event.longitude),
+                                                    event.longitude < 0 ? "W" : "E"));
+                depthLabel.setText(String.format("%.1fkm", event.depth));
+            }
         }
 
-        if (event == null) {
-            eventLabel.setText("-");
-            timeLabel.setText("-");
-            magnitudeLabel.setText("-");
-            locationLabel.setText("-");
-            depthLabel.setText("-");
-
-            timeRemainingLabel.setText("-");
-            pgaLabel.setText("-");
-            pgvLabel.setText("-");
-            psaLabel.setText("-");
-            intensityLabel.setText("-");
-            likelihoodLabel.setText("-");
-
-        } else {
-            eventLabel.setText(event.eventID);
-
+        // update origin time offset information
+        if (timeChanged && event != null) {
             if (originTimeOffset == null) {
                 timeLabel.setText(df.format(event.time));
             } else {
@@ -378,30 +421,39 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
                                                 df.format(event.time),
                                                 (double) originTimeOffset / 1000.0));
             }
+        }
 
-            magnitudeLabel.setText(String.format("%.1f", event.magnitude));
-            locationLabel.setText(String.format("%.2f%s %.2f%s",
-                                                abs(event.latitude),
-                                                event.latitude < 0 ? "S" : "N",
-                                                abs(event.longitude),
-                                                event.longitude < 0 ? "W" : "E"));
-            depthLabel.setText(String.format("%.1fkm", event.depth));
-
-            if (targetCombo.getSelectedItem() != null && originTimeOffset != null) {
-                POI target = (POI) targetCombo.getSelectedItem();
-                double vs = 3.3; // km/s
+        // update target information
+        POI target = (POI) targetCombo.getSelectedItem();
+        if (target == null) {
+            timeRemainingLabel.setText("-");
+            pgaLabel.setText("-");
+            pgvLabel.setText("-");
+            psaLabel.setText("-");
+            intensityLabel.setText("-");
+            likelihoodLabel.setText("-");
+        } else {
+            if (originTimeOffset == null) {
+                timeRemainingLabel.setText("-");
+            } else {
                 double[] pEvent = GeoCalc.Geo2Cart(event.latitude, event.longitude, -event.depth * 1000);
                 double[] pTarget = GeoCalc.Geo2Cart(target.latitude, target.longitude, target.altitude);
                 double distance = GeoCalc.Distance3D(pEvent, pTarget);
-//                System.out.println(Arrays.toString(pEvent) + "  -  "
-//                                   + Arrays.toString(pTarget) + "  -  "
-//                                   + distance);
                 double eta = distance / vs - originTimeOffset;
                 timeRemainingLabel.setText(String.format("%.1fs", eta / 1000.0));
-            } else {
-                timeRemainingLabel.setText("-");
             }
+            Shaking s;
+            s = target.shakingValues.get(Shaking.Type.PGA);
+            pgaLabel.setText(s == null ? "-" : String.format("%.2fg", s.getShakingExpected()));
+            s = target.shakingValues.get(Shaking.Type.PGV);
+            pgvLabel.setText(s == null ? "-" : String.format("%.2fcm/s", s.getShakingExpected()));
+            s = target.shakingValues.get(Shaking.Type.PSA);
+            psaLabel.setText(s == null ? "-" : String.format("%.1fg", s.getShakingExpected()));
+            s = target.shakingValues.get(Shaking.Type.Intensity);
+            intensityLabel.setText(s == null ? "-" : Integer.toString((int) (s.getShakingExpected() + 0.5)));
         }
+        eventChanged = false;
+        timeChanged = false;
     }
 
 }
