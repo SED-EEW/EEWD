@@ -82,11 +82,14 @@ public class Application implements Listener, QMLListener, ActionListener {
     public static final String PropertyEventIcon = "eventIcon";
     public static final String PropertyTimeoutAfterOriginTime = "timeoutAfterOriginTime";
 
-    public static final String PropertyUsePGA = "usePGA";
-    public static final String PropertyUsePGV = "usePGV";
-    public static final String PropertyUseI = "useI";
-    public static final String PropertyUseSpectra = "useSpectra";
-    public static final String PropertyUseSpectrumT = "useSpectrumT";
+    public static final String PropertyAmpliProxyName = "ampliProxyName";
+
+    public static final String PropertyGMPE = "gmpe";
+    public static final String PropertyGMICE = "gmice";
+
+    public static final String PropertyPSAControlPeriod = "controlPeriod";
+    public static final String PropertyPSAPeriods = "periods";
+
     public static final String PropertyUseOther = "useOther";
     public static final String PropertyOtherName = "otherName";
     public static final String PropertyPeriods = "periods";
@@ -95,8 +98,7 @@ public class Application implements Listener, QMLListener, ActionListener {
     public static final String PropertyUseTables = "useTables";
     public static final String PropertyUseEquations = "useEquations";
     public static final String PropertyRIsHypocentral = "rIsHypocentral";
-    public static final String PropertyAmpliProxyName = "ampliProxyName";
-    public static final String PropertyAmpliProxyValueAtTarget = "ampliProxyValueAtTarget";
+
     public static final String PropertyIntensityParameter = "intensityParameter";
     public static final String PropertyScenarioParameter = "scenarioParameter";
     public static final String PropertyRadiusOfInfluence = "radiusOfInfluence";
@@ -188,6 +190,10 @@ public class Application implements Listener, QMLListener, ActionListener {
         return instance;
     }
 
+    public Properties getProperties() {
+        return properties;
+    }
+
     public String getProperty(String key, String def) {
         return properties.getProperty(key, def);
     }
@@ -223,6 +229,37 @@ public class Application implements Listener, QMLListener, ActionListener {
         if (value != null) {
             try {
                 return Double.parseDouble(value);
+            } catch (NumberFormatException nfe) {
+                LOG.warn(String.format("invalid double found in property: %s",
+                                       key));
+            }
+        }
+        return def;
+    }
+
+    public final double[] getProperty(String key, double[] def) {
+        String value = properties.getProperty(key);
+        if (value != null) {
+            String values[] = value.split(",");
+            try {
+                double[] retn = new double[values.length];
+                for (int i = 0; i < values.length; ++i) {
+                    retn[i] = Double.parseDouble(values[i]);
+                }
+                return retn;
+            } catch (NumberFormatException nfe) {
+                LOG.warn(String.format("invalid double found in property: %s",
+                                       key));
+            }
+        }
+        return def;
+    }
+
+    public final Double getProperty(String key, Double def) {
+        String value = properties.getProperty(key);
+        if (value != null) {
+            try {
+                return Double.valueOf(value);
             } catch (NumberFormatException nfe) {
                 LOG.warn(String.format("invalid double found in property: %s",
                                        key));

@@ -5,11 +5,17 @@
  */
 package org.reaktEU.ewViewer.data;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.reaktEU.ewViewer.Application;
+import static org.reaktEU.ewViewer.Application.PropertyEventArchive;
 import org.reaktEU.ewViewer.gmice.IntensityFromAcceleration;
 import org.reaktEU.ewViewer.gmice.IntensityFromVelocity;
 import org.reaktEU.ewViewer.gmpe.AttenuationInt;
@@ -28,30 +34,98 @@ public class ShakingCalculator implements Runnable {
     private final List<POI> targets;
     private final List<POI> stations;
     private final BlockingQueue<EventData> queue;
-    //private final ExecutorService executor;
 
-    private AttenuationPGA gmpePGAImpl = null;
-    private AttenuationPGV gmpePGVImpl = null;
-    private AttenuationPSA gmpePSAImpl = null;
-    private AttenuationInt gmpeIntImpl = null;
-    private IntensityFromAcceleration gmicePGA = null;
-    private IntensityFromVelocity gmicePGV = null;
+    private final String ampliProxyName;
+    private AttenuationPGA gmpePGAImpl;
+    private AttenuationPGV gmpePGVImpl;
+    private AttenuationPSA gmpePSAImpl;
+    private AttenuationInt gmpeIntImpl;
+    private IntensityFromAcceleration gmicePGAImpl = null;
+    private IntensityFromVelocity gmicePGVImpl = null;
+
+    private Double psaControlPeriod = null;
+    private double[] psaPeriods = null;
 
     public ShakingCalculator(List<POI> targets, List<POI> stations) {
         this.targets = targets;
         this.stations = stations;
 
+        Application app = Application.getInstance();
+
+        ampliProxyName = app.getProperty(Application.PropertyAmpliProxyName, "");
+
+        // cache already loaded instances since one class may implement
+        // multiple interfaces
+        Map<String, Object> cache = new HashMap();
+        String prefix;
+        Object obj;
+
+        // gmpe PGA
+        prefix = Application.PropertyGMPE + "." + Shaking.Type.PGA;
+        gmpePGAImpl = (AttenuationPGA) loadImpl(prefix, cache, AttenuationPGA.class);
+
+        // gmpe PGV
+        prefix = Application.PropertyGMPE + "." + Shaking.Type.PGV;
+        gmpePGVImpl = (AttenuationPGV) loadImpl(prefix, cache, AttenuationPGV.class);
+
+        // gmpe PSA
+        prefix = Application.PropertyGMPE + "." + Shaking.Type.PSA;
+        gmpePSAImpl = (AttenuationPSA) loadImpl(prefix, cache, AttenuationPSA.class);
+        if (gmpePSAImpl != null) {
+            psaControlPeriod = app.getProperty(prefix + "." + Application.PropertyPSAControlPeriod, (Double) null);
+            psaPeriods = app.getProperty(prefix + "." + Application.PropertyPSAPeriods, (double[]) null);
+        }
+
+        // gmpe Intensity
+        prefix = Application.PropertyGMPE + "." + Shaking.Type.Intensity;
+        gmpeIntImpl = (AttenuationInt) loadImpl(prefix, cache, AttenuationInt.class);
+
+        // derive intensity from acceleration/velocity if gmpe intensity
+        // implementation is not available
+        if (gmpeIntImpl == null) {
+            // gmice PGA
+            prefix = Application.PropertyGMICE + "." + Shaking.Type.PGA;
+            gmicePGAImpl = (IntensityFromAcceleration) loadImpl(prefix, cache, IntensityFromAcceleration.class);
+
+            // gmice PGV
+            prefix = Application.PropertyGMICE + "." + Shaking.Type.PGV;
+            gmicePGVImpl = (IntensityFromVelocity) loadImpl(prefix, cache, IntensityFromVelocity.class);
+        }
+
         queue = new LinkedBlockingQueue();
         new Thread(this).start();
+    }
 
-        //executor = Executors.newFixedThreadPool(1);
-        //executor.submit(this);
-        org.reaktEU.ewViewer.gmpe.impl.Swiss gmpe = new org.reaktEU.ewViewer.gmpe.impl.Swiss();
-        org.reaktEU.ewViewer.gmice.impl.Swiss gmice = new org.reaktEU.ewViewer.gmice.impl.Swiss();
-        this.gmpePGAImpl = gmpe;
-        this.gmpePGVImpl = gmpe;
-        this.gmpePSAImpl = gmpe;
-        this.gmicePGV = gmice;
+    private Object loadImpl(String prefix, Map<String, Object> cache, Class type) {
+        String className = Application.getInstance().getProperty(
+                prefix + ".class", (String) null);
+        if (className == null) {
+            return null;
+        }
+
+        Object obj = cache.get(className);
+        if (obj == null) {
+            try {
+                Class c = Class.forName(className);
+                obj = c.newInstance();
+                cache.put(className, obj);
+                LOG.debug("instance of " + className + " created for " + prefix);
+            } catch (ClassNotFoundException cnfe) {
+                LOG.error("could not find " + prefix + " class " + className);
+            } catch (InstantiationException | IllegalAccessException ex) {
+                LOG.error("could not create instance of " + prefix
+                          + " class " + className, ex);
+            }
+        } else {
+            LOG.debug("using instance of " + className + " for " + prefix);
+        }
+
+        if (!type.isInstance(obj)) {
+            LOG.error(prefix + " class " + className + " not an instance of "
+                      + type.getName());
+            return null;
+        }
+        return obj;
     }
 
     @Override
@@ -67,7 +141,7 @@ public class ShakingCalculator implements Runnable {
                 }
             } catch (InterruptedException ex) {
                 LOG.error("take interrupted");
-                return;
+                continue;
             }
 
             LOG.debug("processing event");
@@ -81,13 +155,13 @@ public class ShakingCalculator implements Runnable {
             //  - continue with stations/targets without PGA/PGV
             //
             // make sure the same algorithm is used for one all POIs
-            AttenuationPGA gmpePGA = this.gmpePGAImpl;
-            AttenuationPGV gmpePGV = this.gmpePGVImpl;
-            AttenuationPSA gmpePSA = this.gmpePSAImpl;
-            AttenuationInt gmpeInt = this.gmpeIntImpl;
+            AttenuationPGA gmpePGA = gmpePGAImpl;
+            AttenuationPGV gmpePGV = gmpePGVImpl;
+            AttenuationPSA gmpePSA = gmpePSAImpl;
+            AttenuationInt gmpeInt = gmpeIntImpl;
 
-            IntensityFromAcceleration gmicePGA = this.gmicePGA;
-            IntensityFromVelocity gmicePGV = this.gmicePGV;
+            IntensityFromAcceleration gmicePGA = gmicePGAImpl;
+            IntensityFromVelocity gmicePGV = gmicePGVImpl;
 
             Shaking s;
             for (POI target : targets) {
@@ -95,7 +169,7 @@ public class ShakingCalculator implements Runnable {
                     s = gmpePGA.getPGA(
                             event.magnitude, event.latitude, event.longitude,
                             event.depth, target.latitude, target.longitude,
-                            target.altitude, "VS30", target.amplification,
+                            target.altitude, ampliProxyName, target.amplification,
                             event.eventParameters);
                     target.shakingValues.put(Shaking.Type.PGA, s);
                     if (gmpeInt == null && gmicePGA != null) {
@@ -107,7 +181,7 @@ public class ShakingCalculator implements Runnable {
                     s = gmpePGV.getPGV(
                             event.magnitude, event.latitude, event.longitude,
                             event.depth, target.latitude, target.longitude,
-                            target.altitude, "VS30", target.amplification,
+                            target.altitude, ampliProxyName, target.amplification,
                             event.eventParameters);
                     target.shakingValues.put(Shaking.Type.PGV, s);
                     if (gmpeInt == null && gmicePGV != null) {
@@ -116,18 +190,20 @@ public class ShakingCalculator implements Runnable {
                     }
                 }
                 if (gmpePSA != null) {
-                    s = gmpePSA.getPSA(
-                            event.magnitude, event.latitude, event.longitude,
-                            event.depth, target.latitude, target.longitude,
-                            target.altitude, "VS30", target.amplification,
-                            2.0, event.eventParameters);
-                    target.shakingValues.put(Shaking.Type.PSA, s);
+                    if (psaControlPeriod != null) {
+                        s = gmpePSA.getPSA(
+                                event.magnitude, event.latitude, event.longitude,
+                                event.depth, target.latitude, target.longitude,
+                                target.altitude, ampliProxyName, target.amplification,
+                                psaControlPeriod, event.eventParameters);
+                        target.shakingValues.put(Shaking.Type.PSA, s);
+                    }
                 }
                 if (gmpeInt != null) {
                     s = gmpeInt.getInt(
                             event.magnitude, event.latitude, event.longitude,
                             event.depth, target.latitude, target.longitude,
-                            target.altitude, "VS30", target.amplification,
+                            target.altitude, ampliProxyName, target.amplification,
                             event.eventParameters);
                     target.shakingValues.put(Shaking.Type.Intensity, s);
                 }
