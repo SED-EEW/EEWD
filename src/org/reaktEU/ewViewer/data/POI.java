@@ -26,14 +26,12 @@ public class POI {
     public Map<Shaking.Type, Shaking> shakingValues;
 
     public POI(String name, double latitude, double longitude,
-               double altitude) {
+               double altitude, double amplification) {
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
         this.altitude = altitude;
-
-        // TODO
-        this.amplification = 0.7;
+        this.amplification = amplification;
 
         this.shakingValues = new ConcurrentHashMap();
     }

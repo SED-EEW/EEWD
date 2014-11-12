@@ -390,15 +390,17 @@ public class Application implements Listener, QMLListener, ActionListener {
             String line;
             String[] parts;
             while ((line = br.readLine()) != null) {
-                parts = line.split(",", 4);
-                if (parts.length != 4) {
+                parts = line.split(",", 5);
+                if (parts.length != 5) {
                     continue;
                 }
                 pois.add(new POI(
-                        parts[3], // name
+                        parts[4], // name
                         Double.parseDouble(parts[1]), // latitude
                         Double.parseDouble(parts[0]), // longitude
-                        Double.parseDouble(parts[2]))); // altitude
+                        Double.parseDouble(parts[2]), // altitude
+                        Double.parseDouble(parts[3]) // amplification
+                ));
 
             }
             br.close();
