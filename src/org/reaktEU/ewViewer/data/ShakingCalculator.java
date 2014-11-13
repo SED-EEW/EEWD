@@ -33,6 +33,7 @@ public class ShakingCalculator implements Runnable {
 
     private final List<POI> targets;
     private final List<POI> stations;
+    private final ShakeMap shakeMap;
     private final BlockingQueue<EventData> queue;
 
     private final String ampliProxyName;
@@ -43,12 +44,10 @@ public class ShakingCalculator implements Runnable {
     private IntensityFromAcceleration gmicePGAImpl = null;
     private IntensityFromVelocity gmicePGVImpl = null;
 
-    private Double psaControlPeriod = null;
-    private double[] psaPeriods = null;
-
-    public ShakingCalculator(List<POI> targets, List<POI> stations) {
+    public ShakingCalculator(List<POI> targets, List<POI> stations, ShakeMap shakeMap) {
         this.targets = targets;
         this.stations = stations;
+        this.shakeMap = shakeMap;
 
         Application app = Application.getInstance();
 
@@ -71,10 +70,6 @@ public class ShakingCalculator implements Runnable {
         // gmpe PSA
         prefix = Application.PropertyGMPE + "." + Shaking.Type.PSA;
         gmpePSAImpl = (AttenuationPSA) loadImpl(prefix, cache, AttenuationPSA.class);
-        if (gmpePSAImpl != null) {
-            psaControlPeriod = app.getProperty(prefix + "." + Application.PropertyPSAControlPeriod, (Double) null);
-            psaPeriods = app.getProperty(prefix + "." + Application.PropertyPSAPeriods, (double[]) null);
-        }
 
         // gmpe Intensity
         prefix = Application.PropertyGMPE + "." + Shaking.Type.Intensity;
@@ -130,6 +125,9 @@ public class ShakingCalculator implements Runnable {
 
     @Override
     public void run() {
+        Application app = Application.getInstance();
+        Double controlPeriod = app.getControlPeriod();
+        double[] periods = app.getPeriods();
         while (true) {
             EventData event;
             try {
@@ -190,12 +188,12 @@ public class ShakingCalculator implements Runnable {
                     }
                 }
                 if (gmpePSA != null) {
-                    if (psaControlPeriod != null) {
+                    if (controlPeriod != null) {
                         s = gmpePSA.getPSA(
                                 event.magnitude, event.latitude, event.longitude,
                                 event.depth, target.latitude, target.longitude,
                                 target.altitude, ampliProxyName, target.amplification,
-                                psaControlPeriod, event.eventParameters);
+                                controlPeriod, event.eventParameters);
                         target.shakingValues.put(Shaking.Type.PSA, s);
                     }
                 }

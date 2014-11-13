@@ -12,7 +12,7 @@ import com.bbn.openmap.omGraphics.OMRaster;
 import com.bbn.openmap.proj.Length;
 import org.reaktEU.ewViewer.data.EventData;
 import org.reaktEU.ewViewer.data.EventTimeListener;
-import org.reaktEU.ewViewer.data.GeoCalc;
+import org.reaktEU.ewViewer.utils.GeoCalc;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.MediaTracker;

@@ -6,6 +6,7 @@ package org.reaktEU.ewViewer.gmpe.impl;
  */
 // import useful packages
 //import org.gavaghan.geodesy.*; // used to compute the hypocentral distance;
+import org.reaktEU.ewViewer.utils.GeoCalc;
 import org.reaktEU.ewViewer.gmpe.AttenuationPGV;
 import org.reaktEU.ewViewer.gmpe.AttenuationPGA;
 import org.reaktEU.ewViewer.gmpe.AttenuationPSA;

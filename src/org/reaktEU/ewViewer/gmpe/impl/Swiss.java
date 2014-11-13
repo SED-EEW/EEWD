@@ -5,6 +5,7 @@ package org.reaktEU.ewViewer.gmpe.impl;
  * of Edwards and Faeh (BSSA,2013) following
  * the parameterisation by Cauzzi et al. (GJI,2014)
  */
+import org.reaktEU.ewViewer.utils.GeoCalc;
 import org.reaktEU.ewViewer.gmpe.AttenuationPGV;
 import org.reaktEU.ewViewer.gmpe.AttenuationPGA;
 import org.reaktEU.ewViewer.gmpe.AttenuationPSA;

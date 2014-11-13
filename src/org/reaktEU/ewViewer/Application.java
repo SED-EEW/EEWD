@@ -49,6 +49,7 @@ import net.ser1.stomp.Listener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.quakeml.xmlns.bedRt.x12.EventParameters;
+import org.reaktEU.ewViewer.data.ShakeMap;
 import org.reaktEU.ewViewer.data.ShakingCalculator;
 
 // TODO:
@@ -76,6 +77,13 @@ public class Application implements Listener, QMLListener, ActionListener {
     public static final String PropertyShowStationShaking = "showStationShaking";
     public static final String PropertyShowStationAlert = "showStationAlert";
 
+    // shake map
+    public static final String PropertySM = "shakeMap";
+    public static final String PropertySMFile = PropertySM + ".file";
+    public static final String PropertySMParameter = PropertySM + ".parameter";
+    public static final String PropertySMMinValue = PropertySM + ".minValue";
+    public static final String PropertySMMaxValue = PropertySM + ".maxValue";
+
     // event
     public static final String PropertyVP = "vp";
     public static final String PropertyVS = "vs";
@@ -87,16 +95,13 @@ public class Application implements Listener, QMLListener, ActionListener {
     public static final String PropertyGMPE = "gmpe";
     public static final String PropertyGMICE = "gmice";
 
-    public static final String PropertyPSAControlPeriod = "controlPeriod";
-    public static final String PropertyPSAPeriods = "periods";
+    public static final String PropertyControlPeriod = "controlPeriod";
+    public static final String PropertyPeriods = "periods";
+    public static final String PropertyUseFequencies = "useFrequencies";
 
     public static final String PropertyUseOther = "useOther";
     public static final String PropertyOtherName = "otherName";
-    public static final String PropertyPeriods = "periods";
-    public static final String PropertyUseFequencies = "useFrequencies";
-    public static final String PropertySpectraAreDRS = "spectraAreDRS";
-    public static final String PropertyUseTables = "useTables";
-    public static final String PropertyUseEquations = "useEquations";
+
     public static final String PropertyRIsHypocentral = "rIsHypocentral";
 
     public static final String PropertyIntensityParameter = "intensityParameter";
@@ -130,7 +135,12 @@ public class Application implements Listener, QMLListener, ActionListener {
     private final EventFileScheduler eventFileScheduler;
     private final List<POI> targets;
     private final List<POI> stations;
+    private final ShakeMap shakeMap;
     private final ShakingCalculator shakingCalculator;
+
+    private Double controlPeriod = null;
+    private double[] periods = null;
+    private boolean useFrequencies = false;
 
     public Application(Properties props) {
         instance = this;
@@ -170,8 +180,13 @@ public class Application implements Listener, QMLListener, ActionListener {
                                                    "data/stations.csv"));
         targets = readPOIs(properties.getProperty(PropertyTargetFile,
                                                   "data/targets.csv"));
+        shakeMap = new ShakeMap();
 
-        shakingCalculator = new ShakingCalculator(targets, stations);
+        controlPeriod = getProperty(PropertyControlPeriod, (Double) null);
+        periods = getProperty(PropertyPeriods, (double[]) null);
+        useFrequencies = getProperty(PropertyUseFequencies, false);
+
+        shakingCalculator = new ShakingCalculator(targets, stations, shakeMap);
 
         // configure gui components
         configureMapPanel(mapPropertyHandler);
@@ -184,6 +199,18 @@ public class Application implements Listener, QMLListener, ActionListener {
                 showInFrame();
             }
         });
+    }
+
+    public Double getControlPeriod() {
+        return controlPeriod;
+    }
+
+    public double[] getPeriods() {
+        return periods;
+    }
+
+    public boolean isUseFrequencies() {
+        return useFrequencies;
     }
 
     public static final Application getInstance() {
@@ -395,11 +422,11 @@ public class Application implements Listener, QMLListener, ActionListener {
                     continue;
                 }
                 pois.add(new POI(
-                        parts[0], // name
                         Double.parseDouble(parts[2]), // latitude
                         Double.parseDouble(parts[1]), // longitude
                         Double.parseDouble(parts[3]), // altitude
-                        Double.parseDouble(parts[4]) // amplification
+                        Double.parseDouble(parts[4]), // amplification
+                        parts[0] // name
                 ));
 
             }

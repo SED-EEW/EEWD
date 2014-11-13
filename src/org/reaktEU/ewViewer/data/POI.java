@@ -13,26 +13,18 @@ import org.apache.logging.log4j.Logger;
  *
  * @author Stephan Herrnkind <herrnkind@gempa.de>
  */
-public class POI {
+public class POI extends AmplificationPoint {
 
     private static final Logger LOG = LogManager.getLogger(POI.class);
 
     public String name;
-    public double latitude;
-    public double longitude;
-    public double altitude;
-    public double amplification;
-
     public Map<Shaking.Type, Shaking> shakingValues;
 
-    public POI(String name, double latitude, double longitude,
-               double altitude, double amplification) {
-        this.name = name;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.altitude = altitude;
-        this.amplification = amplification;
+    public POI(double latitude, double longitude, double altitude,
+               double amplification, String name) {
+        super(latitude, longitude, altitude, amplification);
 
+        this.name = name;
         this.shakingValues = new ConcurrentHashMap();
     }
 

@@ -2,7 +2,7 @@
  * Copyright (C) 2014 by gempa GmbH - http://gempa.de
  * License: http://www.gnu.org/licenses/gpl.html GPL version 2 or higher
  */
-package org.reaktEU.ewViewer.data;
+package org.reaktEU.ewViewer.utils;
 
 /**
  * Provides conversion and distance calculations on geodetic and Cartesian

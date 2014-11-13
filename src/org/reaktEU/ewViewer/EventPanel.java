@@ -6,7 +6,7 @@ package org.reaktEU.ewViewer;
 
 import org.reaktEU.ewViewer.data.EventData;
 import org.reaktEU.ewViewer.data.EventTimeListener;
-import org.reaktEU.ewViewer.data.GeoCalc;
+import org.reaktEU.ewViewer.utils.GeoCalc;
 import org.reaktEU.ewViewer.data.POI;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
@@ -23,10 +23,7 @@ import java.util.TimeZone;
 import javax.swing.ComboBoxModel;
 import javax.swing.SwingUtilities;
 import org.reaktEU.ewViewer.data.Shaking;
-import org.reaktEU.ewViewer.gmpe.AttenuationInt;
-import org.reaktEU.ewViewer.gmpe.AttenuationPGA;
-import org.reaktEU.ewViewer.gmpe.AttenuationPGV;
-import org.reaktEU.ewViewer.gmpe.AttenuationPSA;
+import org.reaktEU.ewViewer.utils.RomanNumber;
 
 /**
  *
@@ -295,6 +292,8 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
     private javax.swing.JLabel timeRemainingLabel;
     // End of variables declaration//GEN-END:variables
 
+    private static final double EarthAcceleration = 9.807;
+
     private final List<POI> targets;
     private final double vs;
     private final DateFormat df;
@@ -444,13 +443,29 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
             }
             Shaking s;
             s = target.shakingValues.get(Shaking.Type.PGA);
-            pgaLabel.setText(s == null ? "-" : String.format("%.2fg", s.getShakingExpected()));
+            pgaLabel.setText(s == null ? "-" : String.format("%.2fg", s.getShakingExpected() / EarthAcceleration));
             s = target.shakingValues.get(Shaking.Type.PGV);
-            pgvLabel.setText(s == null ? "-" : String.format("%.2fcm/s", s.getShakingExpected()));
+            pgvLabel.setText(s == null ? "-" : String.format("%.2fcm/s", s.getShakingExpected() * 100));
             s = target.shakingValues.get(Shaking.Type.PSA);
-            psaLabel.setText(s == null ? "-" : String.format("%.1fg", s.getShakingExpected()));
+            if (s == null) {
+                psaLabel.setText("-");
+            } else {
+                Application app = Application.getInstance();
+                String controlText = "";
+                if (app.getControlPeriod() != null) {
+                    if (app.isUseFrequencies()) {
+                        controlText = String.format("%.1fHz", 1 / app.getControlPeriod());
+                    } else {
+                        controlText = app.getControlPeriod() + "s";
+                    }
+                }
+                psaLabel.setText(String.format("%.1fg (at %s)",
+                                               s.getShakingExpected() / EarthAcceleration,
+                                               controlText));
+            }
             s = target.shakingValues.get(Shaking.Type.Intensity);
-            intensityLabel.setText(s == null ? "-" : Integer.toString((int) (s.getShakingExpected() + 0.5)));
+            intensityLabel.setText(s == null ? "-" : RomanNumber.toString(
+                    (int) (s.getShakingExpected() + 0.5)));
         }
         eventChanged = false;
         timeChanged = false;

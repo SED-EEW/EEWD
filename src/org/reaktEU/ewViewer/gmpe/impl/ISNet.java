@@ -5,6 +5,7 @@ package org.reaktEU.ewViewer.gmpe.impl;
  * Akkar and Bommer (BSSA,2007) for M >= 4, Emolo et al. (JGE,2010) for smaller magnitudes.
  */
 // import useful packages
+import org.reaktEU.ewViewer.utils.GeoCalc;
 import org.reaktEU.ewViewer.gmpe.AttenuationPGV;
 import org.reaktEU.ewViewer.gmpe.AttenuationPGA;
 import org.quakeml.xmlns.bedRt.x12.EventParameters;
