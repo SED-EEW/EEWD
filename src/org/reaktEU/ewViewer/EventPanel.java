@@ -443,9 +443,11 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
             }
             Shaking s;
             s = target.shakingValues.get(Shaking.Type.PGA);
-            pgaLabel.setText(s == null ? "-" : String.format("%.2fg", s.getShakingExpected() / EarthAcceleration));
+            pgaLabel.setText(s == null ? "-"
+                             : String.format("%.2fg", s.expectedSI / EarthAcceleration));
             s = target.shakingValues.get(Shaking.Type.PGV);
-            pgvLabel.setText(s == null ? "-" : String.format("%.2fcm/s", s.getShakingExpected() * 100));
+            pgvLabel.setText(s == null ? "-"
+                             : String.format("%.2fcm/s", s.expectedSI * 100));
             s = target.shakingValues.get(Shaking.Type.PSA);
             if (s == null) {
                 psaLabel.setText("-");
@@ -460,12 +462,12 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
                     }
                 }
                 psaLabel.setText(String.format("%.1fg (at %s)",
-                                               s.getShakingExpected() / EarthAcceleration,
+                                               s.expectedSI / EarthAcceleration,
                                                controlText));
             }
             s = target.shakingValues.get(Shaking.Type.Intensity);
             intensityLabel.setText(s == null ? "-" : RomanNumber.toString(
-                    (int) (s.getShakingExpected() + 0.5)));
+                    (int) (s.expectedSI + 0.5)));
         }
         eventChanged = false;
         timeChanged = false;

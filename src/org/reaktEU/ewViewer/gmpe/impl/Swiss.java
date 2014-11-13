@@ -9,12 +9,13 @@ import org.reaktEU.ewViewer.utils.GeoCalc;
 import org.reaktEU.ewViewer.gmpe.AttenuationPGV;
 import org.reaktEU.ewViewer.gmpe.AttenuationPGA;
 import org.reaktEU.ewViewer.gmpe.AttenuationPSA;
+import org.reaktEU.ewViewer.gmpe.AttenuationDRS;
 import org.quakeml.xmlns.bedRt.x12.EventParameters;
 import org.reaktEU.ewViewer.data.*;
 
 import static java.lang.Math.*;
 
-public class Swiss implements AttenuationPGA, AttenuationPGV, AttenuationPSA {
+public class Swiss implements AttenuationPGA, AttenuationPGV, AttenuationPSA, AttenuationDRS {
 
     public static final double[][] CofsForeland = {
         {-4.8734444890499615e+00, 5.7255139238339519e+00, -3.2351171788383506e+00, 1.1753012922786823e+00, -2.2577904419461686e-01, 2.1104710708239459e-02, -7.6233728465190120e-04, 7.4754695839979135e-01, -2.8587026680357791e-01, 2.8522264972244808e-02, -1.4745926647067747e-03, -1.8388979803739185e+00, -7.7828595688719682e-01, 2.2898722461238621e-01, -1.2605940688534385e-02, 7.8494228230835739e-01, 6.3277279490167593e-01, -1.7398944574490496e-01, 1.0325971760028901e-02, -1.5205723450111922e-01, -1.2267103903416217e-01, 3.4545766610307123e-02, -2.1674727351593762e-03, 4.4371298316269785e-02},
@@ -44,23 +45,30 @@ public class Swiss implements AttenuationPGA, AttenuationPGV, AttenuationPSA {
         {-8.6587514514963164e+00, 7.8581770083532456e+00, -4.3760448590555843e+00, 1.5273946197406352e+00, -2.8470661638661593e-01, 2.6135730146693126e-02, -9.3313042977851107e-04, 3.1153778360318634e+00, -1.9437512823572183e+00, 3.5213587900454657e-01, -2.0160547327491181e-02, -4.5671124740347082e+00, 1.5857541868942817e+00, -2.3340517975581701e-01, 1.3453167374150247e-02, 1.9925733004925434e+00, -5.8505507113696154e-01, 6.3500948383173689e-02, -2.9092300011671602e-03, -3.2315615232297668e-01, 8.0336565978056440e-02, -5.1093250020588076e-03, 3.7954615973731321e-05, 4.9975855017753479e-02}
     };
 
+    public static final double PI2_4 = 4 * PI * PI;
+
     public static final double[][] getCofs(double lat, double lon) {
         return (0.39 * lon + 44) < lat ? CofsForeland : CofsAlpine;
     }
 
-    public Shaking getPGA(double Mag, double sourceLat, double sourceLon, double sourceDepthM, double targetLat, double targetLon, double ElevM, String ampType, double deltaIvalue, EventParameters ParamfromQuakeML) {
+    @Override
+    public Shaking getPGA(double magnitude, double sourceLat, double sourceLon,
+                          double sourceDepthM, double targetLat, double targetLon,
+                          double targetElevM, String amplificationType,
+                          double amplificationProxyValueSI,
+                          EventParameters eventParameters) {
 
         // Returns median PGA, 16th-percentile PGA, 84th percentile PGA in m/s2
         // Mag is the magnitude from the EW message
         // ampType in Switzerland is deltaI, i.e. intensity increments
         // GMP coefficients are region dependent, i.e. different in the Swiss Alps and in the Swiss Foreland
         double rmin = 3; // set cut-off distance
-        double Mw = Mag;	// reasonable assumption in CH
+        double Mw = magnitude;	// reasonable assumption in CH
         double[][] cofs = getCofs(sourceLat, sourceLon);
 
         // Compute hypocentral distance
         double[] pEvent = GeoCalc.Geo2Cart(sourceLat, sourceLon, -sourceDepthM);
-        double[] pTarget = GeoCalc.Geo2Cart(targetLat, targetLon, ElevM);
+        double[] pTarget = GeoCalc.Geo2Cart(targetLat, targetLon, targetElevM);
         double distance = GeoCalc.Distance3D(pEvent, pTarget);
 
         double Rh = distance / 1000; // in kilometers
@@ -79,7 +87,7 @@ public class Swiss implements AttenuationPGA, AttenuationPGV, AttenuationPSA {
         double logpga = cofs[0][0] + cofs[0][1] * Mw + cofs[0][2] * pow(Mw, 2) + cofs[0][3] * pow(Mw, 3) + cofs[0][4] * pow(Mw, 4) + cofs[0][5] * pow(Mw, 5) + cofs[0][6] * pow(Mw, 6) + (cofs[0][7] + cofs[0][8] * Mw + cofs[0][9] * pow(Mw, 2) + cofs[0][10] * pow(Mw, 3)) * d + (cofs[0][11] + cofs[0][12] * Mw + cofs[0][13] * pow(Mw, 2) + cofs[0][14] * pow(Mw, 3)) * pow(d, 2) + (cofs[0][15] + cofs[0][16] * Mw + cofs[0][17] * pow(Mw, 2) + cofs[0][18] * pow(Mw, 3)) * pow(d, 3) + (cofs[0][19] + cofs[0][20] * Mw + cofs[0][21] * pow(Mw, 2) + cofs[0][22] * pow(Mw, 3)) * pow(d, 4);
 
         // Now add site term
-        double logpgasite = logpga + (deltaIvalue / 2.58);
+        double logpgasite = logpga + (amplificationProxyValueSI / 2.58);
 
         // Now compute plus/minus sigma bounds
         double sigma = 0.2910;
@@ -88,15 +96,20 @@ public class Swiss implements AttenuationPGA, AttenuationPGV, AttenuationPSA {
 
         // Now in m/s2
         Shaking PGA = new Shaking();
-        PGA.setShakingExpected(pow(10, logpgasite) / 100);
-        PGA.setShaking84percentile(pow(10, logpgasiteplus) / 100);
-        PGA.setShaking16percentile(pow(10, logpgasiteminus) / 100);
+        PGA.expectedSI = pow(10, logpgasite) / 100;
+        PGA.percentile84 = pow(10, logpgasiteplus) / 100;
+        PGA.percentile16 = pow(10, logpgasiteminus) / 100;
 
         // Now should return Shaking ...
         return PGA;
     }
 
-    public Shaking getPGV(double Mag, double sourceLat, double sourceLon, double sourceDepthM, double targetLat, double targetLon, double ElevM, String ampType, double deltaIvalue, EventParameters ParamfromQuakeML) {
+    @Override
+    public Shaking getPGV(double Mag, double sourceLat, double sourceLon,
+                          double sourceDepthM, double targetLat, double targetLon,
+                          double targetElevM, String amplificationType,
+                          double amplificationProxyValueSI,
+                          EventParameters eventParameters) {
 
         // Returns median PGV, 16th-percentile PGV, 84th percentile PGV in m/s
         // Mag is the magnitude from the EW message
@@ -108,7 +121,7 @@ public class Swiss implements AttenuationPGA, AttenuationPGV, AttenuationPSA {
 
         // Compute hypocentral distance
         double[] pEvent = GeoCalc.Geo2Cart(sourceLat, sourceLon, -sourceDepthM);
-        double[] pTarget = GeoCalc.Geo2Cart(targetLat, targetLon, ElevM);
+        double[] pTarget = GeoCalc.Geo2Cart(targetLat, targetLon, targetElevM);
         double distance = GeoCalc.Distance3D(pEvent, pTarget);
 
         double Rh = distance / 1000; // in kilometers
@@ -126,7 +139,7 @@ public class Swiss implements AttenuationPGA, AttenuationPGV, AttenuationPSA {
         double logpgv = cofs[10][0] + cofs[10][1] * Mw + cofs[10][2] * pow(Mw, 2) + cofs[10][3] * pow(Mw, 3) + cofs[10][4] * pow(Mw, 4) + cofs[10][5] * pow(Mw, 5) + cofs[10][6] * pow(Mw, 6) + (cofs[10][7] + cofs[10][8] * Mw + cofs[10][9] * pow(Mw, 2) + cofs[10][10] * pow(Mw, 3)) * d + (cofs[10][11] + cofs[10][12] * Mw + cofs[10][13] * pow(Mw, 2) + cofs[10][14] * pow(Mw, 3)) * pow(d, 2) + (cofs[0][15] + cofs[10][16] * Mw + cofs[10][17] * pow(Mw, 2) + cofs[10][18] * pow(Mw, 3)) * pow(d, 3) + (cofs[10][19] + cofs[10][20] * Mw + cofs[10][21] * pow(Mw, 2) + cofs[10][22] * pow(Mw, 3)) * pow(d, 4);
 
         // Now add site term
-        double logpgvsite = logpgv + (deltaIvalue / 2.35);
+        double logpgvsite = logpgv + (amplificationProxyValueSI / 2.35);
 
         // Now compute plus/minus sigma bounds
         double sigma = 0.2953;
@@ -135,22 +148,27 @@ public class Swiss implements AttenuationPGA, AttenuationPGV, AttenuationPSA {
 
         // Now in m/s
         Shaking PGV = new Shaking();
-        PGV.setShakingExpected(pow(10, logpgvsite) / 100);
-        PGV.setShaking84percentile(pow(10, logpgvsiteplus) / 100);
-        PGV.setShaking16percentile(pow(10, logpgvsiteminus) / 100);
+        PGV.expectedSI = pow(10, logpgvsite) / 100;
+        PGV.percentile84 = pow(10, logpgvsiteplus) / 100;
+        PGV.percentile84 = pow(10, logpgvsiteminus) / 100;
 
         // Now should return Shaking ...
         return PGV;
     }
 
-    public Shaking getPSA(double Mag, double sourceLat, double sourceLon, double sourceDepthM, double targetLat, double targetLon, double ElevM, String ampType, double deltaIvalue, double spectralPeriod, EventParameters ParamfromQuakeML) {
+    @Override
+    public Shaking getPSA(double magnitude, double sourceLat, double sourceLon,
+                          double sourceDepthM, double targetLat, double targetLon,
+                          double targetElevM, String amplificationType,
+                          double amplificationProxyValueSI, double period,
+                          EventParameters eventParameters) {
 
         // Returns median PSA, 16th-percentile PSA, 84th percentile PSA in m/s2 for a given spectral period T
         // Mag is the magnitude from the EW message
         // ampType in Switzerland is deltaI, i.e. intensity increments
         // Coefficients are region dependent, i.e. different in the Swiss Alps and in the Swiss Foreland
         double rmin = 3; // set cut-off distance
-        double Mw = Mag;	// reasonable assumption in CH
+        double Mw = magnitude;	// reasonable assumption in CH
         double[][] cofs = getCofs(sourceLat, sourceLon);
 
         int cnt = 0; // init
@@ -159,7 +177,7 @@ public class Swiss implements AttenuationPGA, AttenuationPGV, AttenuationPSA {
 
         // Compute hypocentral distance
         double[] pEvent = GeoCalc.Geo2Cart(sourceLat, sourceLon, -sourceDepthM);
-        double[] pTarget = GeoCalc.Geo2Cart(targetLat, targetLon, ElevM);
+        double[] pTarget = GeoCalc.Geo2Cart(targetLat, targetLon, targetElevM);
         double distance = GeoCalc.Distance3D(pEvent, pTarget);
 
         double Rh = distance / 1000; // in kilometers
@@ -175,47 +193,47 @@ public class Swiss implements AttenuationPGA, AttenuationPGV, AttenuationPSA {
         double d = log10(Ru);
 
         // pick the right coefficients according to the spectral period
-        if (spectralPeriod == 0.01) {
+        if (period == 0.01) {
             cnt = 1;
             sigma = 0.3346;
             amp = 2.58;
 
-        } else if (spectralPeriod == 0.02) {
+        } else if (period == 0.02) {
             cnt = 2;
             sigma = 0.3346;
             amp = 2.57;
 
-        } else if (spectralPeriod == 0.03) {
+        } else if (period == 0.03) {
             cnt = 3;
             sigma = 0.3346;
             amp = 2.57;
 
-        } else if (spectralPeriod == 0.05) {
+        } else if (period == 0.05) {
             cnt = 4;
             sigma = 0.3348;
             amp = 2.56;
 
-        } else if (spectralPeriod == 0.1) {
+        } else if (period == 0.1) {
             cnt = 5;
             sigma = 0.2953;
             amp = 2.55;
 
-        } else if (spectralPeriod == 0.2) {
+        } else if (period == 0.2) {
             cnt = 6;
             sigma = 0.2884;
             amp = 2.52;
 
-        } else if (spectralPeriod == 0.4) {
+        } else if (period == 0.4) {
             cnt = 7;
             sigma = 0.2641;
             amp = 2.47;
 
-        } else if (spectralPeriod == 1) {
+        } else if (period == 1) {
             cnt = 8;
             sigma = 0.2751;
             amp = 2.29;
 
-        } else if (spectralPeriod == 2) {
+        } else if (period == 2) {
             cnt = 9;
             sigma = 0.2840;
             amp = 2.01;
@@ -224,7 +242,7 @@ public class Swiss implements AttenuationPGA, AttenuationPGV, AttenuationPSA {
         double logpsa = cofs[cnt][0] + cofs[cnt][1] * Mw + cofs[cnt][2] * pow(Mw, 2) + cofs[cnt][3] * pow(Mw, 3) + cofs[cnt][4] * pow(Mw, 4) + cofs[cnt][5] * pow(Mw, 5) + cofs[cnt][6] * pow(Mw, 6) + (cofs[cnt][7] + cofs[cnt][8] * Mw + cofs[cnt][9] * pow(Mw, 2) + cofs[cnt][10] * pow(Mw, 3)) * d + (cofs[cnt][11] + cofs[cnt][12] * Mw + cofs[cnt][13] * pow(Mw, 2) + cofs[cnt][14] * pow(Mw, 3)) * pow(d, 2) + (cofs[cnt][15] + cofs[cnt][16] * Mw + cofs[cnt][17] * pow(Mw, 2) + cofs[cnt][18] * pow(Mw, 3)) * pow(d, 3) + (cofs[cnt][19] + cofs[cnt][20] * Mw + cofs[cnt][21] * pow(Mw, 2) + cofs[cnt][22] * pow(Mw, 3)) * pow(d, 4);
 
         // Now add site term
-        double logpsasite = logpsa + (deltaIvalue / amp);
+        double logpsasite = logpsa + (amplificationProxyValueSI / amp);
 
         // Now compute plus/minus sigma bounds
         double logpsasiteplus = logpsasite + sigma;
@@ -232,107 +250,32 @@ public class Swiss implements AttenuationPGA, AttenuationPGV, AttenuationPSA {
 
         // Now in m/s2
         Shaking PSA = new Shaking();
-        PSA.setShakingExpected(pow(10, logpsasite) / 100);
-        PSA.setShaking84percentile(pow(10, logpsasiteplus) / 100);
-        PSA.setShaking16percentile(pow(10, logpsasiteminus) / 100);
+        PSA.expectedSI = pow(10, logpsasite) / 100;
+        PSA.percentile84 = pow(10, logpsasiteplus) / 100;
+        PSA.percentile16 = pow(10, logpsasiteminus) / 100;
 
         // Now should return Shaking ...
         return PSA;
     }
-    public Shaking getDRS(double Mag, double sourceLat, double sourceLon, double sourceDepthM, double targetLat, double targetLon, double ElevM, String ampType, double deltaIvalue, double spectralPeriod, EventParameters ParamfromQuakeML) {
 
-        // Returns median DRS, 16th-percentile PSA, 84th percentile PSA in m for a given spectral period T
-        // Mag is the magnitude from the EW message
-        // ampType in Switzerland is deltaI, i.e. intensity increments
-        // Coefficients are region dependent, i.e. different in the Swiss Alps and in the Swiss Foreland
-        double rmin = 3; // set cut-off distance
-        double Mw = Mag;	// reasonable assumption in CH
-        double[][] cofs = getCofs(sourceLat, sourceLon);
+    @Override
+    public Shaking getDRS(double magnitude, double sourceLat, double sourceLon,
+                          double sourceDepthM, double targetLat, double targetLon,
+                          double targetElevM, String amplificationType,
+                          double amplificationProxyValueSI, double period,
+                          EventParameters eventML) {
 
-        int cnt = 0; // init
-        double sigma = 0; //init
-        double amp = 1; //init
+        Shaking PSA = getPSA(magnitude, sourceLat, sourceLon, sourceDepthM,
+                             targetLat, targetLon, targetElevM,
+                             amplificationType, amplificationProxyValueSI,
+                             period, null);
 
-        // Compute hypocentral distance
-        double[] pEvent = GeoCalc.Geo2Cart(sourceLat, sourceLon, -sourceDepthM);
-        double[] pTarget = GeoCalc.Geo2Cart(targetLat, targetLon, ElevM);
-        double distance = GeoCalc.Distance3D(pEvent, pTarget);
+        double accelerationToDisplacement = period * period / PI2_4;
+        PSA.expectedSI *= accelerationToDisplacement;
+        PSA.percentile16 *= accelerationToDisplacement;
+        PSA.percentile84 *= accelerationToDisplacement;
 
-        double Rh = distance / 1000; // in kilometers
-
-        // end of hypocentral distance computation
-        // Assume Rrup ~ Rh
-        double Rrup = Rh;
-
-        // define the distance cut-off
-        double Ru = max(rmin, Rrup);
-
-        // define the distance metric used in the attenuation formulas
-        double d = log10(Ru);
-
-        // pick the right coefficients according to the spectral period
-        if (spectralPeriod == 0.01) {
-            cnt = 1;
-            sigma = 0.3346;
-            amp = 2.58;
-
-        } else if (spectralPeriod == 0.02) {
-            cnt = 2;
-            sigma = 0.3346;
-            amp = 2.57;
-
-        } else if (spectralPeriod == 0.03) {
-            cnt = 3;
-            sigma = 0.3346;
-            amp = 2.57;
-
-        } else if (spectralPeriod == 0.05) {
-            cnt = 4;
-            sigma = 0.3348;
-            amp = 2.56;
-
-        } else if (spectralPeriod == 0.1) {
-            cnt = 5;
-            sigma = 0.2953;
-            amp = 2.55;
-
-        } else if (spectralPeriod == 0.2) {
-            cnt = 6;
-            sigma = 0.2884;
-            amp = 2.52;
-
-        } else if (spectralPeriod == 0.4) {
-            cnt = 7;
-            sigma = 0.2641;
-            amp = 2.47;
-
-        } else if (spectralPeriod == 1) {
-            cnt = 8;
-            sigma = 0.2751;
-            amp = 2.29;
-
-        } else if (spectralPeriod == 2) {
-            cnt = 9;
-            sigma = 0.2840;
-            amp = 2.01;
-        }
-
-        double logdrs = cofs[cnt][0] + cofs[cnt][1] * Mw + cofs[cnt][2] * pow(Mw, 2) + cofs[cnt][3] * pow(Mw, 3) + cofs[cnt][4] * pow(Mw, 4) + cofs[cnt][5] * pow(Mw, 5) + cofs[cnt][6] * pow(Mw, 6) + (cofs[cnt][7] + cofs[cnt][8] * Mw + cofs[cnt][9] * pow(Mw, 2) + cofs[cnt][10] * pow(Mw, 3)) * d + (cofs[cnt][11] + cofs[cnt][12] * Mw + cofs[cnt][13] * pow(Mw, 2) + cofs[cnt][14] * pow(Mw, 3)) * pow(d, 2) + (cofs[cnt][15] + cofs[cnt][16] * Mw + cofs[cnt][17] * pow(Mw, 2) + cofs[cnt][18] * pow(Mw, 3)) * pow(d, 3) + (cofs[cnt][19] + cofs[cnt][20] * Mw + cofs[cnt][21] * pow(Mw, 2) + cofs[cnt][22] * pow(Mw, 3)) * pow(d, 4);
-
-        // Now add site term
-        double logdrssite = logdrs + (deltaIvalue / amp);
-
-        // Now compute plus/minus sigma bounds
-        double logdrssiteplus = logdrssite + sigma;
-        double logdrssiteminus = logdrssite - sigma;
-
-        // Now in m
-        Shaking DRS = new Shaking();
-        DRS.setShakingExpected((pow(10, logdrssite) / 100) * (spectralPeriod * spectralPeriod) / (4 * PI * PI));
-        DRS.setShaking84percentile((pow(10, logdrssiteplus) / 100)  * (spectralPeriod * spectralPeriod) / (4 * PI * PI));
-        DRS.setShaking16percentile((pow(10, logdrssiteminus) / 100)  * (spectralPeriod * spectralPeriod) / (4 * PI * PI));
-
-        // Now should return Shaking ...
-        return DRS;
+        // Now in m/s
+        return PSA;
     }
 }

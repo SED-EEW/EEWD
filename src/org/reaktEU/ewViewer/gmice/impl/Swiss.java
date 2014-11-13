@@ -10,6 +10,7 @@ import org.reaktEU.ewViewer.data.*;
 
 public class Swiss implements IntensityFromVelocity {
 
+    @Override
     public Shaking getIntensityFromVelocity(Shaking PGV) {
 	// returns the macroseimic intensity I estimate as double
         // PGV is the peak ground velocity (median, 84th, 16th percentile)
@@ -20,9 +21,9 @@ public class Swiss implements IntensityFromVelocity {
         // Conversion equation assumes PGV in cm/s
         Shaking IfromPGV = new Shaking();
 
-        double IfromPGVmedian = (5.11 + 2.35 * Math.log10(PGV.getShakingExpected()));
-        double IfromPGV84 = (5.11 + 2.35 * Math.log10(PGV.getShaking84percentile()));
-        double IfromPGV16 = (5.11 + 2.35 * Math.log10(PGV.getShaking16percentile()));
+        double IfromPGVmedian = 5.11 + 2.35 * Math.log10(PGV.expectedSI);
+        double IfromPGV84 = 5.11 + 2.35 * Math.log10(PGV.percentile84);
+        double IfromPGV16 = 5.11 + 2.35 * Math.log10(PGV.percentile16);
 
         // Impose minimum intensity if necessary
         if (IfromPGVmedian < 1) {
@@ -35,9 +36,9 @@ public class Swiss implements IntensityFromVelocity {
             IfromPGV16 = 1;
         }
 
-        IfromPGV.setShakingExpected(IfromPGVmedian);
-        IfromPGV.setShaking84percentile(IfromPGV84);
-        IfromPGV.setShaking16percentile(IfromPGV16);
+        IfromPGV.expectedSI = IfromPGVmedian;
+        IfromPGV.percentile84 = IfromPGV84;
+        IfromPGV.percentile16 = IfromPGV16;
 
         return IfromPGV;
     }

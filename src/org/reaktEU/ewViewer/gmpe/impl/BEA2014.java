@@ -5,17 +5,17 @@ package org.reaktEU.ewViewer.gmpe.impl;
  * of Bindi et al. (BEE,2014) following
  */
 // import useful packages
-//import org.gavaghan.geodesy.*; // used to compute the hypocentral distance;
 import org.reaktEU.ewViewer.utils.GeoCalc;
 import org.reaktEU.ewViewer.gmpe.AttenuationPGV;
 import org.reaktEU.ewViewer.gmpe.AttenuationPGA;
 import org.reaktEU.ewViewer.gmpe.AttenuationPSA;
+import org.reaktEU.ewViewer.gmpe.AttenuationDRS;
 import org.quakeml.xmlns.bedRt.x12.EventParameters;
 import org.reaktEU.ewViewer.data.*;
 
 import static java.lang.Math.*;
 
-public class BEA2014 implements AttenuationPGA, AttenuationPGV, AttenuationPSA {
+public class BEA2014 implements AttenuationPGA, AttenuationPGV, AttenuationPSA, AttenuationDRS {
 
     public static final double[][] Cofs = {
         {4.3397, 4.46839, 4.5724, 4.55255, 4.51119, 4.49571, 4.49224, 4.51726, 4.46559, 4.46834, 4.3715, 4.34198, -1.37164, 4.14832, 4.09246, 4.08324, 4.07207, 3.77954, 3.69447, 3.45408, 3.38901, 3.06601, 2.89391, 4.27391, 3.24249},
@@ -36,17 +36,23 @@ public class BEA2014 implements AttenuationPGA, AttenuationPGV, AttenuationPSA {
         {0.329477, 0.337714, 0.346552, 0.352097, 0.343023, 0.341063, 0.350769, 0.352197, 0.351583, 0.352092, 0.355756, 0.358473, 0.474611, 0.368453, 0.374172, 0.386351, 0.398289, 0.387354, 0.393917, 0.398582, 0.403511, 0.389288, 0.374289, 0.325981, 0.352744}
     };
 
+    public static final double PI2_4 = 4 * PI * PI;
+
     @Override
-    public Shaking getPGA(double Mag, double sourceLat, double sourceLon, double sourceDepthM, double targetLat, double targetLon, double ElevM, String ampType, double VS30value, EventParameters ParamfromQuakeML) {
+    public Shaking getPGA(double magnitude, double sourceLat, double sourceLon,
+                          double sourceDepthM, double targetLat, double targetLon,
+                          double targetElevM, String amplificationType,
+                          double amplificationProxyValueSI,
+                          EventParameters eventParameters) {
 
         // Returns median PGA, 16th-percentile PGA, 84th percentile PGA in m/s2
         // Mag is the magnitude from the EW message
         // ampType is VS30
-        double Mw = Mag;	// reasonable assumption for CH, other regions should perform some investigations ...
+        double Mw = magnitude;	// reasonable assumption for CH, other regions should perform some investigations ...
 
         // Compute hypocentral distance
         double[] pEvent = GeoCalc.Geo2Cart(sourceLat, sourceLon, -sourceDepthM);
-        double[] pTarget = GeoCalc.Geo2Cart(targetLat, targetLon, ElevM);
+        double[] pTarget = GeoCalc.Geo2Cart(targetLat, targetLon, targetElevM);
         double distance = GeoCalc.Distance3D(pEvent, pTarget);
 
         double Rh = distance / 1000; // in kilometers
@@ -71,7 +77,7 @@ public class BEA2014 implements AttenuationPGA, AttenuationPGV, AttenuationPSA {
         double logpga = Cofs[0][23] + FD + FM + FSOF;
 
         // Now add site term
-        double logpgasite = logpga + Cofs[8][23] * log10(VS30value / Vref);
+        double logpgasite = logpga + Cofs[8][23] * log10(amplificationProxyValueSI / Vref);
 
         // Now compute plus/minus sigma bounds
         double sigma = Cofs[15][23];
@@ -80,25 +86,29 @@ public class BEA2014 implements AttenuationPGA, AttenuationPGV, AttenuationPSA {
 
         // Now in m/s2
         Shaking PGA = new Shaking();
-        PGA.setShakingExpected(pow(10, logpgasite) / 100);
-        PGA.setShaking84percentile(pow(10, logpgasiteplus) / 100);
-        PGA.setShaking16percentile(pow(10, logpgasiteminus) / 100);
+        PGA.expectedSI = pow(10, logpgasite) / 100;
+        PGA.percentile84 = pow(10, logpgasiteplus) / 100;
+        PGA.percentile16 = pow(10, logpgasiteminus) / 100;
 
         // Now should return Shaking ...
-        return (PGA);
+        return PGA;
     }
 
     @Override
-    public Shaking getPGV(double Mag, double sourceLat, double sourceLon, double sourceDepthM, double targetLat, double targetLon, double ElevM, String ampType, double VS30value, EventParameters ParamfromQuakeML) {
+    public Shaking getPGV(double magnitude, double sourceLat, double sourceLon,
+                          double sourceDepthM, double targetLat, double targetLon,
+                          double targetElevM, String amplificationType,
+                          double amplificationProxyValueSI,
+                          EventParameters eventParameters) {
 
         // Returns median PGV, 16th-percentile PGA, 84th percentile PGA in m/s
         // Mag is the magnitude from the EW message
         // ampType is VS30
-        double Mw = Mag;	// reasonable assumption for CH, other regions should perform some investigations ...
+        double Mw = magnitude;	// reasonable assumption for CH, other regions should perform some investigations ...
 
         // Compute hypocentral distance
         double[] pEvent = GeoCalc.Geo2Cart(sourceLat, sourceLon, -sourceDepthM);
-        double[] pTarget = GeoCalc.Geo2Cart(targetLat, targetLon, ElevM);
+        double[] pTarget = GeoCalc.Geo2Cart(targetLat, targetLon, targetElevM);
         double distance = GeoCalc.Distance3D(pEvent, pTarget);
 
         double Rh = distance / 1000; // in kilometers
@@ -124,7 +134,7 @@ public class BEA2014 implements AttenuationPGA, AttenuationPGV, AttenuationPSA {
         double logpgv = Cofs[0][24] + FD + FM + FSOF;
 
         // Now add site term
-        double logpgvsite = logpgv + Cofs[8][24] * log10(VS30value / Vref);
+        double logpgvsite = logpgv + Cofs[8][24] * log10(amplificationProxyValueSI / Vref);
 
         // Now compute plus/minus sigma bounds
         double sigma = Cofs[15][24];
@@ -133,16 +143,20 @@ public class BEA2014 implements AttenuationPGA, AttenuationPGV, AttenuationPSA {
 
         // Now in m/s
         Shaking PGV = new Shaking();
-        PGV.setShakingExpected(pow(10, logpgvsite) / 100);
-        PGV.setShaking84percentile(pow(10, logpgvsiteplus) / 100);
-        PGV.setShaking16percentile(pow(10, logpgvsiteminus) / 100);
+        PGV.expectedSI = pow(10, logpgvsite) / 100;
+        PGV.percentile84 = pow(10, logpgvsiteplus) / 100;
+        PGV.percentile16 = pow(10, logpgvsiteminus) / 100;
 
         // Now should return Shaking ...
-        return (PGV);
+        return PGV;
     }
 
     @Override
-    public Shaking getPSA(double magnitude, double sourceLat, double sourceLon, double sourceDepthM, double targetLat, double targetLon, double targetElevM, String amplificationType, double amplificationProxyValueSI, double period, EventParameters ParamfromQuakeML) {
+    public Shaking getPSA(double magnitude, double sourceLat, double sourceLon,
+                          double sourceDepthM, double targetLat, double targetLon,
+                          double targetElevM, String amplificationType,
+                          double amplificationProxyValueSI,
+                          double period, EventParameters eventParameters) {
 
         // Returns median PSA, 16th-percentile PGA, 84th percentile PGA in m/s
         // Mag is the magnitude from the EW message
@@ -217,94 +231,28 @@ public class BEA2014 implements AttenuationPGA, AttenuationPGV, AttenuationPSA {
 
         // Now in m/s
         Shaking PSA = new Shaking();
-        PSA.setShakingExpected(pow(10, logpsasite) / 100);
-        PSA.setShaking84percentile(pow(10, logpsasiteplus) / 100);
-        PSA.setShaking16percentile(pow(10, logpsasiteminus) / 100);
+        PSA.expectedSI = pow(10, logpsasite) / 100;
+        PSA.percentile84 = pow(10, logpsasiteplus) / 100;
+        PSA.percentile16 = pow(10, logpsasiteminus) / 100;
 
         // Now should return Shaking ...
-        return (PSA);
+        return PSA;
     }
+
     @Override
-    public Shaking getDRS(double magnitude, double sourceLat, double sourceLon, double sourceDepthM, double targetLat, double targetLon, double targetElevM, String amplificationType, double amplificationProxyValueSI, double period, EventParameters ParamfromQuakeML) {
+    public Shaking getDRS(double magnitude, double sourceLat, double sourceLon, double sourceDepthM, double targetLat, double targetLon, double targetElevM, String amplificationType, double amplificationProxyValueSI, double period, EventParameters eventML) {
 
-        // Returns median DRS, 16th-percentile PGA, 84th percentile DRS in m
-        // Mag is the magnitude from the EW message
-        // ampType is VS30
-        double Mw = magnitude;	// reasonable assumption for CH, other regions should perform some investigations ...
-        int cnt = 0; // init
+        Shaking PSA = getPSA(magnitude, sourceLat, sourceLon, sourceDepthM,
+                             targetLat, targetLon, targetElevM,
+                             amplificationType, amplificationProxyValueSI,
+                             period, null);
 
-        // Compute hypocentral distance
-        double[] pEvent = GeoCalc.Geo2Cart(sourceLat, sourceLon, -sourceDepthM);
-        double[] pTarget = GeoCalc.Geo2Cart(targetLat, targetLon, targetElevM);
-        double distance = GeoCalc.Distance3D(pEvent, pTarget);
-
-        double Rh = distance / 1000; // in kilometers
-
-        // end of hypocentral distance computation
-        // Compute ground-motion prediction in log10 first
-        double Mref = 5.5;
-        double Rref = 1;
-        double Mh = 6.75;
-        double Vref = 800;
-        double FM = 0; //init
-
-        // pick the right coefficients according to the spectral period
-        if (period == 0.01) { // using published coeffs for 0.02
-            cnt = 0;
-
-        } else if (period == 0.02) {
-            cnt = 0;
-
-        } else if (period == 0.03) { // using published coeffs for 0.04
-            cnt = 1;
-
-        } else if (period == 0.05) { // using published coeffs for 0.04
-            cnt = 1;
-
-        } else if (period == 0.1) {
-            cnt = 3;
-
-        } else if (period == 0.2) {
-            cnt = 5;
-
-        } else if (period == 0.4) {
-            cnt = 9;
-
-        } else if (period == 1) {
-            cnt = 16;
-
-        } else if (period == 2) {
-            cnt = 20;
-
-        }
-
-        double FD = (Cofs[1][cnt] + Cofs[2][cnt] * (Mw - Mref)) * log10(sqrt(pow(Rh, 2) + pow(Cofs[3][cnt], 2)) / Rref) - Cofs[4][cnt] * (sqrt(pow(Rh, 2) + pow(Cofs[3][cnt], 2)) - Rref);
-
-        if (Mw <= Mh) {
-            FM = Cofs[5][cnt] * (Mw - Mh) + Cofs[6][cnt] * pow((Mw - Mh), 2);
-        } else {
-            FM = Cofs[7][cnt] * (Mw - Mh);
-        }
-
-        double FSOF = (Cofs[9][cnt] + Cofs[10][cnt] + Cofs[11][cnt]) / 3;
-
-        double logdrs = Cofs[0][cnt] + FD + FM + FSOF;
-
-        // Now add site term
-        double logdrssite = logdrs + Cofs[8][cnt] * log10(amplificationProxyValueSI / Vref);
-
-        // Now compute plus/minus sigma bounds
-        double sigma = Cofs[15][cnt];
-        double logdrssiteplus = logdrssite + sigma;
-        double logdrssiteminus = logdrssite - sigma;
+        double accelerationToDisplacement = period * period / PI2_4;
+        PSA.expectedSI *= accelerationToDisplacement;
+        PSA.percentile16 *= accelerationToDisplacement;
+        PSA.percentile84 *= accelerationToDisplacement;
 
         // Now in m/s
-        Shaking DRS = new Shaking();
-        DRS.setShakingExpected(pow(10, logdrssite) / 100  * (period * period) / (4 * PI * PI));
-        DRS.setShaking84percentile(pow(10, logdrssiteplus) / 100  * (period * period) / (4 * PI * PI));
-        DRS.setShaking16percentile(pow(10, logdrssiteminus) / 100 * (period * period) / (4 * PI * PI));
-
-        // Now should return Shaking ...
-        return (DRS);
+        return PSA;
     }
 }
