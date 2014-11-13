@@ -224,4 +224,87 @@ public class BEA2014 implements AttenuationPGA, AttenuationPGV, AttenuationPSA {
         // Now should return Shaking ...
         return (PSA);
     }
+    @Override
+    public Shaking getDRS(double magnitude, double sourceLat, double sourceLon, double sourceDepthM, double targetLat, double targetLon, double targetElevM, String amplificationType, double amplificationProxyValueSI, double period, EventParameters ParamfromQuakeML) {
+
+        // Returns median DRS, 16th-percentile PGA, 84th percentile DRS in m
+        // Mag is the magnitude from the EW message
+        // ampType is VS30
+        double Mw = magnitude;	// reasonable assumption for CH, other regions should perform some investigations ...
+        int cnt = 0; // init
+
+        // Compute hypocentral distance
+        double[] pEvent = GeoCalc.Geo2Cart(sourceLat, sourceLon, -sourceDepthM);
+        double[] pTarget = GeoCalc.Geo2Cart(targetLat, targetLon, targetElevM);
+        double distance = GeoCalc.Distance3D(pEvent, pTarget);
+
+        double Rh = distance / 1000; // in kilometers
+
+        // end of hypocentral distance computation
+        // Compute ground-motion prediction in log10 first
+        double Mref = 5.5;
+        double Rref = 1;
+        double Mh = 6.75;
+        double Vref = 800;
+        double FM = 0; //init
+
+        // pick the right coefficients according to the spectral period
+        if (period == 0.01) { // using published coeffs for 0.02
+            cnt = 0;
+
+        } else if (period == 0.02) {
+            cnt = 0;
+
+        } else if (period == 0.03) { // using published coeffs for 0.04
+            cnt = 1;
+
+        } else if (period == 0.05) { // using published coeffs for 0.04
+            cnt = 1;
+
+        } else if (period == 0.1) {
+            cnt = 3;
+
+        } else if (period == 0.2) {
+            cnt = 5;
+
+        } else if (period == 0.4) {
+            cnt = 9;
+
+        } else if (period == 1) {
+            cnt = 16;
+
+        } else if (period == 2) {
+            cnt = 20;
+
+        }
+
+        double FD = (Cofs[1][cnt] + Cofs[2][cnt] * (Mw - Mref)) * log10(sqrt(pow(Rh, 2) + pow(Cofs[3][cnt], 2)) / Rref) - Cofs[4][cnt] * (sqrt(pow(Rh, 2) + pow(Cofs[3][cnt], 2)) - Rref);
+
+        if (Mw <= Mh) {
+            FM = Cofs[5][cnt] * (Mw - Mh) + Cofs[6][cnt] * pow((Mw - Mh), 2);
+        } else {
+            FM = Cofs[7][cnt] * (Mw - Mh);
+        }
+
+        double FSOF = (Cofs[9][cnt] + Cofs[10][cnt] + Cofs[11][cnt]) / 3;
+
+        double logdrs = Cofs[0][cnt] + FD + FM + FSOF;
+
+        // Now add site term
+        double logdrssite = logdrs + Cofs[8][cnt] * log10(amplificationProxyValueSI / Vref);
+
+        // Now compute plus/minus sigma bounds
+        double sigma = Cofs[15][cnt];
+        double logdrssiteplus = logdrssite + sigma;
+        double logdrssiteminus = logdrssite - sigma;
+
+        // Now in m/s
+        Shaking DRS = new Shaking();
+        DRS.setShakingExpected(pow(10, logdrssite) / 100  * (period * period) / (4 * PI * PI));
+        DRS.setShaking84percentile(pow(10, logdrssiteplus) / 100  * (period * period) / (4 * PI * PI));
+        DRS.setShaking16percentile(pow(10, logdrssiteminus) / 100 * (period * period) / (4 * PI * PI));
+
+        // Now should return Shaking ...
+        return (DRS);
+    }
 }
