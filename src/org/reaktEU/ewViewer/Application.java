@@ -49,8 +49,8 @@ import net.ser1.stomp.Listener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.quakeml.xmlns.bedRt.x12.EventParameters;
-import org.reaktEU.ewViewer.data.ShakeMap;
 import org.reaktEU.ewViewer.data.ShakingCalculator;
+import org.reaktEU.ewViewer.layer.ShakeMapLayer;
 
 // TODO:
 // int cores = Runtime.getRuntime().availableProcessors();
@@ -124,6 +124,7 @@ public class Application implements Listener, QMLListener, ActionListener {
     private OpenMapFrame openMapFrame = null;
     private EventPanel eventPanel = null;
     private EventLayer eventLayer = null;
+    private ShakeMapLayer shakeMapLayer = null;
     private EventBrowser eventBrowser = null;
 
     // data handling
@@ -135,7 +136,7 @@ public class Application implements Listener, QMLListener, ActionListener {
     private final EventFileScheduler eventFileScheduler;
     private final List<POI> targets;
     private final List<POI> stations;
-    private final ShakeMap shakeMap;
+
     private final ShakingCalculator shakingCalculator;
 
     private Double controlPeriod = null;
@@ -180,13 +181,13 @@ public class Application implements Listener, QMLListener, ActionListener {
                                                    "data/stations.csv"));
         targets = readPOIs(properties.getProperty(PropertyTargetFile,
                                                   "data/targets.csv"));
-        shakeMap = new ShakeMap();
+        shakeMapLayer = new ShakeMapLayer();
 
         controlPeriod = getProperty(PropertyControlPeriod, (Double) null);
         periods = getProperty(PropertyPeriods, (double[]) null);
         useFrequencies = getProperty(PropertyUseFequencies, false);
 
-        shakingCalculator = new ShakingCalculator(targets, stations, shakeMap);
+        shakingCalculator = new ShakingCalculator(targets, stations, shakeMapLayer);
 
         // configure gui components
         configureMapPanel(mapPropertyHandler);
@@ -336,6 +337,10 @@ public class Application implements Listener, QMLListener, ActionListener {
 
         LayerHandler layerHandler = (LayerHandler) mapHandler.get(LayerHandler.class);
         if (layerHandler != null) {
+            if (!shakeMapLayer.getPoints().isEmpty()) {
+                layerHandler.addLayer(shakeMapLayer, 0);
+            }
+
             StationLayer stationLayer = new StationLayer(stations);
             stationLayer.setName("Stations");
             layerHandler.addLayer(stationLayer, 0);

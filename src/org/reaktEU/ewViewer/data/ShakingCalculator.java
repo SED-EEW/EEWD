@@ -8,20 +8,18 @@ package org.reaktEU.ewViewer.data;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.logging.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reaktEU.ewViewer.Application;
-import static org.reaktEU.ewViewer.Application.PropertyEventArchive;
 import org.reaktEU.ewViewer.gmice.IntensityFromAcceleration;
 import org.reaktEU.ewViewer.gmice.IntensityFromVelocity;
 import org.reaktEU.ewViewer.gmpe.AttenuationInt;
 import org.reaktEU.ewViewer.gmpe.AttenuationPGA;
 import org.reaktEU.ewViewer.gmpe.AttenuationPGV;
 import org.reaktEU.ewViewer.gmpe.AttenuationPSA;
+import org.reaktEU.ewViewer.layer.ShakeMapLayer;
 
 /**
  *
@@ -33,7 +31,7 @@ public class ShakingCalculator implements Runnable {
 
     private final List<POI> targets;
     private final List<POI> stations;
-    private final ShakeMap shakeMap;
+    private final ShakeMapLayer shakeMap;
     private final BlockingQueue<EventData> queue;
 
     private final String ampliProxyName;
@@ -44,7 +42,7 @@ public class ShakingCalculator implements Runnable {
     private IntensityFromAcceleration gmicePGAImpl = null;
     private IntensityFromVelocity gmicePGVImpl = null;
 
-    public ShakingCalculator(List<POI> targets, List<POI> stations, ShakeMap shakeMap) {
+    public ShakingCalculator(List<POI> targets, List<POI> stations, ShakeMapLayer shakeMap) {
         this.targets = targets;
         this.stations = stations;
         this.shakeMap = shakeMap;
@@ -57,7 +55,6 @@ public class ShakingCalculator implements Runnable {
         // multiple interfaces
         Map<String, Object> cache = new HashMap();
         String prefix;
-        Object obj;
 
         // gmpe PGA
         prefix = Application.PropertyGMPE + "." + Shaking.Type.PGA;
@@ -204,6 +201,25 @@ public class ShakingCalculator implements Runnable {
                             target.altitude, ampliProxyName, target.amplification,
                             event.eventParameters);
                     target.shakingValues.put(Shaking.Type.Intensity, s);
+                }
+            }
+
+            // shake map
+            if (shakeMap != null) {
+                if (gmpePGA != null) {
+                    LOG.debug("starting shake map calculation");
+                    long start = System.currentTimeMillis();
+                    for (ShakeMapLayer.Point p : shakeMap.getPoints()) {
+                        p.value = gmpePGA.getPGA(
+                                event.magnitude, event.latitude, event.longitude,
+                                event.depth, p.latitude, p.longitude, p.altitude,
+                                ampliProxyName, p.amplification,
+                                event.eventParameters).expectedSI;
+                    }
+                    LOG.debug(String.format("%d grid points calculated in %.3fs",
+                                            shakeMap.getPoints().size(),
+                                            (double) (System.currentTimeMillis() - start) / 1000.0));
+                    shakeMap.updateImage();
                 }
             }
         }
