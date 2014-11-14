@@ -44,6 +44,8 @@ import java.util.Properties;
 import javax.security.auth.login.LoginException;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import net.ser1.stomp.Client;
 import net.ser1.stomp.Listener;
 import org.apache.logging.log4j.LogManager;
@@ -146,6 +148,13 @@ public class Application implements Listener, QMLListener, ActionListener {
     public Application(Properties props) {
         instance = this;
         properties = props;
+
+        // set default system look and feel
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
+            LOG.warn("could net set system default look and feel", ex);
+        }
 
         String mapProps = properties.getProperty(PropertyMapProperties,
                                                  "file:data/openmap.properties");

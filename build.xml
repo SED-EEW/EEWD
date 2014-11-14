@@ -88,7 +88,7 @@
             <zipfileset dir="misc" prefix="misc" />
             <fileset dir="${basedir}">
                 <include name="log4j2.xml"/>
-                <include name="openmap.properties"/>
+                <include name="eewd.properties"/>
             </fileset>
         </zip>                                                                                        
     </target>

@@ -206,9 +206,11 @@ public class ShakingCalculator implements Runnable {
 
             // shake map
             if (shakeMap != null) {
+                LOG.debug("starting shake map calculation");
+                long start = System.currentTimeMillis();
+
                 if (gmpePGA != null) {
-                    LOG.debug("starting shake map calculation");
-                    long start = System.currentTimeMillis();
+
                     for (ShakeMapLayer.Point p : shakeMap.getPoints()) {
                         p.value = gmpePGA.getPGA(
                                 event.magnitude, event.latitude, event.longitude,
