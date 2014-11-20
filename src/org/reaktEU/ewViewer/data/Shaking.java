@@ -19,6 +19,19 @@ public class Shaking {
         public String toString() {
             return string;
         }
+
+        public static Type FromString(String param) {
+            if (param.equals(PGA.toString())) {
+                return PGA;
+            } else if (param.equals(PGV.toString())) {
+                return PGV;
+            } else if (param.equals(PSA.toString())) {
+                return PSA;
+            } else if (param.equals(Intensity.toString())) {
+                return Intensity;
+            }
+            return null;
+        }
     }
 
     public double expectedSI;

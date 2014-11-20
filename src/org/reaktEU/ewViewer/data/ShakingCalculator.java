@@ -41,6 +41,7 @@ public class ShakingCalculator implements Runnable {
     private AttenuationInt gmpeIntImpl;
     private IntensityFromAcceleration gmicePGAImpl = null;
     private IntensityFromVelocity gmicePGVImpl = null;
+    private Shaking.Type shakeMapParameter = Shaking.Type.PGA;
 
     public ShakingCalculator(List<POI> targets, List<POI> stations, ShakeMapLayer shakeMap) {
         this.targets = targets;
@@ -84,6 +85,14 @@ public class ShakingCalculator implements Runnable {
             gmicePGVImpl = (IntensityFromVelocity) loadImpl(prefix, cache, IntensityFromVelocity.class);
         }
 
+//        String param = app.getProperty(Application.PropertySMParameter, "");
+//        .
+//        toLowerCase()
+//        );
+//
+//        if (param.equals(Sha)) {
+//
+//        }
         queue = new LinkedBlockingQueue();
         new Thread(this).start();
     }
