@@ -32,7 +32,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -115,6 +114,11 @@ public class Application implements Listener, QMLListener, ActionListener {
     public static final String PropertyRadiusOfInfluence = "radiusOfInfluence";
     public static final String PropertyStationDisplacementThreshold = "stationDisplacementThreshold";
     public static final String PropertyStationTauCThreshold = "stationTauCThreshold";
+
+    public static final String PropertyConHost = "connection.host";
+    public static final String PropertyConPort = "connection.port";
+    public static final String PropertyConUsername = "connection.username";
+    public static final String PropertyConPassword = "connection.password";
 
     private static final Logger LOG = LogManager.getLogger(Application.class);
 
@@ -465,9 +469,7 @@ public class Application implements Listener, QMLListener, ActionListener {
 
             //c.unsubscribe("eewd", this);
             //c.disconnect();
-        } catch (IOException ex) {
-            LOG.error(ex);
-        } catch (LoginException ex) {
+        } catch (IOException | LoginException ex) {
             LOG.error(ex);
         }
     }

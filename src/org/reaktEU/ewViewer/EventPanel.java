@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
 import javax.swing.ComboBoxModel;
+import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 import org.reaktEU.ewViewer.data.Shaking;
 import org.reaktEU.ewViewer.utils.RomanNumber;
@@ -52,7 +53,7 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         javax.swing.JLabel depthCaptionLabel = new javax.swing.JLabel();
         depthLabel = new javax.swing.JLabel();
         separator = new javax.swing.JSeparator();
-        javax.swing.JLabel targetCaptionLabel = new javax.swing.JLabel();
+        targetCaptionLabel = new javax.swing.JLabel();
         targetCombo = new javax.swing.JComboBox();
         javax.swing.JLabel timeRemainingCaptionLabel = new javax.swing.JLabel();
         timeRemainingLabel = new javax.swing.JLabel();
@@ -68,10 +69,20 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         likelihoodLabel = new javax.swing.JLabel();
         javax.swing.JLabel psaCaptionLabel = new javax.swing.JLabel();
         psaLabel = new javax.swing.JLabel();
+        intensityPercentCaptionLabel = new javax.swing.JLabel();
+        intensityPercentLabel = new javax.swing.JLabel();
+        drsPercentCaptionLabel = new javax.swing.JLabel();
+        psaPercentCaptionLabel = new javax.swing.JLabel();
+        pgvPercentCaptionLabel = new javax.swing.JLabel();
+        pgaPercentCaptionLabel = new javax.swing.JLabel();
+        drsPercentLabel = new javax.swing.JLabel();
+        psaPercentLabel = new javax.swing.JLabel();
+        pgvPercentLabel = new javax.swing.JLabel();
+        pgaPercentLabel = new javax.swing.JLabel();
 
         setEnabled(false);
         java.awt.GridBagLayout layout = new java.awt.GridBagLayout();
-        layout.columnWidths = new int[] {0, 5, 0};
+        layout.columnWidths = new int[] {0, 5, 0, 5, 0, 5, 0, 5, 0};
         layout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0};
         setLayout(layout);
 
@@ -87,6 +98,7 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
@@ -105,6 +117,7 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
@@ -122,6 +135,7 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         add(magnitudeLabel, gridBagConstraints);
@@ -138,6 +152,7 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         add(locationLabel, gridBagConstraints);
@@ -155,13 +170,14 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridwidth = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         add(depthLabel, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 10;
-        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridwidth = 9;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         add(separator, gridBagConstraints);
 
@@ -176,6 +192,7 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridwidth = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         add(targetCombo, gridBagConstraints);
@@ -193,6 +210,7 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 14;
+        gridBagConstraints.gridwidth = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         add(timeRemainingLabel, gridBagConstraints);
@@ -273,6 +291,7 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 26;
+        gridBagConstraints.gridwidth = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         add(likelihoodLabel, gridBagConstraints);
@@ -292,20 +311,106 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         add(psaLabel, gridBagConstraints);
+
+        intensityPercentCaptionLabel.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
+        intensityPercentCaptionLabel.setText("<html>P<sub>84/16</sub></html>");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 24;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        add(intensityPercentCaptionLabel, gridBagConstraints);
+
+        intensityPercentLabel.setText("-");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 8;
+        gridBagConstraints.gridy = 24;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        add(intensityPercentLabel, gridBagConstraints);
+
+        drsPercentCaptionLabel.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
+        drsPercentCaptionLabel.setText("<html>P<sub>84/16</sub></html>");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 22;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        add(drsPercentCaptionLabel, gridBagConstraints);
+
+        psaPercentCaptionLabel.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
+        psaPercentCaptionLabel.setText("<html>P<sub>84/16</sub></html>");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 20;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        add(psaPercentCaptionLabel, gridBagConstraints);
+
+        pgvPercentCaptionLabel.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
+        pgvPercentCaptionLabel.setText("<html>P<sub>84/16</sub></html>");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 18;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        add(pgvPercentCaptionLabel, gridBagConstraints);
+
+        pgaPercentCaptionLabel.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
+        pgaPercentCaptionLabel.setText("<html>P<sub>84/16</sub></html>");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 16;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.PAGE_START;
+        add(pgaPercentCaptionLabel, gridBagConstraints);
+
+        drsPercentLabel.setText("-");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 8;
+        gridBagConstraints.gridy = 22;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        add(drsPercentLabel, gridBagConstraints);
+
+        psaPercentLabel.setText("-");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 8;
+        gridBagConstraints.gridy = 20;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        add(psaPercentLabel, gridBagConstraints);
+
+        pgvPercentLabel.setText("-");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 8;
+        gridBagConstraints.gridy = 18;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        add(pgvPercentLabel, gridBagConstraints);
+
+        pgaPercentLabel.setText("-");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 8;
+        gridBagConstraints.gridy = 16;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        add(pgaPercentLabel, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel depthLabel;
     private javax.swing.JLabel drsLabel;
+    private javax.swing.JLabel drsPercentCaptionLabel;
+    private javax.swing.JLabel drsPercentLabel;
     private javax.swing.JLabel eventLabel;
     private javax.swing.JLabel intensityLabel;
+    private javax.swing.JLabel intensityPercentCaptionLabel;
+    private javax.swing.JLabel intensityPercentLabel;
     private javax.swing.JLabel likelihoodLabel;
     private javax.swing.JLabel locationLabel;
     private javax.swing.JLabel magnitudeLabel;
     private javax.swing.JLabel pgaLabel;
+    private javax.swing.JLabel pgaPercentCaptionLabel;
+    private javax.swing.JLabel pgaPercentLabel;
     private javax.swing.JLabel pgvLabel;
+    private javax.swing.JLabel pgvPercentCaptionLabel;
+    private javax.swing.JLabel pgvPercentLabel;
     private javax.swing.JLabel psaLabel;
+    private javax.swing.JLabel psaPercentCaptionLabel;
+    private javax.swing.JLabel psaPercentLabel;
     private javax.swing.JSeparator separator;
+    private javax.swing.JLabel targetCaptionLabel;
     private javax.swing.JComboBox targetCombo;
     private javax.swing.JLabel timeLabel;
     private javax.swing.JLabel timeRemainingLabel;
@@ -367,6 +472,7 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
                 }
             });
             targetCombo.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     update();
                 }
@@ -381,8 +487,8 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
 
         GridBagConstraints c = new GridBagConstraints();
         c.gridx = 0;
-        c.gridy = 26;
-        c.gridwidth = 3;
+        c.gridy = 28;
+        c.gridwidth = 9;
         c.fill = java.awt.GridBagConstraints.BOTH;
         c.anchor = java.awt.GridBagConstraints.WEST;
         c.weighty = 1.0;
@@ -408,6 +514,9 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         if (eventChanged) {
             boolean enabled = event != null;
             for (Component c : getComponents()) {
+                if (c == targetCombo || c == targetCaptionLabel) {
+                    continue;
+                }
                 c.setEnabled(enabled);
             }
 
@@ -446,10 +555,15 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         if (target == null) {
             timeRemainingLabel.setText("-");
             pgaLabel.setText("-");
+            pgaPercentLabel.setText("");
             pgvLabel.setText("-");
+            pgvPercentLabel.setText("");
             psaLabel.setText("-");
+            psaPercentLabel.setText("");
             drsLabel.setText("-");
+            drsPercentLabel.setText("");
             intensityLabel.setText("-");
+            intensityPercentLabel.setText("");
             likelihoodLabel.setText("-");
         } else {
             if (originTimeOffset == null) {
@@ -465,9 +579,13 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
             s = target.shakingValues.get(Shaking.Type.PGA);
             pgaLabel.setText(s == null ? "-"
                              : String.format("%.2fg", s.expectedSI / EarthAcceleration));
+            setPercentile(pgaPercentLabel, s, "%.2f", 1 / EarthAcceleration);
+
             s = target.shakingValues.get(Shaking.Type.PGV);
             pgvLabel.setText(s == null ? "-"
                              : String.format("%.2fcm/s", s.expectedSI * 100));
+            setPercentile(pgvPercentLabel, s, "%.2f", 100);
+
             s = target.shakingValues.get(Shaking.Type.PSA);
             if (s == null) {
                 psaLabel.setText("-");
@@ -481,10 +599,12 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
                         controlText = app.getControlPeriod() + "s";
                     }
                 }
-                psaLabel.setText(String.format("%.1fg (at %s)",
+                psaLabel.setText(String.format("%.1fg (@%s)",
                                                s.expectedSI / EarthAcceleration,
                                                controlText));
             }
+            setPercentile(psaPercentLabel, s, "%.1f", 1 / EarthAcceleration);
+
             s = target.shakingValues.get(Shaking.Type.DRS);
             if (s == null) {
                 drsLabel.setText("-");
@@ -498,16 +618,32 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
                         controlText = app.getControlPeriod() + "s";
                     }
                 }
-                drsLabel.setText(String.format("%.1fcm/s (at %s)",
+                drsLabel.setText(String.format("%.1fcm/s (@%s)",
                                                s.expectedSI * 100,
                                                controlText));
             }
+            setPercentile(drsPercentLabel, s, "%.1f", 100);
+
             s = target.shakingValues.get(Shaking.Type.Intensity);
             intensityLabel.setText(s == null ? "-" : RomanNumber.toString(
                     (int) (s.expectedSI + 0.5)));
+            intensityPercentLabel.setText(
+                    s == null ? "" : RomanNumber.toString((int) (s.percentile84 + 0.5)) + "/"
+                                     + RomanNumber.toString((int) (s.percentile16 + 0.5))
+            );
+
         }
         eventChanged = false;
         timeChanged = false;
     }
 
+    private void setPercentile(JLabel label, Shaking s, String format, double factor) {
+        if (s == null) {
+            label.setText("");
+        } else {
+            label.setText(String.format(format + "/" + format,
+                                        s.percentile84 * factor,
+                                        s.percentile16 * factor));
+        }
+    }
 }

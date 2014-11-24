@@ -45,7 +45,7 @@ public class SpectrumPlot extends JPanel {
         double xScale = ((double) getWidth() - 2 * BORDER_GAP) / (scores.size() - 1);
         double yScale = ((double) getHeight() - 2 * BORDER_GAP) / (MAX_SCORE - 1);
 
-        List<Point> graphPoints = new ArrayList<Point>();
+        List<Point> graphPoints = new ArrayList();
         for (int i = 0; i < scores.size(); i++) {
             int x1 = (int) (i * xScale + BORDER_GAP);
             int y1 = (int) ((MAX_SCORE - scores.get(i)) * yScale + BORDER_GAP);
@@ -102,7 +102,7 @@ public class SpectrumPlot extends JPanel {
     }
 
     private static void createAndShowGui() {
-        List<Integer> scores = new ArrayList<Integer>();
+        List<Integer> scores = new ArrayList();
         Random random = new Random();
         int maxDataPoints = 16;
         int maxScore = 20;

@@ -66,6 +66,8 @@ public class EventTimeScheduler implements Runnable {
 
     synchronized public void setEvent(EventData event) {
         if (this.event != event) {
+            boolean newEvent = this.event == null
+                               || event != null && !this.event.eventID.equals(event.eventID);
             this.event = event;
             cancel();
 
@@ -73,16 +75,18 @@ public class EventTimeScheduler implements Runnable {
             executor.scheduleAtFixedRate(this, 0, UpdateInterval, TimeUnit.MILLISECONDS);
 
             // play sound
-            try {
-                AudioInputStream inputStream
-                                 = AudioSystem.getAudioInputStream(alertSound);
-                AudioFormat format = inputStream.getFormat();
-                DataLine.Info info = new DataLine.Info(Clip.class, format);
-                Clip clip = (Clip) AudioSystem.getLine(info);
-                clip.open(inputStream);
-                clip.loop(alertSoundLoop);
-            } catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
-                LOG.error("could not play alert sound", e);
+            if (newEvent) {
+                try {
+                    AudioInputStream inputStream
+                                     = AudioSystem.getAudioInputStream(alertSound);
+                    AudioFormat format = inputStream.getFormat();
+                    DataLine.Info info = new DataLine.Info(Clip.class, format);
+                    Clip clip = (Clip) AudioSystem.getLine(info);
+                    clip.open(inputStream);
+                    clip.loop(alertSoundLoop);
+                } catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
+                    LOG.error("could not play alert sound", e);
+                }
             }
         }
     }
