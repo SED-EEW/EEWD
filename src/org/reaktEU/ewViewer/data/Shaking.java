@@ -7,6 +7,7 @@ public class Shaking {
         PGA("pga"),
         PGV("pgv"),
         PSA("psa"),
+        DRS("drs"),
         Intensity("intensity");
 
         private final String string;
@@ -21,12 +22,16 @@ public class Shaking {
         }
 
         public static Type FromString(String param) {
-            if (param.equals(PGA.toString())) {
+            if (param == null) {
+                return null;
+            } else if (param.equals(PGA.toString())) {
                 return PGA;
             } else if (param.equals(PGV.toString())) {
                 return PGV;
             } else if (param.equals(PSA.toString())) {
                 return PSA;
+            } else if (param.equals(DRS.toString())) {
+                return DRS;
             } else if (param.equals(Intensity.toString())) {
                 return Intensity;
             }

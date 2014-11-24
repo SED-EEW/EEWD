@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import org.reaktEU.ewViewer.Application;
 import org.reaktEU.ewViewer.gmice.IntensityFromAcceleration;
 import org.reaktEU.ewViewer.gmice.IntensityFromVelocity;
+import org.reaktEU.ewViewer.gmpe.AttenuationDRS;
 import org.reaktEU.ewViewer.gmpe.AttenuationInt;
 import org.reaktEU.ewViewer.gmpe.AttenuationPGA;
 import org.reaktEU.ewViewer.gmpe.AttenuationPGV;
@@ -38,6 +39,7 @@ public class ShakingCalculator implements Runnable {
     private AttenuationPGA gmpePGAImpl;
     private AttenuationPGV gmpePGVImpl;
     private AttenuationPSA gmpePSAImpl;
+    private AttenuationDRS gmpeDRSImpl;
     private AttenuationInt gmpeIntImpl;
     private IntensityFromAcceleration gmicePGAImpl = null;
     private IntensityFromVelocity gmicePGVImpl = null;
@@ -69,6 +71,10 @@ public class ShakingCalculator implements Runnable {
         prefix = Application.PropertyGMPE + "." + Shaking.Type.PSA;
         gmpePSAImpl = (AttenuationPSA) loadImpl(prefix, cache, AttenuationPSA.class);
 
+        // gmpe DRS
+        prefix = Application.PropertyGMPE + "." + Shaking.Type.DRS;
+        gmpeDRSImpl = (AttenuationDRS) loadImpl(prefix, cache, AttenuationDRS.class);
+
         // gmpe Intensity
         prefix = Application.PropertyGMPE + "." + Shaking.Type.Intensity;
         gmpeIntImpl = (AttenuationInt) loadImpl(prefix, cache, AttenuationInt.class);
@@ -85,14 +91,15 @@ public class ShakingCalculator implements Runnable {
             gmicePGVImpl = (IntensityFromVelocity) loadImpl(prefix, cache, IntensityFromVelocity.class);
         }
 
-//        String param = app.getProperty(Application.PropertySMParameter, "");
-//        .
-//        toLowerCase()
-//        );
-//
-//        if (param.equals(Sha)) {
-//
-//        }
+        // read shake map parameter
+        String param = app.getProperties().getProperty(Application.PropertySMParameter);
+        if (param != null) {
+            shakeMapParameter = Shaking.Type.valueOf(param);
+            if (shakeMapParameter == null) {
+                LOG.warn("invalid " + Application.PropertySMParameter + " value: " + param);
+            }
+        }
+
         queue = new LinkedBlockingQueue();
         new Thread(this).start();
     }
@@ -162,6 +169,7 @@ public class ShakingCalculator implements Runnable {
             AttenuationPGA gmpePGA = gmpePGAImpl;
             AttenuationPGV gmpePGV = gmpePGVImpl;
             AttenuationPSA gmpePSA = gmpePSAImpl;
+            AttenuationDRS gmpeDRS = gmpeDRSImpl;
             AttenuationInt gmpeInt = gmpeIntImpl;
 
             IntensityFromAcceleration gmicePGA = gmicePGAImpl;
@@ -177,7 +185,7 @@ public class ShakingCalculator implements Runnable {
                             event.eventParameters);
                     target.shakingValues.put(Shaking.Type.PGA, s);
                     if (gmpeInt == null && gmicePGA != null) {
-                        s = gmicePGA.getIntensityfromAcceleration(s);
+                        s = gmicePGA.getIntensityFromAcceleration(s);
                         target.shakingValues.put(Shaking.Type.Intensity, s);
                     }
                 }
@@ -203,6 +211,16 @@ public class ShakingCalculator implements Runnable {
                         target.shakingValues.put(Shaking.Type.PSA, s);
                     }
                 }
+                if (gmpeDRS != null) {
+                    if (controlPeriod != null) {
+                        s = gmpeDRS.getDRS(
+                                event.magnitude, event.latitude, event.longitude,
+                                event.depth, target.latitude, target.longitude,
+                                target.altitude, ampliProxyName, target.amplification,
+                                controlPeriod, event.eventParameters);
+                        target.shakingValues.put(Shaking.Type.DRS, s);
+                    }
+                }
                 if (gmpeInt != null) {
                     s = gmpeInt.getInt(
                             event.magnitude, event.latitude, event.longitude,
@@ -214,12 +232,11 @@ public class ShakingCalculator implements Runnable {
             }
 
             // shake map
-            if (shakeMap != null) {
+            if (shakeMap != null && shakeMapParameter != null) {
                 LOG.debug("starting shake map calculation");
                 long start = System.currentTimeMillis();
-
-                if (gmpePGA != null) {
-
+                boolean success = true;
+                if (shakeMapParameter == Shaking.Type.PGA && gmpePGA != null) {
                     for (ShakeMapLayer.Point p : shakeMap.getPoints()) {
                         p.value = gmpePGA.getPGA(
                                 event.magnitude, event.latitude, event.longitude,
@@ -227,11 +244,83 @@ public class ShakingCalculator implements Runnable {
                                 ampliProxyName, p.amplification,
                                 event.eventParameters).expectedSI;
                     }
+                } else if (shakeMapParameter == Shaking.Type.PGV && gmpePGV != null) {
+                    for (ShakeMapLayer.Point p : shakeMap.getPoints()) {
+                        p.value = gmpePGV.getPGV(
+                                event.magnitude, event.latitude, event.longitude,
+                                event.depth, p.latitude, p.longitude, p.altitude,
+                                ampliProxyName, p.amplification,
+                                event.eventParameters).expectedSI;
+                    }
+                } else if (shakeMapParameter == Shaking.Type.PSA && gmpePSA != null) {
+                    if (controlPeriod != null) {
+                        for (ShakeMapLayer.Point p : shakeMap.getPoints()) {
+                            p.value = gmpePSA.getPSA(
+                                    event.magnitude, event.latitude, event.longitude,
+                                    event.depth, p.latitude, p.longitude, p.altitude,
+                                    ampliProxyName, p.amplification, controlPeriod,
+                                    event.eventParameters).expectedSI;
+                        }
+                    }
+                } else if (shakeMapParameter == Shaking.Type.DRS && gmpeDRS != null) {
+                    if (controlPeriod != null) {
+                        for (ShakeMapLayer.Point p : shakeMap.getPoints()) {
+                            p.value = gmpeDRS.getDRS(
+                                    event.magnitude, event.latitude, event.longitude,
+                                    event.depth, p.latitude, p.longitude, p.altitude,
+                                    ampliProxyName, p.amplification, controlPeriod,
+                                    event.eventParameters).expectedSI;
+                        }
+                    }
+                } else if (shakeMapParameter == Shaking.Type.Intensity && gmpeInt != null) {
+                    if (gmpeInt == null) {
+                        if (gmicePGA != null && gmpePGA != null) {
+                            for (ShakeMapLayer.Point p : shakeMap.getPoints()) {
+                                p.value = gmicePGA.getIntensityFromAcceleration(
+                                        gmpePGA.getPGA(
+                                                event.magnitude, event.latitude,
+                                                event.longitude, event.depth,
+                                                p.latitude, p.longitude, p.altitude,
+                                                ampliProxyName, p.amplification,
+                                                event.eventParameters)).expectedSI;
+                            }
+                        } else if (gmicePGV != null && gmpePGV != null) {
+                            for (ShakeMapLayer.Point p : shakeMap.getPoints()) {
+                                p.value = gmicePGV.getIntensityFromVelocity(
+                                        gmpePGV.getPGV(
+                                                event.magnitude, event.latitude,
+                                                event.longitude, event.depth,
+                                                p.latitude, p.longitude, p.altitude,
+                                                ampliProxyName, p.amplification,
+                                                event.eventParameters)).expectedSI;
+                            }
+                        } else {
+                            success = false;
+                        }
+                    } else {
+                        for (ShakeMapLayer.Point p : shakeMap.getPoints()) {
+                            p.value = gmpeInt.getInt(
+                                    event.magnitude, event.latitude, event.longitude,
+                                    event.depth, p.latitude, p.longitude, p.altitude,
+                                    ampliProxyName, p.amplification,
+                                    event.eventParameters).expectedSI;
+                        }
+                    }
+                } else {
+                    success = false;
+                }
+
+                if (success) {
                     LOG.debug(String.format("%d grid points calculated in %.3fs",
                                             shakeMap.getPoints().size(),
                                             (double) (System.currentTimeMillis() - start) / 1000.0));
-                    shakeMap.updateImage();
+                } else {
+                    LOG.warn("no implementation found for "
+                             + Application.PropertySMParameter + " "
+                             + shakeMapParameter.toString());
                 }
+
+                shakeMap.updateImage(success);
             }
         }
     }

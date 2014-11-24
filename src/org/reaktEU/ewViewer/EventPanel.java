@@ -60,17 +60,19 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         pgaLabel = new javax.swing.JLabel();
         javax.swing.JLabel pgvCaptionLabel = new javax.swing.JLabel();
         pgvLabel = new javax.swing.JLabel();
-        javax.swing.JLabel psaCaptionLabel = new javax.swing.JLabel();
-        psaLabel = new javax.swing.JLabel();
+        javax.swing.JLabel drsCaptionLabel = new javax.swing.JLabel();
+        drsLabel = new javax.swing.JLabel();
         javax.swing.JLabel intensityCaptionLabel = new javax.swing.JLabel();
         intensityLabel = new javax.swing.JLabel();
         javax.swing.JLabel likelihoodCaptionLabel = new javax.swing.JLabel();
         likelihoodLabel = new javax.swing.JLabel();
+        javax.swing.JLabel psaCaptionLabel = new javax.swing.JLabel();
+        psaLabel = new javax.swing.JLabel();
 
         setEnabled(false);
         java.awt.GridBagLayout layout = new java.awt.GridBagLayout();
         layout.columnWidths = new int[] {0, 5, 0};
-        layout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0};
+        layout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0};
         setLayout(layout);
 
         eventCaptionLabel.setLabelFor(eventLabel);
@@ -227,7 +229,55 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         add(pgvLabel, gridBagConstraints);
 
-        psaCaptionLabel.setLabelFor(psaLabel);
+        drsCaptionLabel.setLabelFor(drsLabel);
+        drsCaptionLabel.setText("DRS");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 22;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        add(drsCaptionLabel, gridBagConstraints);
+
+        drsLabel.setText("-");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 22;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        add(drsLabel, gridBagConstraints);
+
+        intensityCaptionLabel.setLabelFor(intensityLabel);
+        intensityCaptionLabel.setText("Intensity");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 24;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        add(intensityCaptionLabel, gridBagConstraints);
+
+        intensityLabel.setText("10");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 24;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        add(intensityLabel, gridBagConstraints);
+
+        likelihoodCaptionLabel.setLabelFor(likelihoodLabel);
+        likelihoodCaptionLabel.setText("Likelihood");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 26;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        add(likelihoodCaptionLabel, gridBagConstraints);
+
+        likelihoodLabel.setText("-");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 26;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        add(likelihoodLabel, gridBagConstraints);
+
+        psaCaptionLabel.setLabelFor(drsLabel);
         psaCaptionLabel.setText("PSA");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -242,42 +292,11 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         add(psaLabel, gridBagConstraints);
-
-        intensityCaptionLabel.setLabelFor(intensityLabel);
-        intensityCaptionLabel.setText("Intensity");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 22;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        add(intensityCaptionLabel, gridBagConstraints);
-
-        intensityLabel.setText("10");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 22;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        add(intensityLabel, gridBagConstraints);
-
-        likelihoodCaptionLabel.setLabelFor(likelihoodLabel);
-        likelihoodCaptionLabel.setText("Likelihood");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 24;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        add(likelihoodCaptionLabel, gridBagConstraints);
-
-        likelihoodLabel.setText("-");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 24;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        add(likelihoodLabel, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel depthLabel;
+    private javax.swing.JLabel drsLabel;
     private javax.swing.JLabel eventLabel;
     private javax.swing.JLabel intensityLabel;
     private javax.swing.JLabel likelihoodLabel;
@@ -429,6 +448,7 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
             pgaLabel.setText("-");
             pgvLabel.setText("-");
             psaLabel.setText("-");
+            drsLabel.setText("-");
             intensityLabel.setText("-");
             likelihoodLabel.setText("-");
         } else {
@@ -463,6 +483,23 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
                 }
                 psaLabel.setText(String.format("%.1fg (at %s)",
                                                s.expectedSI / EarthAcceleration,
+                                               controlText));
+            }
+            s = target.shakingValues.get(Shaking.Type.DRS);
+            if (s == null) {
+                drsLabel.setText("-");
+            } else {
+                Application app = Application.getInstance();
+                String controlText = "";
+                if (app.getControlPeriod() != null) {
+                    if (app.isUseFrequencies()) {
+                        controlText = String.format("%.1fHz", 1 / app.getControlPeriod());
+                    } else {
+                        controlText = app.getControlPeriod() + "s";
+                    }
+                }
+                drsLabel.setText(String.format("%.1fcm/s (at %s)",
+                                               s.expectedSI * 100,
                                                controlText));
             }
             s = target.shakingValues.get(Shaking.Type.Intensity);

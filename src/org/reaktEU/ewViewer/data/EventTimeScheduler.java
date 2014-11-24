@@ -69,6 +69,9 @@ public class EventTimeScheduler implements Runnable {
             this.event = event;
             cancel();
 
+            executor = Executors.newScheduledThreadPool(1);
+            executor.scheduleAtFixedRate(this, 0, UpdateInterval, TimeUnit.MILLISECONDS);
+
             // play sound
             try {
                 AudioInputStream inputStream
@@ -81,9 +84,6 @@ public class EventTimeScheduler implements Runnable {
             } catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
                 LOG.error("could not play alert sound", e);
             }
-
-            executor = Executors.newScheduledThreadPool(1);
-            executor.scheduleAtFixedRate(this, 0, UpdateInterval, TimeUnit.MILLISECONDS);
         }
     }
 

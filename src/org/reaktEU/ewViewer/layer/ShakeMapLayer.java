@@ -5,13 +5,9 @@
 package org.reaktEU.ewViewer.layer;
 
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
-import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMScalingRaster;
-import com.bbn.openmap.proj.Projection;
-import com.bbn.openmap.util.Debug;
 import java.awt.Color;
-import java.awt.Image;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -20,7 +16,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.swing.Timer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reaktEU.ewViewer.Application;
@@ -36,7 +31,7 @@ public class ShakeMapLayer extends OMGraphicHandlerLayer implements
         ActionListener {
 
     private static final Logger LOG = LogManager.getLogger(ShakeMapLayer.class);
-    private static Color[] GradientColors = {
+    private static final Color[] GradientColors = {
         new Color(255, 255, 255, 128), // white
         new Color(0, 255, 255, 128), // cyan
         new Color(0, 255, 0, 128), // green
@@ -201,15 +196,21 @@ public class ShakeMapLayer extends OMGraphicHandlerLayer implements
         return points;
     }
 
-    public void updateImage() {
+    public void updateImage(boolean valid) {
         // get next image and reset it
         currentImage = 1 - currentImage;
         BufferedImage img = images[currentImage];
         img.setData(images[2].getRaster());
 
-        // assign RGB values
-        for (Point p : points) {
-            img.setRGB(p.x, p.y, gradient.colorAt(p.value, false));
+        if (valid) {
+            // assign RGB values
+            for (Point p : points) {
+                img.setRGB(p.x, p.y, gradient.colorAt(p.value, false));
+            }
+        } else {
+            for (Point p : points) {
+                p.value = 0.0;
+            }
         }
 
         // swap image
