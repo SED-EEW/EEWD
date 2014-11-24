@@ -32,6 +32,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -91,7 +92,10 @@ public class Application implements Listener, QMLListener, ActionListener {
     public static final String PropertyVS = "vs";
     public static final String PropertyEventIcon = "eventIcon";
     public static final String PropertyTimeoutAfterOriginTime = "timeoutAfterOriginTime";
+    public static final String PropertyAlertSound = "alertSound";
+    public static final String PropertyAlertSoundLoop = "alertSoundLoop";
 
+    // processing
     public static final String PropertyAmpliProxyName = "ampliProxyName";
 
     public static final String PropertyGMPE = "gmpe";
@@ -190,6 +194,7 @@ public class Application implements Listener, QMLListener, ActionListener {
                                                    "data/stations.csv"));
         targets = readPOIs(properties.getProperty(PropertyTargetFile,
                                                   "data/targets.csv"));
+
         shakeMapLayer = new ShakeMapLayer();
 
         controlPeriod = getProperty(PropertyControlPeriod, (Double) null);

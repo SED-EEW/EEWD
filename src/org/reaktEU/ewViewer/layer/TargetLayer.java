@@ -18,7 +18,6 @@ import com.bbn.openmap.proj.Length;
 import com.bbn.openmap.util.PaletteHelper;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Paint;
 import java.awt.event.ActionEvent;
@@ -68,7 +67,7 @@ public class TargetLayer extends OMGraphicHandlerLayer implements MapMouseListen
 
         blindZoneRadius = app.getProperty(Application.PropertyBlindZoneRadius, 40.0);
         icon = new ImageIcon(app.getProperty(Application.PropertyTargetIcon,
-                                                   "data/icons/target.png"));
+                                             "data/icons/target.png"));
         showBlindZone = blindZoneRadius > 0.0;
         showNames = app.getProperty(Application.PropertyShowTargetName, false);
     }
