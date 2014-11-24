@@ -4,6 +4,6 @@ import org.reaktEU.ewViewer.data.Shaking;
 
 public interface IntensityFromAcceleration {
 
-    public Shaking getIntensityfromAcceleration(Shaking accel);
+    public Shaking getIntensityFromAcceleration(Shaking accel);
 
 }
