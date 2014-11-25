@@ -93,11 +93,11 @@
         </zip>                                                                                        
     </target>
 
-    <target name="-post-clean" description="Remove release .zip file">
+    <!--target name="-post-clean" description="Remove release .zip file">
         <delete>
             <fileset dir="${bindir}">
                 <include name="${ant.project.name}-*.zip"/>
             </fileset>
         </delete>
-    </target>
+    </target-->
 </project>
