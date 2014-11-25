@@ -416,8 +416,6 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
     private javax.swing.JLabel timeRemainingLabel;
     // End of variables declaration//GEN-END:variables
 
-    private static final double EarthAcceleration = 9.807;
-
     private final List<POI> targets;
     private final double vs;
     private final DateFormat df;
@@ -448,6 +446,8 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         originTimeOffset = null;
         eventChanged = true;
         timeChanged = true;
+
+        graph = new SpectrumPlot(app.getPeriods());
 
         initComponents();
 
@@ -480,10 +480,6 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         }
 
         update();
-
-        List<Integer> scores = Arrays.asList(42, 13, 5, 19, 33, 65, 11, 12, 14, 15);
-
-        graph = new SpectrumPlot(scores);
 
         GridBagConstraints c = new GridBagConstraints();
         c.gridx = 0;
@@ -552,6 +548,7 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
 
         // update target information
         POI target = (POI) targetCombo.getSelectedItem();
+        graph.setTarget(target);
         if (target == null) {
             timeRemainingLabel.setText("-");
             pgaLabel.setText("-");
@@ -578,8 +575,8 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
             Shaking s;
             s = target.shakingValues.get(Shaking.Type.PGA);
             pgaLabel.setText(s == null ? "-"
-                             : String.format("%.2fg", s.expectedSI / EarthAcceleration));
-            setPercentile(pgaPercentLabel, s, "%.2f", 1 / EarthAcceleration);
+                             : String.format("%.2fg", s.expectedSI * Application.EarthAcceleration1));
+            setPercentile(pgaPercentLabel, s, "%.2f", Application.EarthAcceleration1);
 
             s = target.shakingValues.get(Shaking.Type.PGV);
             pgvLabel.setText(s == null ? "-"
@@ -600,10 +597,10 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
                     }
                 }
                 psaLabel.setText(String.format("%.1fg (@%s)",
-                                               s.expectedSI / EarthAcceleration,
+                                               s.expectedSI * Application.EarthAcceleration1,
                                                controlText));
             }
-            setPercentile(psaPercentLabel, s, "%.1f", 1 / EarthAcceleration);
+            setPercentile(psaPercentLabel, s, "%.1f", Application.EarthAcceleration1);
 
             s = target.shakingValues.get(Shaking.Type.DRS);
             if (s == null) {
@@ -635,6 +632,7 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         }
         eventChanged = false;
         timeChanged = false;
+        graph.repaint();
     }
 
     private void setPercentile(JLabel label, Shaking s, String format, double factor) {

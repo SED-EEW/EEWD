@@ -39,6 +39,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import javax.swing.JMenu;
@@ -48,6 +49,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.quakeml.xmlns.bedRt.x12.EventParameters;
+import org.reaktEU.ewViewer.data.Shaking;
 import org.reaktEU.ewViewer.data.ShakingCalculator;
 import org.reaktEU.ewViewer.layer.ShakeMapLayer;
 
@@ -56,6 +58,8 @@ import org.reaktEU.ewViewer.layer.ShakeMapLayer;
 //
 // javax.swing.SwingUtilities.isEventDispatchThread
 public class Application implements QMLListener, ActionListener {
+
+    private static final Logger LOG = LogManager.getLogger(Application.class);
 
     public static final String PropertyMapProperties = "mapProperties";
     public static final String PropertyEventArchive = "eventArchive";
@@ -96,32 +100,35 @@ public class Application implements QMLListener, ActionListener {
     public static final String PropertyGMICE = "gmice";
 
     public static final String PropertyControlPeriod = "controlPeriod";
-    public static final String PropertyPeriods = "periods";
-    public static final String PropertyUseFequencies = "useFrequencies";
 
-    public static final String PropertyUseOther = "useOther";
-    public static final String PropertyOtherName = "otherName";
+    // spectrum plot
+    public static final String PropertySpec = "spectrum";
+    public static final String PropertySpecPeriods = PropertySpec + ".periods";
+    public static final String PropertySpecParameter = PropertySpec + ".parameter";
+    public static final String PropertySpecRef1 = PropertySpec + ".reference1";
+    public static final String PropertySpecRef2 = PropertySpec + ".reference2";
 
+    public static final String PropertyUseFrequencies = "useFrequencies";
     public static final String PropertyRIsHypocentral = "rIsHypocentral";
 
-    public static final String PropertyIntensityParameter = "intensityParameter";
-    public static final String PropertyScenarioParameter = "scenarioParameter";
     public static final String PropertyRadiusOfInfluence = "radiusOfInfluence";
     public static final String PropertyStationDisplacementThreshold = "stationDisplacementThreshold";
     public static final String PropertyStationTauCThreshold = "stationTauCThreshold";
 
+    // messaging
     public static final String PropertyConHost = "connection.host";
     public static final String PropertyConPort = "connection.port";
     public static final String PropertyConTopic = "connection.topic";
     public static final String PropertyConUsername = "connection.username";
     public static final String PropertyConPassword = "connection.password";
 
-    private static final Logger LOG = LogManager.getLogger(Application.class);
-
-    private static final String ActionEventBrowser = "eventBrowser";
+    public static final double EarthAcceleration = 9.807;
+    public static final double EarthAcceleration1 = 1 / EarthAcceleration;
 
     public static final double DefaultVP = 5.5;
     public static final double DefaultVS = 3.3;
+
+    private static final String ActionEventBrowser = "eventBrowser";
 
     private static Application instance = null;
 
@@ -147,6 +154,8 @@ public class Application implements QMLListener, ActionListener {
     private Double controlPeriod = null;
     private double[] periods = null;
     private boolean useFrequencies = false;
+    private Shaking.Type spectrumParameter = Shaking.Type.PSA;
+
     private String title = null;
 
     public Application(Properties props) {
@@ -198,8 +207,19 @@ public class Application implements QMLListener, ActionListener {
         shakeMapLayer = new ShakeMapLayer();
 
         controlPeriod = getProperty(PropertyControlPeriod, (Double) null);
-        periods = getProperty(PropertyPeriods, (double[]) null);
-        useFrequencies = getProperty(PropertyUseFequencies, false);
+        periods = getProperty(PropertySpecPeriods, (double[]) null);
+        useFrequencies = getProperty(PropertyUseFrequencies, false);
+
+        Arrays.sort(periods);
+
+        // read spectrum parameter
+        String param = properties.getProperty(Application.PropertySpecParameter);
+        if (param != null) {
+            spectrumParameter = Shaking.Type.valueOf(param);
+            if (spectrumParameter == null) {
+                LOG.warn("invalid " + Application.PropertySpecParameter + " value: " + param);
+            }
+        }
 
         shakingCalculator = new ShakingCalculator(targets, stations, shakeMapLayer);
 
@@ -230,6 +250,10 @@ public class Application implements QMLListener, ActionListener {
 
     public boolean isUseFrequencies() {
         return useFrequencies;
+    }
+
+    public Shaking.Type getSpectrumParameter() {
+        return spectrumParameter;
     }
 
     public static final Application getInstance() {

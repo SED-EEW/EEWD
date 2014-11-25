@@ -4,6 +4,9 @@
  */
 package org.reaktEU.ewViewer.data;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
@@ -19,6 +22,7 @@ public class POI extends AmplificationPoint {
 
     public String name;
     public Map<Shaking.Type, Shaking> shakingValues;
+    public List<Shaking> spectralValues;
 
     public POI(double latitude, double longitude, double altitude,
                double amplification, String name) {
@@ -26,10 +30,16 @@ public class POI extends AmplificationPoint {
 
         this.name = name;
         this.shakingValues = new ConcurrentHashMap();
+        this.spectralValues = new ArrayList();
     }
 
     @Override
     public String toString() {
         return name;
+    }
+
+    public void clearValues() {
+        this.shakingValues.clear();
+        this.spectralValues.clear();
     }
 }

@@ -177,57 +177,78 @@ public class ShakingCalculator implements Runnable {
 
             Shaking s;
             for (POI target : targets) {
-                if (gmpePGA != null) {
-                    s = gmpePGA.getPGA(
-                            event.magnitude, event.latitude, event.longitude,
-                            event.depth, target.latitude, target.longitude,
-                            target.altitude, ampliProxyName, target.amplification,
-                            event.eventParameters);
-                    target.shakingValues.put(Shaking.Type.PGA, s);
-                    if (gmpeInt == null && gmicePGA != null) {
-                        s = gmicePGA.getIntensityFromAcceleration(s);
-                        target.shakingValues.put(Shaking.Type.Intensity, s);
-                    }
-                }
-                if (gmpePGV != null) {
-                    s = gmpePGV.getPGV(
-                            event.magnitude, event.latitude, event.longitude,
-                            event.depth, target.latitude, target.longitude,
-                            target.altitude, ampliProxyName, target.amplification,
-                            event.eventParameters);
-                    target.shakingValues.put(Shaking.Type.PGV, s);
-                    if (gmpeInt == null && gmicePGV != null) {
-                        s = gmicePGV.getIntensityFromVelocity(s);
-                        target.shakingValues.put(Shaking.Type.Intensity, s);
-                    }
-                }
-                if (gmpePSA != null) {
-                    if (controlPeriod != null) {
-                        s = gmpePSA.getPSA(
+                synchronized (target) {
+                    target.clearValues();
+                    if (gmpePGA != null) {
+                        s = gmpePGA.getPGA(
                                 event.magnitude, event.latitude, event.longitude,
                                 event.depth, target.latitude, target.longitude,
                                 target.altitude, ampliProxyName, target.amplification,
-                                controlPeriod, event.eventParameters);
-                        target.shakingValues.put(Shaking.Type.PSA, s);
+                                event.eventParameters);
+                        target.shakingValues.put(Shaking.Type.PGA, s);
+                        if (gmpeInt == null && gmicePGA != null) {
+                            s = gmicePGA.getIntensityFromAcceleration(s);
+                            target.shakingValues.put(Shaking.Type.Intensity, s);
+                        }
                     }
-                }
-                if (gmpeDRS != null) {
-                    if (controlPeriod != null) {
-                        s = gmpeDRS.getDRS(
+                    if (gmpePGV != null) {
+                        s = gmpePGV.getPGV(
                                 event.magnitude, event.latitude, event.longitude,
                                 event.depth, target.latitude, target.longitude,
                                 target.altitude, ampliProxyName, target.amplification,
-                                controlPeriod, event.eventParameters);
-                        target.shakingValues.put(Shaking.Type.DRS, s);
+                                event.eventParameters);
+                        target.shakingValues.put(Shaking.Type.PGV, s);
+                        if (gmpeInt == null && gmicePGV != null) {
+                            s = gmicePGV.getIntensityFromVelocity(s);
+                            target.shakingValues.put(Shaking.Type.Intensity, s);
+                        }
                     }
-                }
-                if (gmpeInt != null) {
-                    s = gmpeInt.getInt(
-                            event.magnitude, event.latitude, event.longitude,
-                            event.depth, target.latitude, target.longitude,
-                            target.altitude, ampliProxyName, target.amplification,
-                            event.eventParameters);
-                    target.shakingValues.put(Shaking.Type.Intensity, s);
+                    if (gmpePSA != null) {
+                        if (controlPeriod != null) {
+                            s = gmpePSA.getPSA(
+                                    event.magnitude, event.latitude, event.longitude,
+                                    event.depth, target.latitude, target.longitude,
+                                    target.altitude, ampliProxyName, target.amplification,
+                                    controlPeriod, event.eventParameters);
+                            target.shakingValues.put(Shaking.Type.PSA, s);
+                        }
+                        if (app.getSpectrumParameter() == Shaking.Type.PSA) {
+                            for (double p : periods) {
+                                target.spectralValues.add(gmpePSA.getPSA(
+                                        event.magnitude, event.latitude, event.longitude,
+                                        event.depth, target.latitude, target.longitude,
+                                        target.altitude, ampliProxyName, target.amplification,
+                                        p, event.eventParameters));
+                            }
+                        }
+                    }
+                    if (gmpeDRS != null) {
+                        if (controlPeriod != null) {
+                            s = gmpeDRS.getDRS(
+                                    event.magnitude, event.latitude, event.longitude,
+                                    event.depth, target.latitude, target.longitude,
+                                    target.altitude, ampliProxyName, target.amplification,
+                                    controlPeriod, event.eventParameters);
+                            target.shakingValues.put(Shaking.Type.DRS, s);
+                        }
+                        if (app.getSpectrumParameter() == Shaking.Type.DRS) {
+                            for (double p : periods) {
+                                target.spectralValues.add(gmpeDRS.getDRS(
+                                        event.magnitude, event.latitude, event.longitude,
+                                        event.depth, target.latitude, target.longitude,
+                                        target.altitude, ampliProxyName, target.amplification,
+                                        p, event.eventParameters));
+                            }
+                        }
+                    }
+                    if (gmpeInt != null) {
+                        s = gmpeInt.getInt(
+                                event.magnitude, event.latitude, event.longitude,
+                                event.depth, target.latitude, target.longitude,
+                                target.altitude, ampliProxyName, target.amplification,
+                                event.eventParameters);
+                        target.shakingValues.put(Shaking.Type.Intensity, s);
+                    }
                 }
             }
 
