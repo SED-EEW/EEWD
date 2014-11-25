@@ -14,6 +14,7 @@ import javax.swing.JMenuBar;
 
 import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.PropertyHandler;
+import com.bbn.openmap.gui.BasicMapPanel;
 import com.bbn.openmap.gui.FileMenu;
 import com.bbn.openmap.gui.MapPanel;
 import com.bbn.openmap.gui.OpenMapFrame;
@@ -39,15 +40,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import javax.security.auth.login.LoginException;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import net.ser1.stomp.Client;
-import net.ser1.stomp.Listener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.quakeml.xmlns.bedRt.x12.EventParameters;
@@ -57,10 +54,8 @@ import org.reaktEU.ewViewer.layer.ShakeMapLayer;
 // TODO:
 // int cores = Runtime.getRuntime().availableProcessors();
 //
-// javax.swing.SwingUtilities.isEventDispatchThread.
-//
-// System.getProperty("user.home")
-public class Application implements Listener, QMLListener, ActionListener {
+// javax.swing.SwingUtilities.isEventDispatchThread
+public class Application implements QMLListener, ActionListener {
 
     public static final String PropertyMapProperties = "mapProperties";
     public static final String PropertyEventArchive = "eventArchive";
@@ -117,6 +112,7 @@ public class Application implements Listener, QMLListener, ActionListener {
 
     public static final String PropertyConHost = "connection.host";
     public static final String PropertyConPort = "connection.port";
+    public static final String PropertyConTopic = "connection.topic";
     public static final String PropertyConUsername = "connection.username";
     public static final String PropertyConPassword = "connection.password";
 
@@ -130,15 +126,12 @@ public class Application implements Listener, QMLListener, ActionListener {
     private static Application instance = null;
 
     // gui components
-    private MapPanel mapPanel;
+    private BasicMapPanel mapPanel;
     private OpenMapFrame openMapFrame = null;
     private EventPanel eventPanel = null;
     private EventLayer eventLayer = null;
     private ShakeMapLayer shakeMapLayer = null;
     private EventBrowser eventBrowser = null;
-
-    // data handling
-    private Client client = null;
 
     private Properties properties;
     private final EventArchive eventArchive;
@@ -149,9 +142,12 @@ public class Application implements Listener, QMLListener, ActionListener {
 
     private final ShakingCalculator shakingCalculator;
 
+    private final Messaging messaging;
+
     private Double controlPeriod = null;
     private double[] periods = null;
     private boolean useFrequencies = false;
+    private String title = null;
 
     public Application(Properties props) {
         instance = this;
@@ -207,8 +203,10 @@ public class Application implements Listener, QMLListener, ActionListener {
 
         shakingCalculator = new ShakingCalculator(targets, stations, shakeMapLayer);
 
-        // configure gui components
+        title = mapPropertyHandler.getProperties().getProperty("openmap.Title");
         configureMapPanel(mapPropertyHandler);
+
+        messaging = new Messaging();
 
         // Schedule a job for the event-dispatching thread:
         // creating and showing this application's GUI.
@@ -218,6 +216,8 @@ public class Application implements Listener, QMLListener, ActionListener {
                 showInFrame();
             }
         });
+
+        messaging.listen();
     }
 
     public Double getControlPeriod() {
@@ -396,8 +396,9 @@ public class Application implements Listener, QMLListener, ActionListener {
                     }
                 }
             };
-            openMapFrame.setTitle("Earthquake Early Warning Display");
             mapPanel.getMapHandler().add(openMapFrame);
+            //openMapFrame.setTitle(title);
+            messaging.reportConnectionState();
         }
 
         openMapFrame.addWindowListener(new WindowAdapter() {
@@ -460,25 +461,6 @@ public class Application implements Listener, QMLListener, ActionListener {
         return pois;
     }
 
-    public void listen() {
-
-        try {
-            client = new Client("sc3vsd.ethz.ch", 61618, "gempa", "GempaIsOK");
-            client.addErrorListener(this);
-            client.subscribe("/topic/eewd", this);
-
-            //c.unsubscribe("eewd", this);
-            //c.disconnect();
-        } catch (IOException | LoginException ex) {
-            LOG.error(ex);
-        }
-    }
-
-    @Override
-    public void message(Map headers, String body) {
-        System.out.println(body);
-    }
-
     @Override
     public void processQML(EventParameters eventParameters, long offset) {
         LOG.info("received event update");
@@ -508,6 +490,12 @@ public class Application implements Listener, QMLListener, ActionListener {
                 eventBrowser = new EventBrowser(this, openMapFrame, true);
             }
             eventBrowser.setVisible(true);
+        }
+    }
+
+    public void setConnectionState(String state) {
+        if (openMapFrame != null) {
+            openMapFrame.setTitle(title + " [ " + state + " ]");
         }
     }
 
@@ -548,8 +536,6 @@ public class Application implements Listener, QMLListener, ActionListener {
         }
 
         Application app = new Application(props);
-
-        //app.listen();
     }
 
 }

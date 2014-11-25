@@ -66,9 +66,7 @@ public class EventFile {
                     }
                 }
 
-            } catch (XmlException ex) {
-                LOG.error(ex);
-            } catch (IOException ex) {
+            } catch (XmlException | IOException ex) {
                 LOG.error(ex);
             }
         }
