@@ -34,12 +34,12 @@ public class SpectrumPlot extends JPanel {
     private static final Color Ref2Color = new Color(192, 0, 0);
     private static final Color ShakingColor = new Color(0, 0, 255);
 
-    private static final Color GRAPH_POINT_COLOR = new Color(150, 50, 50, 180);
     private static final Stroke DefaultStroke = new BasicStroke(2f);
     private static final Stroke PercentileStroke
                                 = new BasicStroke(1.5f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER,
                                                   10f, new float[]{7, 10}, 0f);
-    private static final int GRAPH_POINT_WIDTH = 12;
+    private static final int PointRadius = 3;
+    private static final int PointRadius2 = PointRadius * 2;
 
     private final double[] periods;
     private final List<Double> reference1;
@@ -93,8 +93,9 @@ public class SpectrumPlot extends JPanel {
 
         // create x and y axes
         g2.setColor(Color.black);
-        g2.drawLine(0, height, width, height);
-        g2.drawLine(0, 0, 0, height);
+        g2.drawLine(0, height - 1, width - 1, height - 1);
+        g2.drawLine(0, 0, 0, height - 1);
+        g2.setClip(0, 0, width - 1, height - 1);
 
         if (periods.length == 0 || target == null
             || periods[periods.length - 1] <= 0) {
@@ -107,14 +108,14 @@ public class SpectrumPlot extends JPanel {
         synchronized (target) {
 
             // determine min/max of x and y axis
-            double xMin = 0;
-            double xMax = 0;
+            int xMin;
+            int xMax;
             if (logScale) {
-                xMin = Math.floor(Math.log10(periods[0]));
-                xMax = Math.ceil(Math.log10(periods[periods.length - 1]));
+                xMin = (int) Math.log10(periods[0]);
+                xMax = (int) Math.ceil(Math.log10(periods[periods.length - 1]));
             } else {
-                xMin = periods[0];
-                xMax = periods[periods.length - 1];
+                xMin = 0;
+                xMax = (int) Math.ceil(periods[periods.length - 1]);
             }
 
             double yMin = 0;
@@ -124,29 +125,33 @@ public class SpectrumPlot extends JPanel {
             for (double v : reference1) {
                 if (first) {
                     first = false;
-                    yMin = yMax = v;
+                    /*yMin =*/ yMax = v;
                 }
-                yMin = Math.min(yMin, v);
+                /*yMin = Math.min(yMin, v);*/
                 yMax = Math.max(yMax, v);
             }
             for (double v : reference2) {
                 if (first) {
                     first = false;
-                    yMin = yMax = v;
+                    /*yMin =*/ yMax = v;
                 }
-                yMin = Math.min(yMin, v);
+                /*yMin = Math.min(yMin, v);*/
                 yMax = Math.max(yMax, v);
             }
 
             for (Shaking s : target.spectralValues) {
                 if (first) {
                     first = false;
-                    yMin = yMax = s.expectedSI * factor;
+                    /*yMin =*/ yMax = s.expectedSI * factor;
                 } else {
-                    yMin = Math.min(yMin, s.expectedSI * factor);
+                    /*yMin = Math.min(yMin, s.expectedSI * factor);*/
+                    yMax = Math.max(yMax, s.expectedSI * factor);
                 }
-                yMin = Math.min(yMin, s.percentile84 * factor);
-                yMin = Math.min(yMin, s.percentile16 * factor);
+                /*
+                 yMin = Math.min(yMin, s.expectedSI * factor);
+                 yMin = Math.min(yMin, s.percentile84 * factor);
+                 yMin = Math.min(yMin, s.percentile16 * factor);
+                 */
                 yMax = Math.max(yMax, s.expectedSI * factor);
                 yMax = Math.max(yMax, s.percentile84 * factor);
                 yMax = Math.max(yMax, s.percentile16 * factor);
@@ -240,13 +245,24 @@ public class SpectrumPlot extends JPanel {
     }
 
     private void drawGraph(Graphics2D g, List<Point> points) {
-        for (int i = 0; i < points.size() - 1; i++) {
-            int x1 = points.get(i).x;
-            int y1 = points.get(i).y;
-            int x2 = points.get(i + 1).x;
-            int y2 = points.get(i + 1).y;
-            g.drawLine(x1, y1, x2, y2);
+        if (points.isEmpty()) {
+            return;
         }
+
+        Point p, prevP = null;
+        for (int i = 0; i < points.size() - 1; i++) {
+            p = points.get(i);
+            if (prevP != null) {
+                g.drawLine(prevP.x, prevP.y, p.x, p.y);
+                g.fillOval(prevP.x - PointRadius, prevP.y - PointRadius, PointRadius2, PointRadius2);
+            }
+            prevP = p;
+        }
+        g.fillOval(prevP.x - PointRadius, prevP.y - PointRadius, PointRadius2, PointRadius2);
+    }
+
+    private void drawPoint(Graphics2D g, Point p) {
+
     }
 
     @Override
