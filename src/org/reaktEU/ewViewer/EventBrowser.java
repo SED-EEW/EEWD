@@ -49,7 +49,6 @@ public class EventBrowser extends javax.swing.JDialog
         sequenceScrollPane = new javax.swing.JScrollPane();
         sequenceTable = new javax.swing.JTable();
         buttonPanel = new javax.swing.JPanel();
-        reloadButton = new javax.swing.JButton();
         deleteScenarioButton = new javax.swing.JButton();
         createScenarioButton = new javax.swing.JButton();
         replayButton = new javax.swing.JButton();
@@ -99,9 +98,6 @@ public class EventBrowser extends javax.swing.JDialog
         sequenceScrollPane.setViewportView(sequenceTable);
 
         mainPanel.add(sequenceScrollPane, java.awt.BorderLayout.CENTER);
-
-        reloadButton.setText("Reload");
-        buttonPanel.add(reloadButton);
 
         deleteScenarioButton.setText("Delete");
         deleteScenarioButton.setToolTipText("");
@@ -167,7 +163,6 @@ public class EventBrowser extends javax.swing.JDialog
     private javax.swing.JScrollPane eventScrollPane;
     private javax.swing.JTree eventTree;
     private javax.swing.JPanel mainPanel;
-    private javax.swing.JButton reloadButton;
     private javax.swing.JButton replayButton;
     private javax.swing.JScrollPane sequenceScrollPane;
     private javax.swing.JTable sequenceTable;
@@ -199,11 +194,11 @@ public class EventBrowser extends javax.swing.JDialog
 
         initComponents();
         initCustomComponents();
+        reload();
     }
 
     private void initCustomComponents() {
         eventTree.addTreeSelectionListener(this);
-        reloadButton.addActionListener(this);
         deleteScenarioButton.addActionListener(this);
         createScenarioButton.addActionListener(this);
         replayButton.addActionListener(this);
@@ -309,9 +304,7 @@ public class EventBrowser extends javax.swing.JDialog
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == reloadButton) {
-            reload();
-        } else if (e.getSource() == createScenarioButton) {
+        if (e.getSource() == createScenarioButton) {
             if (application.getEventArchive().createScenario(selectedEvent)) {
                 reload();
             }
