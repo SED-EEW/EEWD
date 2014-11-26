@@ -207,7 +207,8 @@ public class SpectrumPlot extends JPanel {
                 y = height - (int) (v * dy) - 1;
                 g2.drawLine(0, y, -TickLength, y);
 
-                String text = Double.toString(v);
+                long multiplier = (long) Math.pow(10, 3);
+                String text = Double.toString(((double) ((int) (v * multiplier)) / multiplier));
                 int w = (int) fm.getStringBounds(text, null).getWidth();
                 g2.drawString(text, -TickLength - 3 - w, y + halfAscent);
             }
