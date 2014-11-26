@@ -150,7 +150,7 @@ public class Swiss implements AttenuationPGA, AttenuationPGV, AttenuationPSA, At
         Shaking PGV = new Shaking();
         PGV.expectedSI = pow(10, logpgvsite) / 100;
         PGV.percentile84 = pow(10, logpgvsiteplus) / 100;
-        PGV.percentile84 = pow(10, logpgvsiteminus) / 100;
+        PGV.percentile16 = pow(10, logpgvsiteminus) / 100;
 
         // Now should return Shaking ...
         return PGV;
