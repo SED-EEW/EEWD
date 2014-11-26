@@ -1,4 +1,4 @@
-package org.reaktEU.ewViewer.gmpe;
+package org.reaktEU.ewViewer.ipe;
 
 import org.quakeml.xmlns.bedRt.x12.EventParameters;
 import org.reaktEU.ewViewer.data.*;

@@ -5,18 +5,25 @@
 package org.reaktEU.ewViewer.data;
 
 import java.util.Objects;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 import org.quakeml.xmlns.bedRt.x12.Event;
 import org.quakeml.xmlns.bedRt.x12.EventParameters;
 import org.quakeml.xmlns.bedRt.x12.Magnitude;
 import org.quakeml.xmlns.bedRt.x12.Origin;
 import org.quakeml.xmlns.bedRt.x12.RealQuantity;
 import org.quakeml.xmlns.bedRt.x12.TimeQuantity;
+import org.quakeml.xmlns.vstypes.x01.Likelihood;
 
 /**
  *
  * @author Stephan Herrnkind <herrnkind@gempa.de>
  */
 public class EventData {
+
+    private static final Logger LOG = LogManager.getLogger(EventData.class);
 
     public class InvalidEventDataException extends Exception {
 
@@ -35,6 +42,7 @@ public class EventData {
     public double depth = 0.0;
     public double magnitude = 0.0;
     public Double intensity = null;
+    public Float likelihood = null;
 
     public EventParameters eventParameters = null;
 
@@ -95,6 +103,18 @@ public class EventData {
                                                 + preferredMagnitudeID + "' not found");
         }
         magnitude = getRealQuantity(mag.getMagArray(), "magnitude");
+
+        // likelihood
+        XmlObject[] objs = event.selectChildren(Likelihood.type.getName());
+        if (objs.length > 0) {
+            try {
+                Likelihood l = Likelihood.Factory.parse(objs[0].xmlText());
+                likelihood = l.getFloatValue();
+            } catch (XmlException ex) {
+                LOG.warn("could not parse " + Likelihood.type.getShortJavaName());
+            }
+
+        }
     }
 
     private void assertOne(Object[] array, String name)

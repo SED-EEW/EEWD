@@ -1,4 +1,4 @@
-package org.reaktEU.ewViewer.gmpe.impl;
+package org.reaktEU.ewViewer.ipe;
 
 /*
  * Intensity prediction equation for the Euro-Mediterranean region by Faccioli and Cauzzi (ECEES, 2006)
@@ -9,7 +9,7 @@ import org.quakeml.xmlns.bedRt.x12.EventParameters;
 import org.reaktEU.ewViewer.data.*;
 
 import static java.lang.Math.*;
-import org.reaktEU.ewViewer.gmpe.AttenuationInt;
+import org.reaktEU.ewViewer.ipe.AttenuationInt;
 
 public class FC06 implements AttenuationInt {
     // Returns mean I, plus / minus one sigma

@@ -16,7 +16,7 @@ import org.reaktEU.ewViewer.Application;
 import org.reaktEU.ewViewer.gmice.IntensityFromAcceleration;
 import org.reaktEU.ewViewer.gmice.IntensityFromVelocity;
 import org.reaktEU.ewViewer.gmpe.AttenuationDRS;
-import org.reaktEU.ewViewer.gmpe.AttenuationInt;
+import org.reaktEU.ewViewer.ipe.AttenuationInt;
 import org.reaktEU.ewViewer.gmpe.AttenuationPGA;
 import org.reaktEU.ewViewer.gmpe.AttenuationPGV;
 import org.reaktEU.ewViewer.gmpe.AttenuationPSA;

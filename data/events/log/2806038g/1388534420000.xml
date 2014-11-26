@@ -21,7 +21,7 @@
       <type>earthquake</type>
       <!-- Likelihood would need to be defined as an extension to the event type. In the 
          same way other extensions could be defined to other elements. -->
-      <vs:likelihood>-9.9</vs:likelihood>
+      <vs:likelihood>0.92</vs:likelihood>
     </event>
     <origin publicID="smi:ch.ethz.sed/event/2806038g/origin/1">
       <time>
