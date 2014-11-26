@@ -54,8 +54,8 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         separator = new javax.swing.JSeparator();
         targetCaptionLabel = new javax.swing.JLabel();
         targetCombo = new javax.swing.JComboBox();
-        javax.swing.JLabel timeRemainingCaptionLabel = new javax.swing.JLabel();
-        timeRemainingLabel = new javax.swing.JLabel();
+        javax.swing.JLabel distanceCaptionLabel = new javax.swing.JLabel();
+        distanceLabel = new javax.swing.JLabel();
         javax.swing.JLabel pgaCaptionLabel = new javax.swing.JLabel();
         pgaLabel = new javax.swing.JLabel();
         javax.swing.JLabel pgvCaptionLabel = new javax.swing.JLabel();
@@ -79,6 +79,8 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         pgvPercentLabel = new javax.swing.JLabel();
         pgaPercentLabel = new javax.swing.JLabel();
         separator1 = new javax.swing.JSeparator();
+        javax.swing.JLabel timeRemainingCaptionLabel = new javax.swing.JLabel();
+        timeRemainingLabel = new javax.swing.JLabel();
 
         setEnabled(false);
         setLayout(new java.awt.GridBagLayout());
@@ -183,7 +185,7 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         add(depthLabel, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 14;
+        gridBagConstraints.gridy = 15;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(4, 7, 7, 7);
@@ -207,7 +209,233 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
         add(targetCombo, gridBagConstraints);
 
-        timeRemainingCaptionLabel.setLabelFor(timeRemainingLabel);
+        distanceCaptionLabel.setLabelFor(distanceLabel);
+        distanceCaptionLabel.setText("Distance");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(distanceCaptionLabel, gridBagConstraints);
+
+        distanceLabel.setText("99km");
+        distanceLabel.setToolTipText("estimated arrival of S wave");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(distanceLabel, gridBagConstraints);
+
+        pgaCaptionLabel.setLabelFor(pgaLabel);
+        pgaCaptionLabel.setText("PGA");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 9;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(pgaCaptionLabel, gridBagConstraints);
+
+        pgaLabel.setText("2.3m/s²");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 9;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(pgaLabel, gridBagConstraints);
+
+        pgvCaptionLabel.setLabelFor(pgvLabel);
+        pgvCaptionLabel.setText("PGV");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(pgvCaptionLabel, gridBagConstraints);
+
+        pgvLabel.setText("3m/s");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(pgvLabel, gridBagConstraints);
+
+        drsCaptionLabel.setLabelFor(drsLabel);
+        drsCaptionLabel.setText("DRS");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 12;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(drsCaptionLabel, gridBagConstraints);
+
+        drsLabel.setText("-");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 12;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(drsLabel, gridBagConstraints);
+
+        intensityCaptionLabel.setLabelFor(intensityLabel);
+        intensityCaptionLabel.setText("Intensity");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 13;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(intensityCaptionLabel, gridBagConstraints);
+
+        intensityLabel.setText("10");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 13;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(intensityLabel, gridBagConstraints);
+
+        likelihoodCaptionLabel.setLabelFor(likelihoodLabel);
+        likelihoodCaptionLabel.setText("Likelihood");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 14;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(likelihoodCaptionLabel, gridBagConstraints);
+
+        likelihoodLabel.setText("-");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 14;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(likelihoodLabel, gridBagConstraints);
+
+        psaCaptionLabel.setLabelFor(drsLabel);
+        psaCaptionLabel.setText("PSA");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 11;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(psaCaptionLabel, gridBagConstraints);
+
+        psaLabel.setText("-");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 11;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(psaLabel, gridBagConstraints);
+
+        intensityPercentCaptionLabel.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
+        intensityPercentCaptionLabel.setText("<html>P<sub>84/16</sub></html>");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 13;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(intensityPercentCaptionLabel, gridBagConstraints);
+
+        intensityPercentLabel.setText("-");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 13;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(intensityPercentLabel, gridBagConstraints);
+
+        drsPercentCaptionLabel.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
+        drsPercentCaptionLabel.setText("<html>P<sub>84/16</sub></html>");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 12;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(drsPercentCaptionLabel, gridBagConstraints);
+
+        psaPercentCaptionLabel.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
+        psaPercentCaptionLabel.setText("<html>P<sub>84/16</sub></html>");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 11;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(psaPercentCaptionLabel, gridBagConstraints);
+
+        pgvPercentCaptionLabel.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
+        pgvPercentCaptionLabel.setText("<html>P<sub>84/16</sub></html>");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(pgvPercentCaptionLabel, gridBagConstraints);
+
+        pgaPercentCaptionLabel.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
+        pgaPercentCaptionLabel.setText("<html>P<sub>84/16</sub></html>");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 9;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(pgaPercentCaptionLabel, gridBagConstraints);
+
+        drsPercentLabel.setText("-");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(drsPercentLabel, gridBagConstraints);
+
+        psaPercentLabel.setText("-");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 11;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(psaPercentLabel, gridBagConstraints);
+
+        pgvPercentLabel.setText("-");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(pgvPercentLabel, gridBagConstraints);
+
+        pgaPercentLabel.setText("-");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(pgaPercentLabel, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
+        add(separator1, gridBagConstraints);
+
+        timeRemainingCaptionLabel.setLabelFor(distanceLabel);
         timeRemainingCaptionLabel.setText("Time remaining");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -226,211 +454,11 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
         add(timeRemainingLabel, gridBagConstraints);
-
-        pgaCaptionLabel.setLabelFor(pgaLabel);
-        pgaCaptionLabel.setText("PGA");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(pgaCaptionLabel, gridBagConstraints);
-
-        pgaLabel.setText("2.3m/s²");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(pgaLabel, gridBagConstraints);
-
-        pgvCaptionLabel.setLabelFor(pgvLabel);
-        pgvCaptionLabel.setText("PGV");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(pgvCaptionLabel, gridBagConstraints);
-
-        pgvLabel.setText("3m/s");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(pgvLabel, gridBagConstraints);
-
-        drsCaptionLabel.setLabelFor(drsLabel);
-        drsCaptionLabel.setText("DRS");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 11;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(drsCaptionLabel, gridBagConstraints);
-
-        drsLabel.setText("-");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 11;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(drsLabel, gridBagConstraints);
-
-        intensityCaptionLabel.setLabelFor(intensityLabel);
-        intensityCaptionLabel.setText("Intensity");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 12;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(intensityCaptionLabel, gridBagConstraints);
-
-        intensityLabel.setText("10");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 12;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(intensityLabel, gridBagConstraints);
-
-        likelihoodCaptionLabel.setLabelFor(likelihoodLabel);
-        likelihoodCaptionLabel.setText("Likelihood");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 13;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(likelihoodCaptionLabel, gridBagConstraints);
-
-        likelihoodLabel.setText("-");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 13;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(likelihoodLabel, gridBagConstraints);
-
-        psaCaptionLabel.setLabelFor(drsLabel);
-        psaCaptionLabel.setText("PSA");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 10;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(psaCaptionLabel, gridBagConstraints);
-
-        psaLabel.setText("-");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 10;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(psaLabel, gridBagConstraints);
-
-        intensityPercentCaptionLabel.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
-        intensityPercentCaptionLabel.setText("<html>P<sub>84/16</sub></html>");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 12;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(intensityPercentCaptionLabel, gridBagConstraints);
-
-        intensityPercentLabel.setText("-");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 12;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(intensityPercentLabel, gridBagConstraints);
-
-        drsPercentCaptionLabel.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
-        drsPercentCaptionLabel.setText("<html>P<sub>84/16</sub></html>");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 11;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(drsPercentCaptionLabel, gridBagConstraints);
-
-        psaPercentCaptionLabel.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
-        psaPercentCaptionLabel.setText("<html>P<sub>84/16</sub></html>");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 10;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(psaPercentCaptionLabel, gridBagConstraints);
-
-        pgvPercentCaptionLabel.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
-        pgvPercentCaptionLabel.setText("<html>P<sub>84/16</sub></html>");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 9;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(pgvPercentCaptionLabel, gridBagConstraints);
-
-        pgaPercentCaptionLabel.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
-        pgaPercentCaptionLabel.setText("<html>P<sub>84/16</sub></html>");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 8;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(pgaPercentCaptionLabel, gridBagConstraints);
-
-        drsPercentLabel.setText("-");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 11;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(drsPercentLabel, gridBagConstraints);
-
-        psaPercentLabel.setText("-");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 10;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(psaPercentLabel, gridBagConstraints);
-
-        pgvPercentLabel.setText("-");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 9;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(pgvPercentLabel, gridBagConstraints);
-
-        pgaPercentLabel.setText("-");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 8;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(pgaPercentLabel, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(4, 7, 4, 7);
-        add(separator1, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel depthLabel;
+    private javax.swing.JLabel distanceLabel;
     private javax.swing.JLabel drsLabel;
     private javax.swing.JLabel drsPercentCaptionLabel;
     private javax.swing.JLabel drsPercentLabel;
@@ -525,7 +553,7 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
 
         GridBagConstraints c = new GridBagConstraints();
         c.gridx = 0;
-        c.gridy = 15;
+        c.gridy = 16;
         c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = java.awt.GridBagConstraints.BOTH;
         c.anchor = java.awt.GridBagConstraints.WEST;
@@ -594,6 +622,7 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         graph.setTarget(target);
         if (target == null) {
             timeRemainingLabel.setText("-");
+            distanceLabel.setText("-");
             pgaLabel.setText("-");
             pgaPercentLabel.setText("");
             pgvLabel.setText("-");
@@ -608,13 +637,16 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         } else {
             if (originTimeOffset == null) {
                 timeRemainingLabel.setText("-");
+                distanceLabel.setText("-");
             } else {
                 double[] pEvent = GeoCalc.Geo2Cart(event.latitude, event.longitude, -event.depth * 1000);
                 double[] pTarget = GeoCalc.Geo2Cart(target.latitude, target.longitude, target.altitude);
                 double distance = GeoCalc.Distance3D(pEvent, pTarget);
                 double eta = distance / vs - originTimeOffset;
                 timeRemainingLabel.setText(String.format("%.1fs", eta / 1000.0));
+                distanceLabel.setText(String.format("%.1fkm", distance / 1000.0));
             }
+
             Shaking s;
             s = target.shakingValues.get(Shaking.Type.PGA);
             pgaLabel.setText(s == null ? "-"

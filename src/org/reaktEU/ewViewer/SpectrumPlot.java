@@ -7,6 +7,7 @@ package org.reaktEU.ewViewer;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -28,6 +29,7 @@ public class SpectrumPlot extends JPanel {
     private static final int PrefW = 800;
     private static final int PrefH = 650;
     private static final int BorderGap = 30;
+    private static final int TickLength = 10;
 
     private static final Color BackgroundColor = Color.white;
     private static final Color Ref1Color = new Color(0, 192, 0);
@@ -88,14 +90,15 @@ public class SpectrumPlot extends JPanel {
         g2.translate(BorderGap, BorderGap);
 
         // fill background
-        g2.setColor(BackgroundColor);
-        g2.fillRect(0, 0, width, height);
-
+        /*g2.setColor(BackgroundColor);
+         g2.fillRect(0, 0, width, height);*/
         // create x and y axes
         g2.setColor(Color.black);
         g2.drawLine(0, height - 1, width - 1, height - 1);
         g2.drawLine(0, 0, 0, height - 1);
-        g2.setClip(0, 0, width - 1, height - 1);
+
+        g2.setFont(g2.getFont().deriveFont(8.0f));
+        FontMetrics fm = g2.getFontMetrics();
 
         if (periods.length == 0 || target == null
             || periods[periods.length - 1] <= 0) {
@@ -194,6 +197,21 @@ public class SpectrumPlot extends JPanel {
                 }
             }
 
+            int halfAscent = fm.getAscent() / 2;
+
+            double q = Math.log10(2 * (yMax - yMin) * 2 * fm.getHeight() / height);
+            double rx = q - Math.floor(q);
+            int d = rx < 0.3 ? 1 : rx > 0.7 ? 5 : 2;
+            double tickStep = d * Math.pow(10, Math.floor(q - rx));
+            for (double v = 0; v < yMax; v += tickStep) {
+                y = height - (int) (v * dy) - 1;
+                g2.drawLine(0, y, -TickLength, y);
+
+                String text = Double.toString(v);
+                int w = (int) fm.getStringBounds(text, null).getWidth();
+                g2.drawString(text, -TickLength - 3 - w, y + halfAscent);
+            }
+
 //            // create hatch marks for y axis.
 //            for (int i = 0; i < Y_HATCH_CNT; i++) {
 //                int x0 = BORDER_GAP;
@@ -211,6 +229,8 @@ public class SpectrumPlot extends JPanel {
 //                int y1 = y0 - GRAPH_POINT_WIDTH;
 //                g2.drawLine(x0, y0, x1, y1);
 //            }
+            g2.setClip(0, 0, width - 1, height - 1);
+
             g2.setStroke(DefaultStroke);
             g2.setColor(Ref1Color);
             drawGraph(g2, ref1Points);

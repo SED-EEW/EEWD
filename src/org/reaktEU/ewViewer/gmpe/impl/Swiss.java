@@ -197,7 +197,6 @@ public class Swiss implements AttenuationPGA, AttenuationPGV, AttenuationPSA, At
             cnt = 1;
             sigma = 0.3346;
             amp = 2.58;
-
         } else if (period == 0.02) {
             cnt = 2;
             sigma = 0.3346;
