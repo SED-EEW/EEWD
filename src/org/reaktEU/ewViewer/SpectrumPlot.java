@@ -44,12 +44,14 @@ public class SpectrumPlot extends JPanel {
     private final double[] periods;
     private final List<Double> reference1;
     private final List<Double> reference2;
+    private final boolean logScale;
     private POI target;
 
     public SpectrumPlot(double[] periods) {
         this.periods = periods;
         this.reference1 = readReference(Application.PropertySpecRef1);
         this.reference2 = readReference(Application.PropertySpecRef2);
+        this.logScale = Application.getInstance().getProperty(Application.PropertySpecLogScale, false);
     }
 
     private List<Double> readReference(String key) {
@@ -94,7 +96,8 @@ public class SpectrumPlot extends JPanel {
         g2.drawLine(0, height, width, height);
         g2.drawLine(0, 0, 0, height);
 
-        if (periods.length == 0 || target == null) {
+        if (periods.length == 0 || target == null
+            || periods[periods.length - 1] <= 0) {
             return;
         }
 
@@ -103,12 +106,19 @@ public class SpectrumPlot extends JPanel {
 
         synchronized (target) {
 
-            // determin min/max of x and y axis
-            double xMin = periods[0];
-            double xMax = periods[periods.length - 1];
+            // determine min/max of x and y axis
+            double xMin = 0;
+            double xMax = 0;
+            if (logScale) {
+                xMin = Math.floor(Math.log10(periods[0]));
+                xMax = Math.ceil(Math.log10(periods[periods.length - 1]));
+            } else {
+                xMin = periods[0];
+                xMax = periods[periods.length - 1];
+            }
+
             double yMin = 0;
             double yMax = 0;
-            double dx = 0;
             double dy = 0;
             boolean first = true;
             for (double v : reference1) {
@@ -142,9 +152,6 @@ public class SpectrumPlot extends JPanel {
                 yMax = Math.max(yMax, s.percentile16 * factor);
             }
 
-            if (xMax > xMin) {
-                dx = (double) width / (xMax - xMin);
-            }
             if (yMax > yMin) {
                 dy = (double) height / (yMax - yMin);
             }
@@ -156,7 +163,12 @@ public class SpectrumPlot extends JPanel {
             List<Point> ref2Points = new ArrayList();
             int x, y;
             for (int i = 0; i < periods.length; i++) {
-                x = (int) ((periods[i] - xMin) * dx);
+
+                if (logScale) {
+                    x = (int) ((Math.log10(periods[i]) - xMin) / (xMax - xMin) * width);
+                } else {
+                    x = (int) ((periods[i] - xMin) / (xMax - xMin) * width);
+                }
 
                 if (i < target.spectralValues.size()) {
                     Shaking s = target.spectralValues.get(i);

@@ -104,6 +104,7 @@ public class Application implements QMLListener, ActionListener {
     // spectrum plot
     public static final String PropertySpec = "spectrum";
     public static final String PropertySpecPeriods = PropertySpec + ".periods";
+    public static final String PropertySpecLogScale = PropertySpec + ".logScale";
     public static final String PropertySpecParameter = PropertySpec + ".parameter";
     public static final String PropertySpecRef1 = PropertySpec + ".reference1";
     public static final String PropertySpecRef2 = PropertySpec + ".reference2";
@@ -210,6 +211,7 @@ public class Application implements QMLListener, ActionListener {
         periods = getProperty(PropertySpecPeriods, (double[]) null);
         useFrequencies = getProperty(PropertyUseFrequencies, false);
 
+        // sort and validate periods
         Arrays.sort(periods);
 
         // read spectrum parameter
