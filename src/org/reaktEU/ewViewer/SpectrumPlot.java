@@ -45,14 +45,23 @@ public class SpectrumPlot extends JPanel {
     private static final int PointRadius = 3;
     private static final int PointRadius2 = PointRadius * 2;
 
-    private final double[] periods;
+    private final double[] xValues;
     private final List<Double> reference1;
     private final List<Double> reference2;
     private final boolean logScale;
     private POI target;
 
     public SpectrumPlot(double[] periods) {
-        this.periods = periods;
+        Application app = Application.getInstance();
+        if (app.isUseFrequencies()) {
+            xValues = new double[periods.length];
+            for (int i = 0; i < periods.length; ++i) {
+                xValues[xValues.length - i - 1] = 1 / periods[i];
+            }
+        } else {
+            xValues = periods;
+        }
+
         this.reference1 = readReference(Application.PropertySpecRef1);
         this.reference2 = readReference(Application.PropertySpecRef2);
         this.logScale = Application.getInstance().getProperty(Application.PropertySpecLogScale, false);
@@ -63,13 +72,13 @@ public class SpectrumPlot extends JPanel {
 
         String[] values = Application.getInstance().getProperty(key, "").split(",");
         for (String v : values) {
-            if (refs.size() >= periods.length) {
+            if (refs.size() >= xValues.length) {
                 LOG.warn("more reference values than periods specified in parameter: " + key);
                 break;
             }
             refs.add(Double.parseDouble(v));
         }
-        if (!refs.isEmpty() && refs.size() < periods.length) {
+        if (!refs.isEmpty() && refs.size() < xValues.length) {
             LOG.warn("fewer reference values than periods specified in parameter: " + key);
         }
         return refs;
@@ -102,14 +111,15 @@ public class SpectrumPlot extends JPanel {
         g2.setFont(g2.getFont().deriveFont(10.0f));
         FontMetrics fm = g2.getFontMetrics();
 
-        if (periods.length == 0 || target == null
-            || periods[periods.length - 1] <= 0) {
+        if (xValues.length == 0 || target == null
+            || xValues[xValues.length - 1] <= 0) {
             return;
         }
 
         double factor;
         String yText;
-        Shaking.Type t = Application.getInstance().getSpectrumParameter();
+        Application app = Application.getInstance();
+        Shaking.Type t = app.getSpectrumParameter();
         if (t == Shaking.Type.PSA) {
             factor = Application.EarthAcceleration1;
             yText = t.toString().toUpperCase() + ", g";
@@ -128,11 +138,11 @@ public class SpectrumPlot extends JPanel {
             double xMax;
             double dx = 0;
             if (logScale) {
-                xMin = Math.floor(Math.log10(periods[0]));
-                xMax = Math.log10(periods[periods.length - 1]);
+                xMin = Math.log10(xValues[0]);
+                xMax = Math.log10(xValues[xValues.length - 1]);
             } else {
                 xMin = 0.0;
-                xMax = periods[periods.length - 1];
+                xMax = xValues[xValues.length - 1];
             }
             if (xMax > xMin) {
                 dx = (double) width / (xMax - xMin);
@@ -186,17 +196,20 @@ public class SpectrumPlot extends JPanel {
             List<Point> percentile16Points = new ArrayList();
             List<Point> ref1Points = new ArrayList();
             List<Point> ref2Points = new ArrayList();
-            int x, y;
-            for (int i = 0; i < periods.length; i++) {
+            int x, y, iV;
+            boolean isFreq = app.isUseFrequencies();
+            for (int i = 0; i < xValues.length; i++) {
 
                 if (logScale) {
-                    x = (int) ((Math.log10(periods[i]) - xMin) / (xMax - xMin) * width);
+                    x = (int) ((Math.log10(xValues[i]) - xMin) / (xMax - xMin) * width);
                 } else {
-                    x = (int) ((periods[i] - xMin) / (xMax - xMin) * width);
+                    x = (int) ((xValues[i] - xMin) / (xMax - xMin) * width);
                 }
 
-                if (i < target.spectralValues.size()) {
-                    Shaking s = target.spectralValues.get(i);
+                iV = isFreq ? xValues.length - i - 1 : i;
+
+                if (iV < target.spectralValues.size()) {
+                    Shaking s = target.spectralValues.get(iV);
                     y = (int) ((yMax - s.expectedSI * factor) * dy);
                     expectedPoints.add(new Point(x, y));
                     y = (int) ((yMax - s.percentile84 * factor) * dy);
@@ -204,12 +217,12 @@ public class SpectrumPlot extends JPanel {
                     y = (int) ((yMax - s.percentile16 * factor) * dy);
                     percentile16Points.add(new Point(x, y));
                 }
-                if (i < reference1.size()) {
-                    y = (int) ((yMax - reference1.get(i)) * dy);
+                if (iV < reference1.size()) {
+                    y = (int) ((yMax - reference1.get(iV)) * dy);
                     ref1Points.add(new Point(x, y));
                 }
-                if (i < reference2.size()) {
-                    y = (int) ((yMax - reference2.get(i)) * dy);
+                if (iV < reference2.size()) {
+                    y = (int) ((yMax - reference2.get(iV)) * dy);
                     ref2Points.add(new Point(x, y));
                 }
             }
@@ -255,8 +268,7 @@ public class SpectrumPlot extends JPanel {
             g2.drawString(yText, 0, 0);
             g2.setTransform(orig);
 
-            // TODO: Hz
-            text = "vibration period, s";
+            text = "vibration " + (isFreq ? "frequency, Hz" : "period, s");
             g2.drawString(text,
                           (int) ((width - fm.getStringBounds(text, null).getWidth()) / 2),
                           height + TickLength + 3 + 2 * fm.getHeight());
