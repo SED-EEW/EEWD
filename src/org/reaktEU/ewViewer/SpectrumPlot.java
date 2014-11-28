@@ -10,9 +10,11 @@ import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
+import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
@@ -28,7 +30,7 @@ public class SpectrumPlot extends JPanel {
 
     private static final int PrefW = 800;
     private static final int PrefH = 650;
-    private static final int BorderGap = 30;
+    private static final Insets Border = new Insets(7, 55, 45, 7);
     private static final int TickLength = 10;
 
     private static final Color BackgroundColor = Color.white;
@@ -38,8 +40,8 @@ public class SpectrumPlot extends JPanel {
 
     private static final Stroke DefaultStroke = new BasicStroke(2f);
     private static final Stroke PercentileStroke
-                                = new BasicStroke(1.5f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER,
-                                                  10f, new float[]{7, 10}, 0f);
+                                = new BasicStroke(1f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER,
+                                                  10f, new float[]{5, 7}, 0f);
     private static final int PointRadius = 3;
     private static final int PointRadius2 = PointRadius * 2;
 
@@ -84,20 +86,20 @@ public class SpectrumPlot extends JPanel {
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        int width = getWidth() - 2 * BorderGap;
-        int height = getHeight() - 2 * BorderGap;
+        int width = getWidth() - Border.left - Border.right;
+        int height = getHeight() - Border.top - Border.bottom;
 
-        g2.translate(BorderGap, BorderGap);
+        g2.translate(Border.left, Border.top);
 
         // fill background
         /*g2.setColor(BackgroundColor);
          g2.fillRect(0, 0, width, height);*/
         // create x and y axes
         g2.setColor(Color.black);
-        g2.drawLine(0, height - 1, width - 1, height - 1);
-        g2.drawLine(0, 0, 0, height - 1);
+        g2.drawLine(0, height, width, height);
+        g2.drawLine(0, 0, 0, height);
 
-        g2.setFont(g2.getFont().deriveFont(8.0f));
+        g2.setFont(g2.getFont().deriveFont(10.0f));
         FontMetrics fm = g2.getFontMetrics();
 
         if (periods.length == 0 || target == null
@@ -105,20 +107,35 @@ public class SpectrumPlot extends JPanel {
             return;
         }
 
-        double factor = Application.getInstance().getSpectrumParameter() == Shaking.Type.PSA
-                        ? Application.EarthAcceleration1 : 100;
+        double factor;
+        String yText;
+        Shaking.Type t = Application.getInstance().getSpectrumParameter();
+        if (t == Shaking.Type.PSA) {
+            factor = Application.EarthAcceleration1;
+            yText = t.toString().toUpperCase() + ", g";
+        } else if (t == Shaking.Type.DRS) {
+            factor = 100;
+            yText = t.toString().toUpperCase() + ", cm";
+        } else {
+            LOG.warn("unsupported spectrum parameter: " + t.toString());
+            return;
+        }
 
         synchronized (target) {
 
             // determine min/max of x and y axis
-            int xMin;
-            int xMax;
+            double xMin;
+            double xMax;
+            double dx = 0;
             if (logScale) {
-                xMin = (int) Math.log10(periods[0]);
-                xMax = (int) Math.ceil(Math.log10(periods[periods.length - 1]));
+                xMin = Math.floor(Math.log10(periods[0]));
+                xMax = Math.log10(periods[periods.length - 1]);
             } else {
-                xMin = 0;
-                xMax = (int) Math.ceil(periods[periods.length - 1]);
+                xMin = 0.0;
+                xMax = periods[periods.length - 1];
+            }
+            if (xMax > xMin) {
+                dx = (double) width / (xMax - xMin);
             }
 
             double yMin = 0;
@@ -197,8 +214,9 @@ public class SpectrumPlot extends JPanel {
                 }
             }
 
-            int halfAscent = fm.getAscent() / 2;
-
+            // Y-axis
+            String text;
+            int halfAscent = fm.getAscent() / 2 - 1;
             double q = Math.log10(2 * (yMax - yMin) * 2 * fm.getHeight() / height);
             double rx = q - Math.floor(q);
             int d = rx < 0.3 ? 1 : rx > 0.7 ? 5 : 2;
@@ -207,30 +225,43 @@ public class SpectrumPlot extends JPanel {
                 y = height - (int) (v * dy) - 1;
                 g2.drawLine(0, y, -TickLength, y);
 
-                long multiplier = (long) Math.pow(10, 3);
-                String text = Double.toString(((double) ((int) (v * multiplier)) / multiplier));
+                text = Double.toString(((int) (v * 1000.0 + 0.5)) / 1000.0);
                 int w = (int) fm.getStringBounds(text, null).getWidth();
                 g2.drawString(text, -TickLength - 3 - w, y + halfAscent);
             }
 
-//            // create hatch marks for y axis.
-//            for (int i = 0; i < Y_HATCH_CNT; i++) {
-//                int x0 = BORDER_GAP;
-//                int x1 = GRAPH_POINT_WIDTH + BORDER_GAP;
-//                int y0 = getHeight() - (((i + 1) * (getHeight() - BORDER_GAP * 2)) / Y_HATCH_CNT + BORDER_GAP);
-//                int y1 = y0;
-//                g2.drawLine(x0, y0, x1, y1);
-//            }
-//
-//            // and for x axis
-//            for (int i = 0; i < scores.size() - 1; i++) {
-//                int x0 = (i + 1) * (getWidth() - BORDER_GAP * 2) / (scores.size() - 1) + BORDER_GAP;
-//                int x1 = x0;
-//                int y0 = getHeight() - BORDER_GAP;
-//                int y1 = y0 - GRAPH_POINT_WIDTH;
-//                g2.drawLine(x0, y0, x1, y1);
-//            }
-            g2.setClip(0, 0, width - 1, height - 1);
+            // X-axis
+            q = Math.log10(2 * (xMax - xMin) * 50 / width);
+            rx = q - Math.floor(q);
+            d = rx < 0.3 ? 1 : rx > 0.7 ? 5 : 2;
+            tickStep = d * Math.pow(10, Math.floor(q - rx));
+            for (double v = xMin; v < xMax; v += tickStep) {
+                x = (int) ((v - xMin) * dx);
+                g2.drawLine(x, height, x, height + TickLength);
+
+                text = String.format("%.2f", logScale ? Math.pow(10, v) : v);
+                //String text = Double.toString(logScale ? Math.pow(10, v) : v);//((int) (v * 1000.0 + 0.5)) / 1000.0);
+                int w = (int) fm.getStringBounds(text, null).getWidth();
+                g2.drawString(text, x - w / 2, height + TickLength + 3 + fm.getAscent());
+            }
+
+            // axis label
+            g2.setFont(g2.getFont().deriveFont(14.0f));
+
+            AffineTransform orig = g2.getTransform();
+            int w = (int) ((height + fm.getStringBounds(yText, null).getWidth()) / 2);
+            g2.translate(-Border.left + fm.getAscent() + 7, w);
+            g2.rotate(-Math.PI / 2);
+            g2.drawString(yText, 0, 0);
+            g2.setTransform(orig);
+
+            // TODO: Hz
+            text = "vibration period, s";
+            g2.drawString(text,
+                          (int) ((width - fm.getStringBounds(text, null).getWidth()) / 2),
+                          height + TickLength + 3 + 2 * fm.getHeight());
+
+            g2.setClip(0, 0, width, height);
 
             g2.setStroke(DefaultStroke);
             g2.setColor(Ref1Color);
@@ -245,23 +276,6 @@ public class SpectrumPlot extends JPanel {
 
             g2.setStroke(DefaultStroke);
             drawGraph(g2, expectedPoints);
-//            for (int i = 0; i < graphPoints.size() - 1; i++) {
-//                int x1 = graphPoints.get(i).x;
-//                int y1 = graphPoints.get(i).y;
-//                int x2 = graphPoints.get(i + 1).x;
-//                int y2 = graphPoints.get(i + 1).y;
-//                g2.drawLine(x1, y1, x2, y2);
-//            }
-//
-//            g2.setStroke(oldStroke);
-//            g2.setColor(GRAPH_POINT_COLOR);
-//            for (Point graphPoint : graphPoints) {
-//                int x = graphPoint.x - GRAPH_POINT_WIDTH / 2;
-//                int y = graphPoint.y - GRAPH_POINT_WIDTH / 2;
-//                int ovalW = GRAPH_POINT_WIDTH;
-//                int ovalH = GRAPH_POINT_WIDTH;
-//                g2.fillOval(x, y, ovalW, ovalH);
-//            }
         }
     }
 
@@ -271,7 +285,7 @@ public class SpectrumPlot extends JPanel {
         }
 
         Point p, prevP = null;
-        for (int i = 0; i < points.size() - 1; i++) {
+        for (int i = 0; i < points.size(); i++) {
             p = points.get(i);
             if (prevP != null) {
                 g.drawLine(prevP.x, prevP.y, p.x, p.y);
