@@ -308,10 +308,6 @@ public class SpectrumPlot extends JPanel {
         g.fillOval(prevP.x - PointRadius, prevP.y - PointRadius, PointRadius2, PointRadius2);
     }
 
-    private void drawPoint(Graphics2D g, Point p) {
-
-    }
-
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(PrefW, PrefH);

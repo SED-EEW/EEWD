@@ -8,6 +8,7 @@ import org.reaktEU.ewViewer.layer.TargetLayer;
 import org.reaktEU.ewViewer.layer.StationLayer;
 import org.reaktEU.ewViewer.data.POI;
 import com.bbn.openmap.LayerHandler;
+import com.bbn.openmap.MapBean;
 import java.awt.Component;
 
 import javax.swing.JMenuBar;
@@ -20,8 +21,10 @@ import com.bbn.openmap.gui.MapPanel;
 import com.bbn.openmap.gui.OpenMapFrame;
 import com.bbn.openmap.gui.OverlayMapPanel;
 import com.bbn.openmap.gui.ToolPanel;
+import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.util.ArgParser;
 import com.bbn.openmap.util.Debug;
+import java.awt.Point;
 import org.reaktEU.ewViewer.data.EventArchive;
 import org.reaktEU.ewViewer.data.EventData;
 import org.reaktEU.ewViewer.data.QMLListener;
@@ -32,6 +35,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -206,6 +210,7 @@ public class Application implements QMLListener, ActionListener {
                                                   "data/targets.csv"));
 
         shakeMapLayer = new ShakeMapLayer();
+        shakeMapLayer.setName("Shake Map");
 
         controlPeriod = getProperty(PropertyControlPeriod, (Double) null);
         periods = getProperty(PropertySpecPeriods, (double[]) null);
@@ -501,11 +506,32 @@ public class Application implements QMLListener, ActionListener {
                 event.time = event.time + offset;
                 LOG.debug(t1 + ", " + offset + ", " + t2 + ", " + event.time);
             }
+            // zoom out if epicenter is not visible
+            zoomToPoint(event.latitude, event.longitude);
+
             eventTimeScheduler.setEvent(event);
             shakingCalculator.processEvent(event);
             LOG.trace(event.toString());
         } catch (EventData.InvalidEventDataException ex) {
             LOG.warn(ex.getMessage());
+        }
+    }
+
+    private void zoomToPoint(double latitude, double longitude) {
+        MapBean mapBean = mapPanel.getMapBean();
+        Projection proj = mapBean.getProjection();
+        Point eventXY = (Point) proj.forward(latitude, longitude, new Point());
+        if (mapBean.contains(eventXY)) {
+            return;
+        }
+
+        int dx = Math.abs(eventXY.x - mapBean.getWidth() / 2);
+        int dy = Math.abs(eventXY.y - mapBean.getHeight() / 2);
+        float scale = proj.getScale();
+        float newScale = Math.max(dx * scale / mapBean.getWidth(),
+                                  dy * scale / mapBean.getHeight()) * 2.2f;
+        if (newScale > proj.getScale()) {
+            mapBean.setScale(newScale);
         }
     }
 
