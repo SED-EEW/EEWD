@@ -1,2 +1,4 @@
-Home,8.0,46.0,1000,0.5
-Schokoladenfabrik,10.1,47.1,2000,0.5
+# list of targets, format:
+# name, latitude, longitude, elevation(m), amplification proxy
+Home, 8.0, 46.0, 1000, 0.5
+Schokoladenfabrik, 10.1, 47.1, 2000, 0.5

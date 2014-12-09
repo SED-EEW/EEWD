@@ -493,6 +493,15 @@ public class Application implements QMLListener, ActionListener {
             String line;
             String[] parts;
             while ((line = br.readLine()) != null) {
+                // trim line and remove comments
+                line = line.trim();
+                int commentIdx = line.indexOf('#');
+                if (commentIdx == 0) {
+                    continue;
+                } else if (commentIdx > 0) {
+                    line = line.substring(0, commentIdx);
+                }
+
                 parts = line.split(",", 5);
                 if (parts.length != 5) {
                     continue;
