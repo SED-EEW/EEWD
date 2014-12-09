@@ -35,7 +35,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -96,6 +95,11 @@ public class Application implements QMLListener, ActionListener {
     public static final String PropertyTimeoutAfterOriginTime = "timeoutAfterOriginTime";
     public static final String PropertyAlertSound = "alertSound";
     public static final String PropertyAlertSoundLoop = "alertSoundLoop";
+
+    // filter
+    public static final String PropertyFilter = "filter";
+    public static final String PropertyFilterMinMag = PropertyFilter + ".minimumMagnitude";
+    public static final String PropertyFilterMinLikelihood = PropertyFilter + ".minimumLikelihood";
 
     // processing
     public static final String PropertyAmpliProxyName = "ampliProxyName";
@@ -163,6 +167,9 @@ public class Application implements QMLListener, ActionListener {
 
     private String title = null;
 
+    private Float minMag = null;
+    private Float minLikelihood = null;
+
     public Application(Properties props) {
         instance = this;
         properties = props;
@@ -215,9 +222,10 @@ public class Application implements QMLListener, ActionListener {
         controlPeriod = getProperty(PropertyControlPeriod, (Double) null);
         periods = getProperty(PropertySpecPeriods, (double[]) null);
         useFrequencies = getProperty(PropertyUseFrequencies, false);
-
-        // sort and validate periods
         Arrays.sort(periods);
+
+        minMag = getProperty(PropertyFilterMinMag, (Float) null);
+        minLikelihood = getProperty(PropertyFilterMinLikelihood, (Float) null);
 
         // read spectrum parameter
         String param = properties.getProperty(Application.PropertySpecParameter);
@@ -337,6 +345,19 @@ public class Application implements QMLListener, ActionListener {
         if (value != null) {
             try {
                 return Double.valueOf(value);
+            } catch (NumberFormatException nfe) {
+                LOG.warn(String.format("invalid double found in property: %s",
+                                       key));
+            }
+        }
+        return def;
+    }
+
+    public final Float getProperty(String key, Float def) {
+        String value = properties.getProperty(key);
+        if (value != null) {
+            try {
+                return Float.valueOf(value);
             } catch (NumberFormatException nfe) {
                 LOG.warn(String.format("invalid double found in property: %s",
                                        key));
@@ -500,6 +521,24 @@ public class Application implements QMLListener, ActionListener {
         }
         try {
             EventData event = new EventData(eventParameters);
+
+            if (minMag != null && event.magnitude < minMag) {
+                LOG.info(String.format("ignoring event %s, magnitude of %.1f below threshold",
+                                       event.eventID, event.magnitude));
+                return;
+            }
+            if (minLikelihood != null) {
+                if (event.likelihood == null) {
+                    LOG.info(String.format("ignoring event %s, likelihood not available",
+                                           event.eventID));
+                    return;
+                } else if (event.likelihood < minLikelihood) {
+                    LOG.info(String.format("ignoring event %s, likelihood of %.1f below threshold",
+                                           event.eventID, event.likelihood));
+                    return;
+                }
+            }
+
             if (offset > 0) {
                 long t1 = event.time;
                 long t2 = event.time + offset;
