@@ -597,17 +597,17 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
 
             Shaking s;
             s = target.shakingValues.get(Shaking.Type.PGA);
-            pgaLabel.setText(s == null ? "-"
+            pgaLabel.setText(s == null || s.expectedSI != s.expectedSI ? "-"
                              : String.format("%.2fg", s.expectedSI * Application.EarthAcceleration1));
             setPercentile(pgaPercentLabel, s, "%.2f", Application.EarthAcceleration1);
 
             s = target.shakingValues.get(Shaking.Type.PGV);
-            pgvLabel.setText(s == null ? "-"
+            pgvLabel.setText(s == null || s.expectedSI != s.expectedSI ? "-"
                              : String.format("%.2fcm/s", s.expectedSI * 100));
             setPercentile(pgvPercentLabel, s, "%.2f", 100);
 
             s = target.shakingValues.get(Shaking.Type.PSA);
-            if (s == null) {
+            if (s == null || s.expectedSI != s.expectedSI) {
                 psaLabel.setText("-");
             } else {
                 Application app = Application.getInstance();
@@ -626,7 +626,7 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
             setPercentile(psaPercentLabel, s, "%.1f", Application.EarthAcceleration1);
 
             s = target.shakingValues.get(Shaking.Type.DRS);
-            if (s == null) {
+            if (s == null || s.expectedSI != s.expectedSI) {
                 drsLabel.setText("-");
             } else {
                 Application app = Application.getInstance();
@@ -645,8 +645,8 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
             setPercentile(drsPercentLabel, s, "%.1f", 100);
 
             s = target.shakingValues.get(Shaking.Type.Intensity);
-            intensityLabel.setText(s == null ? "-" : RomanNumber.toString(
-                    (int) (s.expectedSI + 0.5)));
+            intensityLabel.setText(s == null || s.expectedSI != s.expectedSI
+                                   ? "-" : RomanNumber.toString((int) (s.expectedSI + 0.5)));
             intensityPercentLabel.setText(
                     s == null ? "" : RomanNumber.toString((int) (s.percentile84 + 0.5)) + "/"
                                      + RomanNumber.toString((int) (s.percentile16 + 0.5))

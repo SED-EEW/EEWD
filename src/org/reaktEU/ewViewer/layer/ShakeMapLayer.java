@@ -38,6 +38,7 @@ public class ShakeMapLayer extends OMGraphicHandlerLayer implements
         new Color(255, 255, 0, 128), // yellow
         new Color(255, 0, 0, 128) // red
     };
+    private static final int ColorNaN = new Color(128, 128, 128, 128).getRGB();
 
     public class Point extends AmplificationPoint {
 
@@ -205,7 +206,8 @@ public class ShakeMapLayer extends OMGraphicHandlerLayer implements
         if (valid) {
             // assign RGB values
             for (Point p : points) {
-                img.setRGB(p.x, p.y, gradient.colorAt(p.value, false));
+                img.setRGB(p.x, p.y, p.value != p.value ? ColorNaN
+                                     : gradient.colorAt(p.value, false));
             }
         } else {
             for (Point p : points) {

@@ -39,7 +39,7 @@ public class Shaking {
         }
     }
 
-    public double expectedSI;
-    public double percentile16;
-    public double percentile84;
+    public double expectedSI = 0.0;
+    public double percentile16 = 0.0;
+    public double percentile84 = 0.0;
 }
