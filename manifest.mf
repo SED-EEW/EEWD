@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 X-COMMENT: Main-Class will be added automatically by build
-Implementation-Version: 0.1.0
+Implementation-Version: 0.2.0
 
