@@ -548,7 +548,7 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
                                                     event.latitude < 0 ? "S" : "N",
                                                     abs(event.longitude),
                                                     event.longitude < 0 ? "W" : "E"));
-                depthLabel.setText(String.format("%.1fkm", event.depth));
+                depthLabel.setText(String.format("%.1fkm", event.depth / 1000.0));
                 if (event.likelihood != null) {
                     likelihoodLabel.setText(String.valueOf(event.likelihood));
                 }
@@ -587,7 +587,7 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
                 timeRemainingLabel.setText("-");
                 distanceLabel.setText("-");
             } else {
-                double[] pEvent = GeoCalc.Geo2Cart(event.latitude, event.longitude, -event.depth * 1000);
+                double[] pEvent = GeoCalc.Geo2Cart(event.latitude, event.longitude, -event.depth);
                 double[] pTarget = GeoCalc.Geo2Cart(target.latitude, target.longitude, target.altitude);
                 double distance = GeoCalc.Distance3D(pEvent, pTarget);
                 double eta = distance / vs - originTimeOffset;

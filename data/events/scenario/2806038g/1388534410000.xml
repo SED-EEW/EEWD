@@ -38,7 +38,7 @@
         <uncertainty>-999.9</uncertainty>
       </longitude>
       <depth>
-        <value>4.2</value>
+        <value>4200</value>
         <uncertainty>-9.9</uncertainty>
       </depth>
       <arrival publicID="smi:ch.ethz.sed/PICK/20140721064354/ARRIVAL">

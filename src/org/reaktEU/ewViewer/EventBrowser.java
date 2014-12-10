@@ -296,7 +296,7 @@ public class EventBrowser extends javax.swing.JDialog
                     eventProps.magnitude,
                     eventProps.latitude,
                     eventProps.longitude,
-                    eventProps.depth
+                    eventProps.depth / 1000.0
                 });
             }
         }

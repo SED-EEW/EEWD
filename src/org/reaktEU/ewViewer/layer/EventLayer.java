@@ -59,8 +59,8 @@ public class EventLayer extends OMGraphicHandlerLayer implements EventTimeListen
         if (originTimeOffset != null && originTimeOffset > 0) {
             double hrp = vp * originTimeOffset;
             double hrs = vs * originTimeOffset;
-            double rp = GeoCalc.SeismicWaveSurfaceDistance(event.depth * 1000, hrp, event.latitude);
-            double rs = GeoCalc.SeismicWaveSurfaceDistance(event.depth * 1000, hrs, event.latitude);
+            double rp = GeoCalc.SeismicWaveSurfaceDistance(event.depth, hrp, event.latitude);
+            double rs = GeoCalc.SeismicWaveSurfaceDistance(event.depth, hrs, event.latitude);
 
             OMCircle pWave = new OMCircle(event.latitude, event.longitude,
                                           rp, Length.METER);
