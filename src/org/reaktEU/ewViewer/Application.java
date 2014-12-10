@@ -605,6 +605,8 @@ public class Application implements QMLListener, ActionListener {
      * @param args
      */
     static public void main(String args[]) {
+        System.setProperty("user.timezone", "UTC");
+
         Debug.init();
 
         // read property location from command line parameter
