@@ -60,6 +60,7 @@ public class ShakeMapLayer extends OMGraphicHandlerLayer implements
     private final BufferedImage[] images;
     private int currentImage;
     private final Gradient gradient;
+    private final boolean logScale;
 
     private double latNorth;
     private double latSouth;
@@ -80,6 +81,13 @@ public class ShakeMapLayer extends OMGraphicHandlerLayer implements
 
         double minValue = app.getProperty(Application.PropertySMMinValue, 0.0);
         double maxValue = app.getProperty(Application.PropertySMMaxValue, 1.0);
+        logScale = app.getProperty(Application.PropertySMLogScale, false);
+
+        if (logScale) {
+            minValue = minValue > 0 ? Math.log10(minValue) : 0;
+            maxValue = maxValue > 0 ? Math.log10(maxValue) : 0;
+        }
+
         double delta = minValue < maxValue ? (maxValue - minValue) / GradientColors.length : 0;
         for (Color c : GradientColors) {
             gradient.put(minValue, c);
@@ -204,10 +212,22 @@ public class ShakeMapLayer extends OMGraphicHandlerLayer implements
         img.setData(images[2].getRaster());
 
         if (valid) {
+            int rgb;
             // assign RGB values
-            for (Point p : points) {
-                img.setRGB(p.x, p.y, p.value != p.value ? ColorNaN
-                                     : gradient.colorAt(p.value, false));
+            if (logScale) {
+                for (Point p : points) {
+                    rgb = p.value > 0 && p.value == p.value
+                          ? gradient.colorAt(Math.log10(p.value), false)
+                          : ColorNaN;
+                    img.setRGB(p.x, p.y, rgb);
+                }
+            } else {
+                for (Point p : points) {
+                    rgb = p.value == p.value
+                          ? gradient.colorAt(p.value, false)
+                          : ColorNaN;
+                    img.setRGB(p.x, p.y, rgb);
+                }
             }
         } else {
             for (Point p : points) {

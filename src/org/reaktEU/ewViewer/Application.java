@@ -87,6 +87,7 @@ public class Application implements QMLListener, ActionListener {
     public static final String PropertySMParameter = PropertySM + ".parameter";
     public static final String PropertySMMinValue = PropertySM + ".minValue";
     public static final String PropertySMMaxValue = PropertySM + ".maxValue";
+    public static final String PropertySMLogScale = PropertySM + ".logScale";
 
     // event
     public static final String PropertyVP = "vp";
