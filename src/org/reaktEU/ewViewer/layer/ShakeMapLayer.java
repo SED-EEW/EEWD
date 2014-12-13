@@ -25,6 +25,7 @@ import org.apache.logging.log4j.Logger;
 import org.reaktEU.ewViewer.Application;
 import org.reaktEU.ewViewer.data.AmplificationPoint;
 import org.reaktEU.ewViewer.data.POI;
+import org.reaktEU.ewViewer.data.Shaking;
 import org.reaktEU.ewViewer.utils.Gradient;
 
 /**
@@ -113,8 +114,16 @@ public class ShakeMapLayer extends OMGraphicHandlerLayer implements
 
         mapRaster = new OMScalingRaster(latNorth, lonWest, latSouth, lonEast, mapImages[2]);
 
+        Shaking.Type smParam = app.getShakeMapParameter();
+        String labelText = smParam.toString().toUpperCase();
+        if (smParam == Shaking.Type.PGA || smParam == Shaking.Type.PSA) {
+            labelText += ", g";
+        } else if (smParam == Shaking.Type.PGV || smParam == Shaking.Type.DRS) {
+            labelText += ", cm/s";
+        }
+
         int w = 300; // max image width
-        int h = 50;
+        int h = 70;
         int xMargin = 30; // margin on left and right needed for text
         int steps = GradientColors.length - 1;
         int stepW = (w - 2 * xMargin) / steps;
@@ -124,8 +133,9 @@ public class ShakeMapLayer extends OMGraphicHandlerLayer implements
         Graphics2D g = scaleImage.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         FontMetrics fm = g.getFontMetrics();
-        int yText = fm.getAscent();
-        int yTick = yText + fm.getDescent() + 3;
+        int y1Text = fm.getAscent();
+        int y2Text = y1Text + fm.getHeight();
+        int yTick = y2Text + fm.getDescent() + 3;
         int y1Gradient = yTick + 10;
         int y2Gradient = h - 1;
         int x = xMargin;
@@ -136,7 +146,13 @@ public class ShakeMapLayer extends OMGraphicHandlerLayer implements
 
             double v = logScale ? Math.pow(10, values[i]) : values[i];
             str = String.format("%.2f", v);
-            g.drawString(str, x - fm.stringWidth(str) / 2, yText);
+            int xText = x - fm.stringWidth(str) / 2;
+
+            if (i == 0) {
+                g.drawString(labelText, xText, y1Text);
+            }
+            g.drawString(str, xText, y2Text);
+
             g.drawLine(x, yTick, x++, y2Gradient);
 
             int rgb;
@@ -154,7 +170,7 @@ public class ShakeMapLayer extends OMGraphicHandlerLayer implements
         g.setColor(Color.BLACK);
         double v = logScale ? Math.pow(10, values[i]) : values[i];
         str = String.format("%.2f", v);
-        g.drawString(str, x - fm.stringWidth(str) / 2, yText);
+        g.drawString(str, x - fm.stringWidth(str) / 2, y2Text);
         g.drawLine(x, yTick, x, y2Gradient);
         g.drawLine(xMargin, h - 1, x, h - 1);
     }

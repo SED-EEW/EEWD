@@ -165,6 +165,7 @@ public class Application implements QMLListener, ActionListener {
     private double[] periods = null;
     private boolean useFrequencies = false;
     private Shaking.Type spectrumParameter = Shaking.Type.PSA;
+    private Shaking.Type shakeMapParameter = Shaking.Type.PGA;
 
     private String title = null;
 
@@ -237,6 +238,15 @@ public class Application implements QMLListener, ActionListener {
             }
         }
 
+        // read shake map parameter
+        param = properties.getProperty(Application.PropertySMParameter);
+        if (param != null) {
+            shakeMapParameter = Shaking.Type.valueOf(param);
+            if (shakeMapParameter == null) {
+                LOG.warn("invalid " + Application.PropertySMParameter + " value: " + param);
+            }
+        }
+
         shakingCalculator = new ShakingCalculator(targets, stations, shakeMapLayer);
 
         title = mapPropertyHandler.getProperties().getProperty("openmap.Title");
@@ -253,7 +263,7 @@ public class Application implements QMLListener, ActionListener {
             }
         });
 
-        messaging.listen();
+        //messaging.listen();
     }
 
     public Double getControlPeriod() {
@@ -270,6 +280,10 @@ public class Application implements QMLListener, ActionListener {
 
     public Shaking.Type getSpectrumParameter() {
         return spectrumParameter;
+    }
+
+    public Shaking.Type getShakeMapParameter() {
+        return shakeMapParameter;
     }
 
     public static final Application getInstance() {

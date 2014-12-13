@@ -36,14 +36,13 @@ public class ShakingCalculator implements Runnable {
     private final BlockingQueue<EventData> queue;
 
     private final String ampliProxyName;
-    private AttenuationPGA gmpePGAImpl;
-    private AttenuationPGV gmpePGVImpl;
-    private AttenuationPSA gmpePSAImpl;
-    private AttenuationDRS gmpeDRSImpl;
-    private AttenuationInt gmpeIntImpl;
+    private final AttenuationPGA gmpePGAImpl;
+    private final AttenuationPGV gmpePGVImpl;
+    private final AttenuationPSA gmpePSAImpl;
+    private final AttenuationDRS gmpeDRSImpl;
+    private final AttenuationInt gmpeIntImpl;
     private IntensityFromAcceleration gmicePGAImpl = null;
     private IntensityFromVelocity gmicePGVImpl = null;
-    private Shaking.Type shakeMapParameter = Shaking.Type.PGA;
 
     public ShakingCalculator(List<POI> targets, List<POI> stations, ShakeMapLayer shakeMap) {
         this.targets = targets;
@@ -89,15 +88,6 @@ public class ShakingCalculator implements Runnable {
             // gmice PGV
             prefix = Application.PropertyGMICE + "." + Shaking.Type.PGV;
             gmicePGVImpl = (IntensityFromVelocity) loadImpl(prefix, cache, IntensityFromVelocity.class);
-        }
-
-        // read shake map parameter
-        String param = app.getProperties().getProperty(Application.PropertySMParameter);
-        if (param != null) {
-            shakeMapParameter = Shaking.Type.valueOf(param);
-            if (shakeMapParameter == null) {
-                LOG.warn("invalid " + Application.PropertySMParameter + " value: " + param);
-            }
         }
 
         queue = new LinkedBlockingQueue();
@@ -253,11 +243,12 @@ public class ShakingCalculator implements Runnable {
             }
 
             // shake map
+            Shaking.Type shakeMapParameter = app.getShakeMapParameter();
             if (shakeMap != null && shakeMapParameter != null) {
                 LOG.debug("starting shake map calculation");
                 long start = System.currentTimeMillis();
                 boolean success = true;
-                if (shakeMapParameter == Shaking.Type.PGA && gmpePGA != null) {
+                if (app.getShakeMapParameter() == Shaking.Type.PGA && gmpePGA != null) {
                     for (ShakeMapLayer.Point p : shakeMap.getPoints()) {
                         p.value = gmpePGA.getPGA(
                                 event.magnitude, event.latitude, event.longitude,
@@ -354,21 +345,5 @@ public class ShakingCalculator implements Runnable {
             // should never happen since queue size is Interger.MAX_VALUE
             LOG.error("put interrupted");
         }
-    }
-
-    synchronized public void setGmpePGA(AttenuationPGA gmpePGA) {
-        this.gmpePGAImpl = gmpePGA;
-    }
-
-    synchronized public void setGmpePGV(AttenuationPGV gmpePGV) {
-        this.gmpePGVImpl = gmpePGV;
-    }
-
-    synchronized public void setGmpePSA(AttenuationPSA gmpePSA) {
-        this.gmpePSAImpl = gmpePSA;
-    }
-
-    synchronized public void setGmpeInt(AttenuationInt gmpeInt) {
-        this.gmpeIntImpl = gmpeInt;
     }
 }
