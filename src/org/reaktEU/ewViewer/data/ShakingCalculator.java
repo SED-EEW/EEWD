@@ -263,7 +263,7 @@ public class ShakingCalculator implements Runnable {
                                 event.magnitude, event.latitude, event.longitude,
                                 event.depth, p.latitude, p.longitude, p.altitude,
                                 ampliProxyName, p.amplification,
-                                event.eventParameters).expectedSI;
+                                event.eventParameters).expectedSI * Application.EarthAcceleration1;
                     }
                 } else if (shakeMapParameter == Shaking.Type.PGV && gmpePGV != null) {
                     for (ShakeMapLayer.Point p : shakeMap.getPoints()) {
@@ -271,7 +271,7 @@ public class ShakingCalculator implements Runnable {
                                 event.magnitude, event.latitude, event.longitude,
                                 event.depth, p.latitude, p.longitude, p.altitude,
                                 ampliProxyName, p.amplification,
-                                event.eventParameters).expectedSI;
+                                event.eventParameters).expectedSI * 100;
                     }
                 } else if (shakeMapParameter == Shaking.Type.PSA && gmpePSA != null) {
                     if (controlPeriod != null) {
@@ -280,7 +280,7 @@ public class ShakingCalculator implements Runnable {
                                     event.magnitude, event.latitude, event.longitude,
                                     event.depth, p.latitude, p.longitude, p.altitude,
                                     ampliProxyName, p.amplification, controlPeriod,
-                                    event.eventParameters).expectedSI;
+                                    event.eventParameters).expectedSI * Application.EarthAcceleration1;
                         }
                     }
                 } else if (shakeMapParameter == Shaking.Type.DRS && gmpeDRS != null) {
@@ -290,7 +290,7 @@ public class ShakingCalculator implements Runnable {
                                     event.magnitude, event.latitude, event.longitude,
                                     event.depth, p.latitude, p.longitude, p.altitude,
                                     ampliProxyName, p.amplification, controlPeriod,
-                                    event.eventParameters).expectedSI;
+                                    event.eventParameters).expectedSI * 100;
                         }
                     }
                 } else if (shakeMapParameter == Shaking.Type.Intensity && gmpeInt != null) {

@@ -6,8 +6,12 @@ package org.reaktEU.ewViewer.layer;
 
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMGraphicList;
+import com.bbn.openmap.omGraphics.OMRaster;
 import com.bbn.openmap.omGraphics.OMScalingRaster;
 import java.awt.Color;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -55,10 +59,11 @@ public class ShakeMapLayer extends OMGraphicHandlerLayer implements
         }
     }
 
-    private final OMScalingRaster scalingRaster;
+    private final OMScalingRaster mapRaster;
     private final List<Point> points;
-    private final BufferedImage[] images;
+    private final BufferedImage[] mapImages;
     private int currentImage;
+    private final BufferedImage scaleImage;
     private final Gradient gradient;
     private final boolean logScale;
 
@@ -73,7 +78,7 @@ public class ShakeMapLayer extends OMGraphicHandlerLayer implements
 
         points = new ArrayList();
         // 2 images for double buffering, 1 image for fast reset
-        images = new BufferedImage[3];
+        mapImages = new BufferedImage[3];
         currentImage = 0;
 
         Application app = Application.getInstance();
@@ -88,9 +93,12 @@ public class ShakeMapLayer extends OMGraphicHandlerLayer implements
             maxValue = maxValue > 0 ? Math.log10(maxValue) : 0;
         }
 
-        double delta = minValue < maxValue ? (maxValue - minValue) / GradientColors.length : 0;
+        double[] values = new double[GradientColors.length];
+        double delta = minValue < maxValue ? (maxValue - minValue) / (GradientColors.length - 1) : 0;
+        int i = 0;
         for (Color c : GradientColors) {
             gradient.put(minValue, c);
+            values[i++] = minValue;
             minValue += delta;
         }
 
@@ -103,7 +111,52 @@ public class ShakeMapLayer extends OMGraphicHandlerLayer implements
 
         loadGrid();
 
-        scalingRaster = new OMScalingRaster(latNorth, lonWest, latSouth, lonEast, images[2]);
+        mapRaster = new OMScalingRaster(latNorth, lonWest, latSouth, lonEast, mapImages[2]);
+
+        int w = 300; // max image width
+        int h = 50;
+        int xMargin = 30; // margin on left and right needed for text
+        int steps = GradientColors.length - 1;
+        int stepW = (w - 2 * xMargin) / steps;
+        w = stepW * steps + 1 + 2 * xMargin;
+
+        scaleImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = scaleImage.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        FontMetrics fm = g.getFontMetrics();
+        int yText = fm.getAscent();
+        int yTick = yText + fm.getDescent() + 3;
+        int y1Gradient = yTick + 10;
+        int y2Gradient = h - 1;
+        int x = xMargin;
+
+        String str;
+        for (i = 0; i < steps; ++i) {
+            g.setColor(Color.BLACK);
+
+            double v = logScale ? Math.pow(10, values[i]) : values[i];
+            str = String.format("%.2f", v);
+            g.drawString(str, x - fm.stringWidth(str) / 2, yText);
+            g.drawLine(x, yTick, x++, y2Gradient);
+
+            int rgb;
+            Color c1 = GradientColors[i];
+            Color c2 = GradientColors[i + 1];
+            double ratio;
+            for (int j = 1; j <= stepW; ++j, ++x) {
+                ratio = j / (double) stepW;
+                rgb = Gradient.blend(c1, c2, ratio);
+                g.setColor(new Color(rgb));
+                g.drawLine(x, y1Gradient, x, y2Gradient);
+            }
+        }
+        --x;
+        g.setColor(Color.BLACK);
+        double v = logScale ? Math.pow(10, values[i]) : values[i];
+        str = String.format("%.2f", v);
+        g.drawString(str, x - fm.stringWidth(str) / 2, yText);
+        g.drawLine(x, yTick, x, y2Gradient);
+        g.drawLine(xMargin, h - 1, x, h - 1);
     }
 
     private boolean loadGrid() {
@@ -169,9 +222,9 @@ public class ShakeMapLayer extends OMGraphicHandlerLayer implements
         int width = dLon == 0 ? 1 : (int) (diffLon(lonWest, lonEast) / dLat) + 1;
         int height = dLat == 0 ? 1 : (int) ((latNorth - latSouth) / dLon) + 1;
 
-        images[0] = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        images[1] = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        images[2] = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        mapImages[0] = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        mapImages[1] = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        mapImages[2] = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
         // map point coordinates to image index
         for (Iterator<Point> it = points.iterator(); it.hasNext();) {
@@ -208,8 +261,8 @@ public class ShakeMapLayer extends OMGraphicHandlerLayer implements
     public void updateImage(boolean valid) {
         // get next image and reset it
         currentImage = 1 - currentImage;
-        BufferedImage img = images[currentImage];
-        img.setData(images[2].getRaster());
+        BufferedImage img = mapImages[currentImage];
+        img.setData(mapImages[2].getRaster());
 
         if (valid) {
             int rgb;
@@ -236,7 +289,7 @@ public class ShakeMapLayer extends OMGraphicHandlerLayer implements
         }
 
         // swap image
-        scalingRaster.setImage(img);
+        mapRaster.setImage(img);
     }
 
     public synchronized OMGraphicList prepare() {
@@ -252,8 +305,13 @@ public class ShakeMapLayer extends OMGraphicHandlerLayer implements
             return null;
         }
 
-        scalingRaster.generate(getProjection());
-        list.add(scalingRaster);
+        mapRaster.generate(getProjection());
+
+        OMRaster scaleRaster = new OMRaster(15, getHeight() - scaleImage.getHeight() - 10, scaleImage);
+        scaleRaster.generate(getProjection());
+
+        list.add(mapRaster);
+        list.add(scaleRaster);
 
         return list;
     }

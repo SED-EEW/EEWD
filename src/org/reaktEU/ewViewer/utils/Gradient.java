@@ -45,7 +45,7 @@ public class Gradient extends TreeMap<Double, Color> {
         return 0;
     }
 
-    private int blend(final Color c1, final Color c2, double ratio) {
+    public static int blend(final Color c1, final Color c2, double ratio) {
         double invRatio = 1 - ratio;
         return ((int) (c1.getAlpha() * invRatio + c2.getAlpha() * ratio)) << 24
                | ((int) (c1.getRed() * invRatio + c2.getRed() * ratio)) << 16
