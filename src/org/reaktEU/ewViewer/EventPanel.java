@@ -454,7 +454,6 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
     private javax.swing.JLabel timeRemainingLabel;
     // End of variables declaration//GEN-END:variables
 
-    private final List<POI> targets;
     private final double vs;
     private final DateFormat df;
 
@@ -476,8 +475,6 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
      */
     public EventPanel(List<POI> targets) {
         Application app = Application.getInstance();
-
-        this.targets = targets;
 
         vs = app.getProperty(Application.PropertyVS, Application.DefaultVS);
         df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

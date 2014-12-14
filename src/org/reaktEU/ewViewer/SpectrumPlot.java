@@ -33,7 +33,7 @@ public class SpectrumPlot extends JPanel {
     private static final Insets Border = new Insets(7, 55, 45, 7);
     private static final int TickLength = 10;
 
-    private static final Color BackgroundColor = Color.white;
+    //private static final Color BackgroundColor = new Color(231, 229, 228);
     private static final Color Ref1Color = new Color(0, 192, 0);
     private static final Color Ref2Color = new Color(192, 0, 0);
     private static final Color ShakingColor = new Color(0, 0, 255);
@@ -65,6 +65,7 @@ public class SpectrumPlot extends JPanel {
         this.reference1 = readReference(Application.PropertySpecRef1);
         this.reference2 = readReference(Application.PropertySpecRef2);
         this.logScale = Application.getInstance().getProperty(Application.PropertySpecLogScale, false);
+        //this.setBackground(BackgroundColor);
     }
 
     private List<Double> readReference(String key) {
@@ -100,9 +101,6 @@ public class SpectrumPlot extends JPanel {
 
         g2.translate(Border.left, Border.top);
 
-        // fill background
-        /*g2.setColor(BackgroundColor);
-         g2.fillRect(0, 0, width, height);*/
         // create x and y axes
         g2.setColor(Color.black);
         g2.drawLine(0, height, width, height);
