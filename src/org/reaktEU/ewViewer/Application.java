@@ -44,6 +44,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -263,7 +264,7 @@ public class Application implements QMLListener, ActionListener {
             }
         });
 
-        //messaging.listen();
+        messaging.listen();
     }
 
     public Double getControlPeriod() {
@@ -621,6 +622,7 @@ public class Application implements QMLListener, ActionListener {
      */
     static public void main(String args[]) {
         System.setProperty("user.timezone", "UTC");
+        Locale.setDefault(Locale.ROOT);
 
         Debug.init();
 
