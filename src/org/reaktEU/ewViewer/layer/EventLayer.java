@@ -144,9 +144,7 @@ public class EventLayer extends OMGraphicHandlerLayer implements EventTimeListen
 
         // epi center
         OMGraphicAdapter symbol;
-        if (icon
-            != null && icon.getImageLoadStatus()
-                       == MediaTracker.COMPLETE) {
+        if (icon != null && icon.getImageLoadStatus() == MediaTracker.COMPLETE) {
             symbol = new OMRaster(event.latitude, event.longitude,
                                   -(int) ((icon.getIconWidth() + 0.5) / 2.0),
                                   -(int) ((icon.getIconHeight() + 0.5) / 2.0),

@@ -55,6 +55,7 @@ import org.apache.logging.log4j.Logger;
 import org.quakeml.xmlns.bedRt.x12.EventParameters;
 import org.reaktEU.ewViewer.data.Shaking;
 import org.reaktEU.ewViewer.data.ShakingCalculator;
+import org.reaktEU.ewViewer.layer.LogoLayer;
 import org.reaktEU.ewViewer.layer.ShakeMapLayer;
 
 // TODO:
@@ -81,6 +82,9 @@ public class Application implements QMLListener, ActionListener {
     public static final String PropertyShowUsedStations = "showUsedStations";
     public static final String PropertyShowStationShaking = "showStationShaking";
     public static final String PropertyShowStationAlert = "showStationAlert";
+
+    // logo
+    public static final String PropertyLogoIcon = "logoIcon";
 
     // shake map
     public static final String PropertySM = "shakeMap";
@@ -423,6 +427,10 @@ public class Application implements QMLListener, ActionListener {
 
         LayerHandler layerHandler = (LayerHandler) mapHandler.get(LayerHandler.class);
         if (layerHandler != null) {
+            LogoLayer logoLayer = new LogoLayer();
+            logoLayer.setName("Logo");
+            layerHandler.addLayer(logoLayer, 0);
+
             if (!shakeMapLayer.getPoints().isEmpty()) {
                 layerHandler.addLayer(shakeMapLayer, 0);
             }
