@@ -444,6 +444,12 @@ public class Application implements QMLListener, ActionListener {
         eventTimeScheduler.addUpdateListener(eventPanel);
     }
 
+    public void setTarget(POI target) {
+        if (eventLayer != null) {
+            eventLayer.setTarget(target);
+        }
+    }
+
     protected void showInFrame() {
         openMapFrame = (OpenMapFrame) mapPanel.getMapHandler().get(OpenMapFrame.class);
 

@@ -280,7 +280,7 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         add(intensityLabel, gridBagConstraints);
 
         likelihoodCaptionLabel.setLabelFor(likelihoodLabel);
-        likelihoodCaptionLabel.setText("Likelihood of Correctness");
+        likelihoodCaptionLabel.setText("Likelihood of correct alarm");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -380,7 +380,6 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(2, 7, 0, 7);
         add(timeRemainingCaptionLabel, gridBagConstraints);
-        timeRemainingCaptionLabel.getAccessibleContext().setAccessibleName("Remaining Time");
 
         timeRemainingLabel.setFont(new java.awt.Font("Ubuntu", 1, 48)); // NOI18N
         timeRemainingLabel.setText("10");
@@ -682,6 +681,9 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         }
 
         Application app = Application.getInstance();
+        if (app != null) {
+            app.setTarget(target);
+        }
         if (app != null && shakingLabels.containsKey(app.getShakeMapParameter())) {
             JLabel[] defaultL = shakingLabels.get(app.getShakeMapParameter());
             for (int i = 0; i < defaultL.length; ++i) {

@@ -4,21 +4,27 @@ public class Shaking {
 
     public enum Type {
 
-        PGA("pga"),
-        PGV("pgv"),
-        PSA("psa"),
-        DRS("drs"),
-        Intensity("intensity");
+        PGA("pga", "PGA"),
+        PGV("pgv", "PGV"),
+        PSA("psa", "PSA"),
+        DRS("drs", "DRS"),
+        Intensity("intensity", "Intensity");
 
         private final String string;
+        private final String label;
 
-        private Type(final String string) {
+        private Type(final String string, final String label) {
             this.string = string;
+            this.label = label;
         }
 
         @Override
         public String toString() {
             return string;
+        }
+
+        public String labelString() {
+            return label;
         }
 
         public static Type FromString(String param) {

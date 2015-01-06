@@ -173,6 +173,7 @@ public class ShakeMapLayer extends OMGraphicHandlerLayer implements
         g.drawString(str, x - fm.stringWidth(str) / 2, y2Text);
         g.drawLine(x, yTick, x, y2Gradient);
         g.drawLine(xMargin, h - 1, x, h - 1);
+        g.dispose();
     }
 
     private boolean loadGrid() {

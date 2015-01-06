@@ -289,7 +289,7 @@
         <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
           <ComponentRef name="likelihoodLabel"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="Likelihood of Correctness"/>
+        <Property name="text" type="java.lang.String" value="Likelihood of correct alarm"/>
       </Properties>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
@@ -402,9 +402,6 @@
         </Property>
         <Property name="text" type="java.lang.String" value="Remaining Time"/>
       </Properties>
-      <AccessibilityProperties>
-        <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="Remaining Time"/>
-      </AccessibilityProperties>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="0"/>
