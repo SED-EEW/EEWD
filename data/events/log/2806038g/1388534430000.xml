@@ -18,7 +18,7 @@
       <preferredMagnitudeID>smi:ch.ethz.sed/event/2806038g/magnitude/1</preferredMagnitudeID>
       <originReference>smi:ch.ethz.sed/event/2806038g/origin/1</originReference>
       <!--To stop an alert a QuakeML message with eventType="not existing" could be sent.-->
-      <type>earthquake</type>
+      <type>not existing</type>
       <!-- Likelihood would need to be defined as an extension to the event type. In the 
          same way other extensions could be defined to other elements. -->
       <vs:likelihood>0.94</vs:likelihood>

@@ -558,41 +558,39 @@ public class Application implements QMLListener, ActionListener {
         if (eventParameters == null) {
             return;
         }
+
+        EventData event;
         try {
-            EventData event = new EventData(eventParameters);
+            event = new EventData(eventParameters, offset);
+        } catch (EventData.InvalidEventDataException ex) {
+            LOG.warn(ex.getMessage());
+            return;
+        }
 
-            if (minMag != null && event.magnitude < minMag) {
-                LOG.info(String.format("ignoring event %s, magnitude of %.1f below threshold",
-                                       event.eventID, event.magnitude));
-                return;
-            }
-            if (minLikelihood != null) {
-                if (event.likelihood == null) {
-                    LOG.info(String.format("ignoring event %s, likelihood not available",
-                                           event.eventID));
-                    return;
-                } else if (event.likelihood < minLikelihood) {
-                    LOG.info(String.format("ignoring event %s, likelihood of %.1f below threshold",
-                                           event.eventID, event.likelihood));
-                    return;
-                }
-            }
+        boolean disable = true;
+        if (event.isFakeEvent) {
+            LOG.info(String.format("event %s marked as not existing", event.eventID));
+        } else if (minMag != null && event.magnitude < minMag) {
+            LOG.info(String.format("ignoring event %s, magnitude of %.1f below threshold",
+                                   event.eventID, event.magnitude));
+        } else if (minLikelihood != null && event.likelihood == null) {
+            LOG.info(String.format("ignoring event %s, likelihood not available",
+                                   event.eventID));
+        } else if (minLikelihood != null && event.likelihood < minLikelihood) {
+            LOG.info(String.format("ignoring event %s, likelihood of %.1f below threshold",
+                                   event.eventID, event.likelihood));
+        } else {
+            disable = false;
 
-            if (offset > 0) {
-                long t1 = event.time;
-                long t2 = event.time + offset;
-                event.time = event.time + offset;
-                LOG.debug(t1 + ", " + offset + ", " + t2 + ", " + event.time);
-            }
             // zoom out if epicenter is not visible
             zoomToPoint(event.latitude, event.longitude);
 
-            eventTimeScheduler.setEvent(event);
+            // process shaking
             shakingCalculator.processEvent(event);
             LOG.trace(event.toString());
-        } catch (EventData.InvalidEventDataException ex) {
-            LOG.warn(ex.getMessage());
         }
+
+        eventTimeScheduler.setEvent(event, disable);
     }
 
     private void zoomToPoint(double latitude, double longitude) {

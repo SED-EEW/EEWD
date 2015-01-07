@@ -11,6 +11,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.quakeml.xmlns.bedRt.x12.Event;
 import org.quakeml.xmlns.bedRt.x12.EventParameters;
+import org.quakeml.xmlns.bedRt.x12.EventType;
 import org.quakeml.xmlns.bedRt.x12.Magnitude;
 import org.quakeml.xmlns.bedRt.x12.Origin;
 import org.quakeml.xmlns.bedRt.x12.RealQuantity;
@@ -35,40 +36,46 @@ public class EventData {
         }
     }
 
-    public String eventID;
-    public long time;
-    public double latitude;
-    public double longitude;
-    public double depth = 0.0;
-    public double magnitude = 0.0;
-    public Double intensity = null;
-    public Float likelihood = null;
-    public double latitudeUncertainty = 0.0;
-    public double longitudeUncertainty = 0.0;
+    public final String eventID;
+    public final boolean isFakeEvent;
+    public final long time;
+    public final double latitude;
+    public final double latitudeUncertainty;
+    public final double longitude;
+    public final double longitudeUncertainty;
+    public final double depth;
+    public final double magnitude;
+    public final Float likelihood;
 
     public EventParameters eventParameters = null;
-
-    public EventData() {
-    }
 
     public EventData(String id, long time, double latitude,
                      double longitude, double depth, double magnitude) {
         this.eventID = id;
+        this.isFakeEvent = false;
         this.time = time;
         this.latitude = latitude;
+        this.latitudeUncertainty = 0.0;
         this.longitude = longitude;
+        this.longitudeUncertainty = 0.0;
         this.depth = depth;
         this.magnitude = magnitude;
+        this.likelihood = null;
     }
 
-    public EventData(EventParameters eventParameters)
+    public EventData(EventParameters eventParameters, long offset)
             throws InvalidEventDataException {
         double result[] = new double[2];
+
+        this.eventParameters = eventParameters;
 
         // get event
         assertOne(eventParameters.getEventArray(), "event");
         Event event = eventParameters.getEventArray(0);
         eventID = event.getPublicID();
+
+        isFakeEvent = event.getTypeArray().length == 1
+                      && event.getTypeArray(0).equals(EventType.NOT_EXISTING);
 
         // get preferred origin
         assertOne(event.getPreferredOriginIDArray(), "preferred origin");
@@ -86,7 +93,8 @@ public class EventData {
         }
 
         // read origin information
-        time = getTimeQuantity(origin.getTimeArray(), "time");
+        time = getTimeQuantity(origin.getTimeArray(), "time")
+               + (offset > 0 ? offset : 0);
         getRealQuantityUncertainty(result, origin.getLatitudeArray(), "latitude");
         latitude = result[0];
         latitudeUncertainty = result[1];
@@ -112,16 +120,17 @@ public class EventData {
         magnitude = getRealQuantity(mag.getMagArray(), "magnitude");
 
         // likelihood
+        Float tmp = null;
         XmlObject[] objs = event.selectChildren(Likelihood.type.getName());
         if (objs.length > 0) {
             try {
                 Likelihood l = Likelihood.Factory.parse(objs[0].xmlText());
-                likelihood = l.getFloatValue();
+                tmp = l.getFloatValue();
             } catch (XmlException ex) {
                 LOG.warn("could not parse " + Likelihood.type.getShortJavaName());
             }
-
         }
+        likelihood = tmp;
     }
 
     private void assertOne(Object[] array, String name)
@@ -178,14 +187,17 @@ public class EventData {
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 17 * hash + Objects.hashCode(this.eventID);
-        hash = 17 * hash + Objects.hashCode(this.time);
-        hash = 17 * hash + (int) (Double.doubleToLongBits(this.latitude) ^ (Double.doubleToLongBits(this.latitude) >>> 32));
-        hash = 17 * hash + (int) (Double.doubleToLongBits(this.longitude) ^ (Double.doubleToLongBits(this.longitude) >>> 32));
-        hash = 17 * hash + (int) (Double.doubleToLongBits(this.depth) ^ (Double.doubleToLongBits(this.depth) >>> 32));
-        hash = 17 * hash + (int) (Double.doubleToLongBits(this.magnitude) ^ (Double.doubleToLongBits(this.magnitude) >>> 32));
-        hash = 17 * hash + Objects.hashCode(this.intensity);
+        int hash = 5;
+        hash = 43 * hash + Objects.hashCode(this.eventID);
+        hash = 43 * hash + (int) (this.time ^ (this.time >>> 32));
+        hash = 43 * hash + (int) (Double.doubleToLongBits(this.latitude) ^ (Double.doubleToLongBits(this.latitude) >>> 32));
+        hash = 43 * hash + (int) (Double.doubleToLongBits(this.longitude) ^ (Double.doubleToLongBits(this.longitude) >>> 32));
+        hash = 43 * hash + (int) (Double.doubleToLongBits(this.depth) ^ (Double.doubleToLongBits(this.depth) >>> 32));
+        hash = 43 * hash + (int) (Double.doubleToLongBits(this.magnitude) ^ (Double.doubleToLongBits(this.magnitude) >>> 32));
+        hash = 43 * hash + Objects.hashCode(this.likelihood);
+        hash = 43 * hash + (int) (Double.doubleToLongBits(this.latitudeUncertainty) ^ (Double.doubleToLongBits(this.latitudeUncertainty) >>> 32));
+        hash = 43 * hash + (int) (Double.doubleToLongBits(this.longitudeUncertainty) ^ (Double.doubleToLongBits(this.longitudeUncertainty) >>> 32));
+        hash = 43 * hash + Objects.hashCode(this.eventParameters);
         return hash;
     }
 
@@ -201,7 +213,7 @@ public class EventData {
         if (!Objects.equals(this.eventID, other.eventID)) {
             return false;
         }
-        if (!Objects.equals(this.time, other.time)) {
+        if (this.time != other.time) {
             return false;
         }
         if (Double.doubleToLongBits(this.latitude) != Double.doubleToLongBits(other.latitude)) {
@@ -216,12 +228,23 @@ public class EventData {
         if (Double.doubleToLongBits(this.magnitude) != Double.doubleToLongBits(other.magnitude)) {
             return false;
         }
-        return Objects.equals(this.intensity, other.intensity);
+        if (!Objects.equals(this.likelihood, other.likelihood)) {
+            return false;
+        }
+        if (Double.doubleToLongBits(this.latitudeUncertainty) != Double.doubleToLongBits(other.latitudeUncertainty)) {
+            return false;
+        }
+        if (Double.doubleToLongBits(this.longitudeUncertainty) != Double.doubleToLongBits(other.longitudeUncertainty)) {
+            return false;
+        }
+        if (!Objects.equals(this.eventParameters, other.eventParameters)) {
+            return false;
+        }
+        return true;
     }
 
     @Override
     public String toString() {
-        return "EventProperties{" + "eventID=" + eventID + ", time=" + time + ", latitude=" + latitude + ", longitude=" + longitude + ", depth=" + depth + ", magnitude=" + magnitude + ", intensity=" + intensity + '}';
+        return "EventData{" + "eventID=" + eventID + ", time=" + time + ", latitude=" + latitude + ", longitude=" + longitude + ", depth=" + depth + ", magnitude=" + magnitude + ", likelihood=" + likelihood + ", latitudeUncertainty=" + latitudeUncertainty + ", longitudeUncertainty=" + longitudeUncertainty + ", eventParameters=" + eventParameters + '}';
     }
-
 }
