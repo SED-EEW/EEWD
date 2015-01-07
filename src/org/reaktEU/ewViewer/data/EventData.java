@@ -43,6 +43,8 @@ public class EventData {
     public double magnitude = 0.0;
     public Double intensity = null;
     public Float likelihood = null;
+    public double latitudeUncertainty = 0.0;
+    public double longitudeUncertainty = 0.0;
 
     public EventParameters eventParameters = null;
 
@@ -61,6 +63,7 @@ public class EventData {
 
     public EventData(EventParameters eventParameters)
             throws InvalidEventDataException {
+        double result[] = new double[2];
 
         // get event
         assertOne(eventParameters.getEventArray(), "event");
@@ -84,8 +87,12 @@ public class EventData {
 
         // read origin information
         time = getTimeQuantity(origin.getTimeArray(), "time");
-        latitude = getRealQuantity(origin.getLatitudeArray(), "latitude");
-        longitude = getRealQuantity(origin.getLongitudeArray(), "longitude");
+        getRealQuantityUncertainty(result, origin.getLatitudeArray(), "latitude");
+        latitude = result[0];
+        latitudeUncertainty = result[1];
+        getRealQuantityUncertainty(result, origin.getLongitudeArray(), "longitude");
+        longitude = result[0];
+        longitudeUncertainty = result[1];
         depth = getRealQuantity(origin.getDepthArray(), "depth");
 
         // get preferred magnitude
@@ -136,6 +143,25 @@ public class EventData {
             throw new InvalidEventDataException("more than one " + name + " value specifed");
         }
         return quantity.getValueArray(0);
+    }
+
+    private void getRealQuantityUncertainty(double result[], RealQuantity[] array, String name)
+            throws InvalidEventDataException {
+        assertOne(array, name);
+        RealQuantity quantity = array[0];
+        if (quantity.getValueArray().length == 0) {
+            throw new InvalidEventDataException("no " + name + " value specifed");
+        } else if (quantity.getValueArray().length > 1) {
+            throw new InvalidEventDataException("more than one " + name + " value specifed");
+        }
+        result[0] = quantity.getValueArray(0);
+        result[1] = 0.0;
+
+        if (quantity.getUncertaintyArray().length == 1) {
+            result[1] = quantity.getUncertaintyArray(0);
+        } else if (quantity.getUpperUncertaintyArray().length == 1) {
+            result[1] = quantity.getUpperUncertaintyArray(0);
+        }
     }
 
     private long getTimeQuantity(TimeQuantity[] array, String name)

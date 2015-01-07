@@ -6,10 +6,12 @@ package org.reaktEU.ewViewer.layer;
 
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMCircle;
+import com.bbn.openmap.omGraphics.OMEllipse;
 import com.bbn.openmap.omGraphics.OMGraphicAdapter;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMRaster;
 import com.bbn.openmap.proj.Length;
+import com.bbn.openmap.proj.coords.LatLonPoint;
 import java.awt.AlphaComposite;
 import org.reaktEU.ewViewer.data.EventData;
 import org.reaktEU.ewViewer.data.EventTimeListener;
@@ -44,16 +46,21 @@ public class EventLayer extends OMGraphicHandlerLayer implements EventTimeListen
     public static final Paint PWavePaint = new Color(222, 222, 38);
     public static final Paint SWavePaint = new Color(222, 38, 38);
 
+    public static final Color CLocationLine = Color.WHITE;
+    public static final Color CLocationFill = Color.RED;
+    public static final Color CUncertaintyLine = Color.RED;
+    public static final Color CUncertaintyFill = new Color(255, 128, 128, 192);
+
     public static final Font FInfoHeader = new Font("Arial", Font.BOLD, 16);
     public static final Font FInfoLabel = new Font("Arial", Font.BOLD, 20);
     public static final Font FInfoRemaining = new Font("Arial", Font.BOLD, 128);
     public static final Font FInfoMag = new Font("Arial", Font.BOLD, 96);
 
-    public static final Color CBGHeader = new Color(202, 237, 255, 192);
-    public static final Color CBGMain = new Color(44, 139, 189, 192);
-    public static final Color CFGHeader = new Color(0, 45, 68);
-    public static final Color CFGMain = new Color(232, 220, 92);
-    public static final int Margin = 8;
+    public static final Color CInfoBGHeader = new Color(202, 237, 255, 192);
+    public static final Color CInfoBGMain = new Color(44, 139, 189, 192);
+    public static final Color CInfoFGHeader = new Color(0, 45, 68);
+    public static final Color CInfoFGMain = new Color(232, 220, 92);
+    public static final int InfoMargin = 8;
 
     protected ImageIcon icon;
     protected double vp;
@@ -94,11 +101,11 @@ public class EventLayer extends OMGraphicHandlerLayer implements EventTimeListen
         fmInfoRemaining = g.getFontMetrics(FInfoRemaining);
         fmInfoMag = g.getFontMetrics(FInfoMag);
 
-        infoMagX = Margin + fmInfoMag.stringWidth("5.5  ");
-        infoWidth = infoMagX + fmInfoMag.stringWidth("5.5") + Margin;
-        infoHeaderHeight = Margin + 3 * fmInfoHeader.getHeight() + Margin;
-        infoMainHeight = Margin + fmInfoLabel.getHeight() + fmInfoRemaining.getHeight()
-                         + Margin + fmInfoLabel.getHeight() + fmInfoMag.getAscent() + Margin;
+        infoMagX = InfoMargin + fmInfoMag.stringWidth("5.5  ");
+        infoWidth = infoMagX + fmInfoMag.stringWidth("5.5") + InfoMargin;
+        infoHeaderHeight = InfoMargin + 3 * fmInfoHeader.getHeight() + InfoMargin;
+        infoMainHeight = InfoMargin + fmInfoLabel.getHeight() + fmInfoRemaining.getHeight()
+                         + InfoMargin + fmInfoLabel.getHeight() + fmInfoMag.getAscent() + InfoMargin;
         infoHeight = infoHeaderHeight + infoMainHeight;
         infoImages[0] = new BufferedImage(infoWidth, infoHeight, BufferedImage.TYPE_INT_ARGB);
         infoImages[1] = new BufferedImage(infoWidth, infoHeight, BufferedImage.TYPE_INT_ARGB);
@@ -151,10 +158,19 @@ public class EventLayer extends OMGraphicHandlerLayer implements EventTimeListen
                                   icon);
         } else {
             symbol = new OMCircle(event.latitude, event.longitude, 15, 15);
-            symbol.setLinePaint(Color.WHITE);
-            symbol.setFillPaint(Color.RED);
+            symbol.setLinePaint(CLocationLine);
+            symbol.setFillPaint(CLocationFill);
         }
+
         list.add(symbol);
+        if (event.latitudeUncertainty > 0.0 && event.longitudeUncertainty > 0.0) {
+            symbol = new OMEllipse(new LatLonPoint.Double(event.latitude, event.longitude),
+                                   event.longitudeUncertainty, event.latitudeUncertainty,
+                                   Length.KM, 0);
+            symbol.setLinePaint(CUncertaintyLine);
+            symbol.setFillPaint(CUncertaintyFill);
+            list.add(symbol);
+        }
 
         // information layer
         String ot = String.format("%s ", df.format(event.time));
@@ -190,31 +206,31 @@ public class EventLayer extends OMGraphicHandlerLayer implements EventTimeListen
         //g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
         // info header
-        g.setColor(CBGHeader);
+        g.setColor(CInfoBGHeader);
         g.fillRect(0, y, infoWidth, infoHeaderHeight);
-        g.setColor(CFGHeader);
+        g.setColor(CInfoFGHeader);
         g.setFont(FInfoHeader);
-        g.drawString(event.eventID, Margin, y += Margin + fmInfoHeader.getAscent());
-        g.drawString(ot, Margin, y += fmInfoHeader.getHeight());
-        g.drawString(distance, Margin, y += fmInfoHeader.getHeight());
+        g.drawString(event.eventID, InfoMargin, y += InfoMargin + fmInfoHeader.getAscent());
+        g.drawString(ot, InfoMargin, y += fmInfoHeader.getHeight());
+        g.drawString(distance, InfoMargin, y += fmInfoHeader.getHeight());
 
         // info main
         g.translate(0, infoHeaderHeight);
         y = 0;
-        g.setPaint(CBGMain);
+        g.setPaint(CInfoBGMain);
         g.fillRect(0, y, infoWidth, infoMainHeight);
         g.setComposite(AlphaComposite.SrcOver);
-        g.setColor(CFGMain);
+        g.setColor(CInfoFGMain);
         g.setFont(FInfoLabel);
-        g.drawString("Remaining time", Margin, y += Margin + fmInfoLabel.getAscent());
+        g.drawString("Remaining time", InfoMargin, y += InfoMargin + fmInfoLabel.getAscent());
         g.setFont(FInfoRemaining);
-        g.drawString(remaining, Margin, y += fmInfoLabel.getDescent() + fmInfoRemaining.getAscent());
+        g.drawString(remaining, InfoMargin, y += fmInfoLabel.getDescent() + fmInfoRemaining.getAscent());
         g.setFont(FInfoLabel);
-        g.drawString(preferredShaking.labelString(), Margin,
+        g.drawString(preferredShaking.labelString(), InfoMargin,
                      y += fmInfoRemaining.getDescent() + fmInfoLabel.getAscent());
         g.drawString("Magnitude", infoMagX, y);
         g.setFont(FInfoMag);
-        g.drawString(shaking, Margin, y += fmInfoLabel.getDescent() + fmInfoMag.getAscent());
+        g.drawString(shaking, InfoMargin, y += fmInfoLabel.getDescent() + fmInfoMag.getAscent());
         g.drawString(String.format("%.1f", event.magnitude), infoMagX, y);
         g.dispose();
 

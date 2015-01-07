@@ -31,11 +31,11 @@
       </time>
       <latitude>
         <value>47.0</value>
-        <uncertainty>-999.9</uncertainty>
+        <uncertainty>38</uncertainty>
       </latitude>
       <longitude>
         <value>10.0</value>
-        <uncertainty>-999.9</uncertainty>
+        <uncertainty>19</uncertainty>
       </longitude>
       <depth>
         <value>4200</value>
