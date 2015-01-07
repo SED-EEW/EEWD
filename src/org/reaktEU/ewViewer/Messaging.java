@@ -18,6 +18,7 @@ import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.quakeml.xmlns.quakemlRt.x12.QuakemlDocument;
+import org.reaktEU.ewViewer.data.EventData;
 
 /**
  *
@@ -90,11 +91,12 @@ public class Messaging implements Listener {
 
     @Override
     public void message(Map headers, String body) {
+        long received = System.currentTimeMillis();
+
         LOG.info("received message");
         LOG.trace(body);
 
         try {
-
             XmlOptions xmlOptions = new XmlOptions();
             List<XmlError> xmlErrors = null;
             if (LOG.isEnabled(org.apache.logging.log4j.Level.DEBUG)) {
@@ -104,8 +106,9 @@ public class Messaging implements Listener {
             }
             QuakemlDocument qmlDoc = QuakemlDocument.Factory.parse(body, xmlOptions);
             if (qmlDoc.validate(xmlOptions)) {
-                Application.getInstance().processQML(
-                        qmlDoc.getQuakeml().getEventParameters(), 0);
+                Application app = Application.getInstance();
+                EventData event = app.processQML(qmlDoc.getQuakeml().getEventParameters(), 0);
+                app.getEventArchive().log(received, body, event);
             } else {
                 LOG.warn("the document is not valid");
                 if (xmlErrors != null) {

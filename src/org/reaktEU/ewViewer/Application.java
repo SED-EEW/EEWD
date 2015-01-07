@@ -553,10 +553,10 @@ public class Application implements QMLListener, ActionListener {
     }
 
     @Override
-    public void processQML(EventParameters eventParameters, long offset) {
+    public EventData processQML(EventParameters eventParameters, long offset) {
         LOG.info("received event update");
         if (eventParameters == null) {
-            return;
+            return null;
         }
 
         EventData event;
@@ -564,7 +564,7 @@ public class Application implements QMLListener, ActionListener {
             event = new EventData(eventParameters, offset);
         } catch (EventData.InvalidEventDataException ex) {
             LOG.warn(ex.getMessage());
-            return;
+            return null;
         }
 
         boolean disable = true;
@@ -591,6 +591,7 @@ public class Application implements QMLListener, ActionListener {
         }
 
         eventTimeScheduler.setEvent(event, disable);
+        return event;
     }
 
     private void zoomToPoint(double latitude, double longitude) {

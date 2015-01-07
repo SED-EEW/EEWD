@@ -17,6 +17,7 @@ public interface QMLListener {
      * @param offset Time in milliseconds to add to the origin time. Used in
      * scenario replay and set to 0 for actual events received through
      * messaging.
+     * @return parsed event data object, null if invalid
      */
-    void processQML(EventParameters eventParameters, long offset);
+    EventData processQML(EventParameters eventParameters, long offset);
 }
