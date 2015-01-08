@@ -36,6 +36,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,6 +54,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.quakeml.xmlns.bedRt.x12.EventParameters;
+import org.reaktEU.ewViewer.data.EventCountdown;
 import org.reaktEU.ewViewer.data.Shaking;
 import org.reaktEU.ewViewer.data.ShakingCalculator;
 import org.reaktEU.ewViewer.layer.LogoLayer;
@@ -101,6 +103,8 @@ public class Application implements QMLListener, ActionListener {
     public static final String PropertyTimeoutAfterOriginTime = "timeoutAfterOriginTime";
     public static final String PropertyAlertSound = "alertSound";
     public static final String PropertyAlertSoundLoop = "alertSoundLoop";
+    public static final String PropertyCountdownSound = "countdownSound";
+    public static final String PropertyCountdownSeconds = "countdownSeconds";
 
     // filter
     public static final String PropertyFilter = "filter";
@@ -159,6 +163,7 @@ public class Application implements QMLListener, ActionListener {
     private final EventArchive eventArchive;
     private final EventTimeScheduler eventTimeScheduler;
     private final EventFileScheduler eventFileScheduler;
+    private final EventCountdown eventCountdown;
     private final List<POI> targets;
     private final List<POI> stations;
 
@@ -217,6 +222,9 @@ public class Application implements QMLListener, ActionListener {
         eventFileScheduler = new EventFileScheduler();
         eventFileScheduler.addQMLListener(this);
 
+        // play countdown prior to S-wave arrival
+        eventCountdown = new EventCountdown();
+
         // read targets and stations // read targets and stations
         stations = readPOIs(properties.getProperty(PropertyStationFile,
                                                    "data/stations.csv"));
@@ -224,11 +232,14 @@ public class Application implements QMLListener, ActionListener {
                                                   "data/targets.csv"));
 
         shakeMapLayer = new ShakeMapLayer();
-        shakeMapLayer.setName("Shake Map");
+
+        shakeMapLayer.setName(
+                "Shake Map");
 
         controlPeriod = getProperty(PropertyControlPeriod, (Double) null);
         periods = getProperty(PropertySpecPeriods, (double[]) null);
         useFrequencies = getProperty(PropertyUseFrequencies, false);
+
         Arrays.sort(periods);
 
         minMag = getProperty(PropertyFilterMinMag, (Float) null);
@@ -236,7 +247,8 @@ public class Application implements QMLListener, ActionListener {
 
         // read spectrum parameter
         String param = properties.getProperty(Application.PropertySpecParameter);
-        if (param != null) {
+        if (param
+            != null) {
             spectrumParameter = Shaking.Type.valueOf(param);
             if (spectrumParameter == null) {
                 LOG.warn("invalid " + Application.PropertySpecParameter + " value: " + param);
@@ -245,7 +257,8 @@ public class Application implements QMLListener, ActionListener {
 
         // read shake map parameter
         param = properties.getProperty(Application.PropertySMParameter);
-        if (param != null) {
+        if (param
+            != null) {
             shakeMapParameter = Shaking.Type.valueOf(param);
             if (shakeMapParameter == null) {
                 LOG.warn("invalid " + Application.PropertySMParameter + " value: " + param);
@@ -255,18 +268,21 @@ public class Application implements QMLListener, ActionListener {
         shakingCalculator = new ShakingCalculator(targets, stations, shakeMapLayer);
 
         title = mapPropertyHandler.getProperties().getProperty("openmap.Title");
+
         configureMapPanel(mapPropertyHandler);
 
         messaging = new Messaging();
 
         // Schedule a job for the event-dispatching thread:
         // creating and showing this application's GUI.
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                showInFrame();
-            }
-        });
+        javax.swing.SwingUtilities.invokeLater(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        showInFrame();
+                    }
+                }
+        );
 
         messaging.listen();
     }
@@ -416,17 +432,22 @@ public class Application implements QMLListener, ActionListener {
 
         eventPanel = new EventPanel(targets);
 
-        ToolPanel toolPanel = (ToolPanel) mapHandler.get(ToolPanel.class);
-        if (toolPanel == null) {
+        ToolPanel toolPanel = (ToolPanel) mapHandler.get(ToolPanel.class
+        );
+        if (toolPanel
+            == null) {
             toolPanel = new ToolPanel();
             mapHandler.add(toolPanel);
         }
 
         mapHandler.add(eventPanel);
-        mainPanel.getSlider().setLeftComponent(eventPanel);
+
+        mainPanel.getSlider()
+                .setLeftComponent(eventPanel);
 
         LayerHandler layerHandler = (LayerHandler) mapHandler.get(LayerHandler.class);
-        if (layerHandler != null) {
+        if (layerHandler
+            != null) {
             LogoLayer logoLayer = new LogoLayer();
             logoLayer.setName("Logo");
             layerHandler.addLayer(logoLayer, 0);
@@ -456,12 +477,15 @@ public class Application implements QMLListener, ActionListener {
         if (eventLayer != null) {
             eventLayer.setTarget(target);
         }
+        eventCountdown.setTarget(target);
     }
 
     protected void showInFrame() {
-        openMapFrame = (OpenMapFrame) mapPanel.getMapHandler().get(OpenMapFrame.class);
+        openMapFrame = (OpenMapFrame) mapPanel.getMapHandler().get(OpenMapFrame.class
+        );
 
-        if (openMapFrame == null) {
+        if (openMapFrame
+            == null) {
             openMapFrame = new OpenMapFrame() {
                 @Override
                 public void considerForContent(Object someObj) {
@@ -483,21 +507,28 @@ public class Application implements QMLListener, ActionListener {
             messaging.reportConnectionState();
         }
 
-        openMapFrame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                System.exit(0);
-            }
-        });
+        openMapFrame.addWindowListener(
+                new WindowAdapter() {
+                    @Override
+                    public void windowClosing(WindowEvent e
+                    ) {
+                        System.exit(0);
+                    }
+                }
+        );
 
-        openMapFrame.setVisible(true);
-        mapPanel.getMapBean().showLayerPalettes();
-        Debug.message("basic", "OpenMap: READY");
+        openMapFrame.setVisible(
+                true);
+        mapPanel.getMapBean()
+                .showLayerPalettes();
+        Debug.message(
+                "basic", "OpenMap: READY");
     }
 
     private void addCustomMenuItems(JMenuBar menuBar) {
         JMenu fileMenu = null;
-        for (int i = 0; i < menuBar.getMenuCount(); ++i) {
+        for (int i = 0; i < menuBar.getMenuCount();
+             ++i) {
             if (menuBar.getMenu(i).getClass() == FileMenu.class) {
                 fileMenu = menuBar.getMenu(i);
             }
@@ -591,6 +622,7 @@ public class Application implements QMLListener, ActionListener {
         }
 
         eventTimeScheduler.setEvent(event, disable);
+        eventCountdown.setEvent(disable ? null : event);
         return event;
     }
 

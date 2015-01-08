@@ -21,9 +21,6 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reaktEU.ewViewer.Application;
-import static org.reaktEU.ewViewer.Application.PropertyAlertSound;
-import static org.reaktEU.ewViewer.Application.PropertyAlertSoundLoop;
-import static org.reaktEU.ewViewer.Application.PropertyTimeoutAfterOriginTime;
 
 /**
  *
@@ -44,17 +41,18 @@ public class EventTimeScheduler implements Runnable {
 
     public EventTimeScheduler() {
         double maxUpdateSeconds = Application.getInstance().getProperty(
-                PropertyTimeoutAfterOriginTime, 60.0);
+                Application.PropertyTimeoutAfterOriginTime, 60.0);
 
         maxUpdateMillis = (long) (maxUpdateSeconds * 1000);
         updateListeners = new HashSet();
 
         Application app = Application.getInstance();
 
-        String fileName = app.getProperty(PropertyAlertSound, (String) null);
+        String fileName = app.getProperty(Application.PropertyAlertSound, (String) null);
         alertSound = fileName == null ? null : new File(fileName);
-        alertSoundLoop = app.getProperty(PropertyAlertSoundLoop, 1);
+        alertSoundLoop = app.getProperty(Application.PropertyAlertSoundLoop, 1);
 
+        executor = null;
         event = null;
     }
 
@@ -79,11 +77,10 @@ public class EventTimeScheduler implements Runnable {
         executor = Executors.newScheduledThreadPool(1);
         executor.scheduleAtFixedRate(this, 0, UpdateInterval, TimeUnit.MILLISECONDS);
 
-        // play sound
-        if (newEvent) {
+        // play sound for new events
+        if (newEvent && alertSound != null) {
             try {
-                AudioInputStream inputStream
-                                 = AudioSystem.getAudioInputStream(alertSound);
+                AudioInputStream inputStream = AudioSystem.getAudioInputStream(alertSound);
                 AudioFormat format = inputStream.getFormat();
                 DataLine.Info info = new DataLine.Info(Clip.class, format);
                 Clip clip = (Clip) AudioSystem.getLine(info);
@@ -93,6 +90,7 @@ public class EventTimeScheduler implements Runnable {
                 LOG.error("could not play alert sound", e);
             }
         }
+
     }
 
     @Override
@@ -118,5 +116,4 @@ public class EventTimeScheduler implements Runnable {
             executor = null;
         }
     }
-
 }
