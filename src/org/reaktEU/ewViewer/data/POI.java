@@ -22,6 +22,7 @@ public class POI extends AmplificationPoint {
     public String name;
     public Map<Shaking.Type, Shaking> shakingValues;
     public List<Shaking> spectralValues;
+    public boolean triggered;
 
     public POI(double latitude, double longitude, double altitude,
                double amplification, String name) {
@@ -30,6 +31,7 @@ public class POI extends AmplificationPoint {
         this.name = name;
         this.shakingValues = new ConcurrentHashMap();
         this.spectralValues = new ArrayList();
+        this.triggered = false;
     }
 
     @Override
@@ -40,5 +42,6 @@ public class POI extends AmplificationPoint {
     public void clearValues() {
         this.shakingValues.clear();
         this.spectralValues.clear();
+        this.triggered = false;
     }
 }

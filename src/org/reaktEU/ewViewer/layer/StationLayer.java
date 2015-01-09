@@ -14,28 +14,37 @@ import com.bbn.openmap.omGraphics.OMPoly;
 import static com.bbn.openmap.omGraphics.OMPoly.COORDMODE_ORIGIN;
 import com.bbn.openmap.omGraphics.OMText;
 import com.bbn.openmap.util.PaletteHelper;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import javax.swing.Box;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reaktEU.ewViewer.Application;
+import org.reaktEU.ewViewer.data.EventData;
+import org.reaktEU.ewViewer.data.EventTimeListener;
 
 /**
  *
  * @author Stephan Herrnkind <herrnkind@gempa.de>
  */
-public class StationLayer extends OMGraphicHandlerLayer implements MapMouseListener {
+public class StationLayer extends OMGraphicHandlerLayer
+        implements MapMouseListener, EventTimeListener {
 
     private static final Logger LOG = LogManager.getLogger(StationLayer.class);
 
-    protected List<POI> stations;
+    public static final String ShowNamesProperty = "showNames";
+
+    protected final Map<String, POI> stations;
+
+    protected boolean drawTriggered = false;
     protected boolean showingInfoLine = false;
     protected boolean showNames = false;
 
@@ -46,9 +55,7 @@ public class StationLayer extends OMGraphicHandlerLayer implements MapMouseListe
     protected Box paletteBox = null;
     protected JCheckBox showNamesButton = null;
 
-    public static final String ShowNamesProperty = "showNames";
-
-    public StationLayer(List<POI> stations) {
+    public StationLayer(Map<String, POI> stations) {
         Application app = Application.getInstance();
         this.stations = stations;
         setSize(12);
@@ -77,21 +84,24 @@ public class StationLayer extends OMGraphicHandlerLayer implements MapMouseListe
     }
 
     public synchronized OMGraphicList prepare() {
-
         OMGraphicList list = new OMGraphicList();
-        OMGraphicList group = null;
 
         OMPoly poly;
         OMText text;
         Font f = java.awt.Font.decode("SansSerif Bold");
 
-        for (POI station : stations) {
+        for (POI station : stations.values()) {
             poly = new OMPoly(station.latitude, station.longitude,
                               xs, ys, COORDMODE_ORIGIN);
             poly.setFillPaint(Color.GREEN);
             poly.setAppObject(station);
+            if (drawTriggered && station.triggered) {
+                poly.setLinePaint(Color.RED);
+                poly.setStroke(new BasicStroke(3));
+            }
+
             if (showNames) {
-                group = new OMGraphicList(2);
+                OMGraphicList group = new OMGraphicList(2);
                 group.add(poly);
                 text = new OMText(station.latitude, station.longitude,
                                   0, ys[1] - 5, station.name,
@@ -202,5 +212,14 @@ public class StationLayer extends OMGraphicHandlerLayer implements MapMouseListe
             paletteBox.add(layerPanel);
         }
         return paletteBox;
+    }
+
+    @Override
+    public void processEventTime(EventData event, Long originTimeOffset) {
+        if (originTimeOffset == null && drawTriggered == false) {
+            return;
+        }
+        drawTriggered = originTimeOffset != null && (originTimeOffset / 1000) % 2 == 1;
+        doPrepare();
     }
 }

@@ -31,7 +31,7 @@ public class ShakingCalculator implements Runnable {
     private static final Logger LOG = LogManager.getLogger(ShakingCalculator.class);
 
     private final List<POI> targets;
-    private final List<POI> stations;
+    private final Map<String, POI> stations;
     private final ShakeMapLayer shakeMap;
     private final BlockingQueue<EventData> queue;
 
@@ -44,7 +44,8 @@ public class ShakingCalculator implements Runnable {
     private IntensityFromAcceleration gmicePGAImpl = null;
     private IntensityFromVelocity gmicePGVImpl = null;
 
-    public ShakingCalculator(List<POI> targets, List<POI> stations, ShakeMapLayer shakeMap) {
+    public ShakingCalculator(List<POI> targets, Map<String, POI> stations,
+                             ShakeMapLayer shakeMap) {
         this.targets = targets;
         this.stations = stations;
         this.shakeMap = shakeMap;
@@ -284,7 +285,7 @@ public class ShakingCalculator implements Runnable {
                                     event.eventParameters).expectedSI * 100;
                         }
                     }
-                } else if (shakeMapParameter == Shaking.Type.Intensity && gmpeInt != null) {
+                } else if (shakeMapParameter == Shaking.Type.Intensity) {
                     if (gmpeInt == null) {
                         if (gmicePGA != null && gmpePGA != null) {
                             for (ShakeMapLayer.Point p : shakeMap.getPoints()) {

@@ -4,16 +4,20 @@
  */
 package org.reaktEU.ewViewer.data;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.quakeml.xmlns.bedRt.x12.Arrival;
 import org.quakeml.xmlns.bedRt.x12.Event;
 import org.quakeml.xmlns.bedRt.x12.EventParameters;
 import org.quakeml.xmlns.bedRt.x12.EventType;
 import org.quakeml.xmlns.bedRt.x12.Magnitude;
 import org.quakeml.xmlns.bedRt.x12.Origin;
+import org.quakeml.xmlns.bedRt.x12.Pick;
 import org.quakeml.xmlns.bedRt.x12.RealQuantity;
 import org.quakeml.xmlns.bedRt.x12.TimeQuantity;
 import org.quakeml.xmlns.vstypes.x01.Likelihood;
@@ -63,7 +67,8 @@ public class EventData {
         this.likelihood = null;
     }
 
-    public EventData(EventParameters eventParameters, long offset)
+    public EventData(EventParameters eventParameters, long offset,
+                     Map<String, POI> stations)
             throws InvalidEventDataException {
         double result[] = new double[2];
 
@@ -131,6 +136,34 @@ public class EventData {
             }
         }
         likelihood = tmp;
+
+        // station information
+        if (stations == null || stations.isEmpty()) {
+            return;
+        }
+        for (POI station : stations.values()) {
+            station.clearValues();
+        }
+        if (eventParameters.getPickArray().length == 0) {
+            return;
+        }
+
+        for (Arrival a : origin.getArrivalArray()) {
+            if (a.getPickIDArray().length != 1) {
+                continue;
+            }
+            String pickID = a.getPickIDArray(0);
+            for (Pick p : eventParameters.getPickArray()) {
+                if (!p.getPublicID().equals(pickID) || p.getWaveformIDArray().length != 1) {
+                    continue;
+                }
+                POI station = stations.get(p.getWaveformIDArray(0).getStationCode());
+                if (station != null) {
+                    station.triggered = true;
+                }
+                break;
+            }
+        }
     }
 
     private void assertOne(Object[] array, String name)

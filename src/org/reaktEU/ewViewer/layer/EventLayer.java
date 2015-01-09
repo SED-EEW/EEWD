@@ -129,8 +129,7 @@ public class EventLayer extends OMGraphicHandlerLayer implements EventTimeListen
         OMGraphicList list = new OMGraphicList();
 
         // P and S wave propagation
-        if (originTimeOffset != null && originTimeOffset
-                                        > 0) {
+        if (originTimeOffset != null && originTimeOffset > 0) {
             double hrp = vp * originTimeOffset;
             double hrs = vs * originTimeOffset;
             double rp = GeoCalc.SeismicWaveSurfaceDistance(event.depth, hrp, event.latitude);

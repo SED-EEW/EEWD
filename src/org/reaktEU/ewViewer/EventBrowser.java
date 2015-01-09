@@ -279,7 +279,7 @@ public class EventBrowser extends javax.swing.JDialog
         for (EventFile up : selectedSequence) {
             EventData eventProps = null;
             try {
-                eventProps = new EventData(up.getEventParameters(), 0);
+                eventProps = new EventData(up.getEventParameters(), 0, null);
             } catch (EventData.InvalidEventDataException ex) {
                 LOG.error(ex);
             }

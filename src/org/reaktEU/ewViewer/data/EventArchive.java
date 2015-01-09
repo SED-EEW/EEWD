@@ -48,7 +48,6 @@ public class EventArchive {
                                                             "data/events");
         logDir = new File(path + "/" + LOG_DIR);
         scenarioDir = new File(path + "/" + SCENARIO_DIR);
-
     }
 
     public List<String> getEventList(EventType type) {

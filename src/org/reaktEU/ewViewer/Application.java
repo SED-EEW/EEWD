@@ -36,7 +36,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,8 +43,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -155,6 +156,7 @@ public class Application implements QMLListener, ActionListener {
     private BasicMapPanel mapPanel;
     private OpenMapFrame openMapFrame = null;
     private EventPanel eventPanel = null;
+    private StationLayer stationLayer = null;
     private EventLayer eventLayer = null;
     private ShakeMapLayer shakeMapLayer = null;
     private EventBrowser eventBrowser = null;
@@ -165,7 +167,7 @@ public class Application implements QMLListener, ActionListener {
     private final EventFileScheduler eventFileScheduler;
     private final EventCountdown eventCountdown;
     private final List<POI> targets;
-    private final List<POI> stations;
+    private final Map<String, POI> stations;
 
     private final ShakingCalculator shakingCalculator;
 
@@ -226,8 +228,11 @@ public class Application implements QMLListener, ActionListener {
         eventCountdown = new EventCountdown();
 
         // read targets and stations // read targets and stations
-        stations = readPOIs(properties.getProperty(PropertyStationFile,
-                                                   "data/stations.csv"));
+        stations = new HashMap();
+        for (POI station : readPOIs(properties.getProperty(PropertyStationFile,
+                                                           "data/stations.csv"))) {
+            stations.put(station.name, station);
+        }
         targets = readPOIs(properties.getProperty(PropertyTargetFile,
                                                   "data/targets.csv"));
 
@@ -456,7 +461,7 @@ public class Application implements QMLListener, ActionListener {
                 layerHandler.addLayer(shakeMapLayer, 0);
             }
 
-            StationLayer stationLayer = new StationLayer(stations);
+            stationLayer = new StationLayer(stations);
             stationLayer.setName("Stations");
             layerHandler.addLayer(stationLayer, 0);
 
@@ -469,6 +474,7 @@ public class Application implements QMLListener, ActionListener {
             layerHandler.addLayer(eventLayer, 0);
         }
 
+        eventTimeScheduler.addUpdateListener(stationLayer);
         eventTimeScheduler.addUpdateListener(eventLayer);
         eventTimeScheduler.addUpdateListener(eventPanel);
     }
@@ -481,11 +487,9 @@ public class Application implements QMLListener, ActionListener {
     }
 
     protected void showInFrame() {
-        openMapFrame = (OpenMapFrame) mapPanel.getMapHandler().get(OpenMapFrame.class
-        );
+        openMapFrame = (OpenMapFrame) mapPanel.getMapHandler().get(OpenMapFrame.class);
 
-        if (openMapFrame
-            == null) {
+        if (openMapFrame == null) {
             openMapFrame = new OpenMapFrame() {
                 @Override
                 public void considerForContent(Object someObj) {
@@ -592,7 +596,7 @@ public class Application implements QMLListener, ActionListener {
 
         EventData event;
         try {
-            event = new EventData(eventParameters, offset);
+            event = new EventData(eventParameters, offset, stations);
         } catch (EventData.InvalidEventDataException ex) {
             LOG.warn(ex.getMessage());
             return null;
