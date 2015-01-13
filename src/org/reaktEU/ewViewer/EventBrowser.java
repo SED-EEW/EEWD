@@ -5,11 +5,13 @@
 package org.reaktEU.ewViewer;
 
 import org.reaktEU.ewViewer.data.EventArchive;
-import org.reaktEU.ewViewer.data.EventArchive.EventType;
 import org.reaktEU.ewViewer.data.EventData;
 import org.reaktEU.ewViewer.data.EventFile;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -18,6 +20,8 @@ import java.util.TimeZone;
 import javax.swing.JDialog;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -31,7 +35,21 @@ import org.apache.xmlbeans.XmlCursor;
  * @author Stephan Herrnkind <herrnkind@gempa.de>
  */
 public class EventBrowser extends javax.swing.JDialog
-        implements TreeSelectionListener, ActionListener {
+        implements ActionListener, TreeSelectionListener, TreeExpansionListener {
+
+    public class NodeObject {
+
+        public final File dir;
+
+        public NodeObject(File dir) {
+            this.dir = dir;
+        }
+
+        @Override
+        public String toString() {
+            return dir.getName();
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -171,9 +189,7 @@ public class EventBrowser extends javax.swing.JDialog
 
     private static final Logger LOG = LogManager.getLogger(EventBrowser.class);
 
-    private final Application application;
     private final DateFormat df;
-    private String selectedEvent;
     private List<EventFile> selectedSequence;
 
     private javax.swing.tree.DefaultTreeModel treeModel;
@@ -181,56 +197,114 @@ public class EventBrowser extends javax.swing.JDialog
     private javax.swing.tree.DefaultMutableTreeNode loggedNode;
     private javax.swing.tree.DefaultMutableTreeNode scenarioNode;
 
-    public EventBrowser(Application application, java.awt.Frame parent,
-                        boolean modal) {
+    public EventBrowser(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
 
-        this.application = application;
         df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-        selectedEvent = null;
         selectedSequence = null;
 
         initComponents();
         initCustomComponents();
-        reload();
     }
 
     private void initCustomComponents() {
         eventTree.addTreeSelectionListener(this);
+        eventTree.addTreeExpansionListener(this);
         deleteScenarioButton.addActionListener(this);
         createScenarioButton.addActionListener(this);
         replayButton.addActionListener(this);
     }
 
+    private EventArchive getEventArchive() {
+        Application app = Application.getInstance();
+        if (app != null) {
+            return app.getEventArchive();
+        }
+        return null;
+    }
+
+    private DefaultMutableTreeNode createNode(File dir) {
+        return new DefaultMutableTreeNode(new NodeObject(dir));
+    }
+
+    private File getFile(DefaultMutableTreeNode node) {
+        if (node != null && NodeObject.class.isInstance(node.getUserObject())) {
+            return ((NodeObject) node.getUserObject()).dir;
+        }
+        return null;
+    }
+
     private javax.swing.tree.TreeModel initEventTreeModel() {
         rootNode = new DefaultMutableTreeNode("Events");
-        loggedNode = new DefaultMutableTreeNode("Logged");
-        scenarioNode = new DefaultMutableTreeNode("Scenario");
-        rootNode.add(loggedNode);
-        rootNode.add(scenarioNode);
+        EventArchive archive = getEventArchive();
+        if (archive != null) {
+            loggedNode = createNode(archive.getLogDir());
+            scenarioNode = createNode(archive.getScenarioDir());
+            loadChildren(loggedNode);
+            loadChildren(scenarioNode);
+            rootNode.add(loggedNode);
+            rootNode.add(scenarioNode);
+        }
+
         treeModel = new javax.swing.tree.DefaultTreeModel(rootNode);
         return treeModel;
     }
 
-    private void reload() {
-        EventArchive archive = application.getEventArchive();
-        List<String> events;
-
-        events = archive.getEventList(EventArchive.EventType.LOGGED);
-        loggedNode.removeAllChildren();
-        for (String event : events) {
-            loggedNode.add(new DefaultMutableTreeNode(event));
+    private boolean loadChildren(DefaultMutableTreeNode node) {
+        if (node == null || !node.isLeaf()) {
+            return false;
         }
-        treeModel.nodeStructureChanged(loggedNode);
 
-        events = archive.getEventList(EventArchive.EventType.SCENARIO);
-        scenarioNode.removeAllChildren();
-        for (String event : events) {
-            scenarioNode.add(new DefaultMutableTreeNode(event));
+        File dir = getFile(node);
+        if (dir != null) {
+            for (File f : dir.listFiles()) {
+                if (f.isDirectory()) {
+                    node.add(createNode(f));
+                }
+            }
         }
-        treeModel.nodeStructureChanged(scenarioNode);
+        return !node.isLeaf();
+    }
+
+    private boolean isLogNodeChild(DefaultMutableTreeNode node) {
+        return node.getPath().length >= 2 && node.getPath()[1] == loggedNode;
+    }
+
+    private boolean isScenarioNodeChild(DefaultMutableTreeNode node) {
+        return node.getPath().length >= 2 && node.getPath()[1] == scenarioNode;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        Application app = Application.getInstance();
+        if (app == null) {
+            return;
+        }
+
+        if (e.getSource() == replayButton) {
+            if (selectedSequence != null) {
+                app.getEventFileScheduler().start(selectedSequence);
+            }
+            dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+        } else {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) eventTree.getLastSelectedPathComponent();
+            EventArchive archive = getEventArchive();
+            if (node != null && archive != null) {
+                File dir = getFile(node);
+                if (dir != null) {
+                    if (e.getSource() == createScenarioButton) {
+                        archive.createScenario(dir);
+                    } else if (e.getSource() == deleteScenarioButton) {
+                        archive.deleteScenario(dir);
+                    }
+                    scenarioNode.removeAllChildren();
+                    loadChildren(scenarioNode);
+                    treeModel.nodeStructureChanged(scenarioNode);
+                }
+            }
+        }
     }
 
     @Override
@@ -242,38 +316,30 @@ public class EventBrowser extends javax.swing.JDialog
         model.setRowCount(0);
 
         selectedSequence = null;
-        selectedEvent = null;
         deleteScenarioButton.setEnabled(false);
         createScenarioButton.setEnabled(false);
         replayButton.setEnabled(false);
-        EventType type = EventType.LOGGED;
 
-        if (node != null) {
-            if (node.getParent() == loggedNode) {
-                selectedEvent = node.toString();
-                selectedSequence = application.getEventArchive().getEventSequence(
-                        EventArchive.EventType.LOGGED, selectedEvent);
-
-            } else if (node.getParent() == scenarioNode) {
-                type = EventType.SCENARIO;
-                selectedEvent = node.toString();
-                selectedSequence = application.getEventArchive().getEventSequence(
-                        EventArchive.EventType.SCENARIO, selectedEvent);
-
-            }
+        EventArchive archive = getEventArchive();
+        if (archive != null && node != null && node.getPath().length > 2) {
+            selectedSequence = archive.getEventSequence(getFile(node));
         }
 
         if (selectedSequence == null || selectedSequence.isEmpty()) {
             return;
         }
 
-        deleteScenarioButton.setEnabled(type == EventType.SCENARIO);
-        createScenarioButton.setEnabled(type == EventType.LOGGED);
+        boolean logMode = isLogNodeChild(node);
+
+        deleteScenarioButton.setEnabled(!logMode);
+        createScenarioButton.setEnabled(logMode);
         replayButton.setEnabled(true);
 
-        sequenceTable.getTableHeader().getColumnModel().getColumn(1)
-                .setHeaderValue(type == EventType.LOGGED ? "Received" : "Delay (s)");
-        sequenceTable.getTableHeader().repaint();
+        sequenceTable.getTableHeader()
+                .getColumnModel().getColumn(1)
+                .setHeaderValue(logMode ? "Received" : "Delay (s)");
+        sequenceTable.getTableHeader()
+                .repaint();
 
         long offset = selectedSequence.get(0).getTime();
         for (EventFile up : selectedSequence) {
@@ -289,8 +355,7 @@ public class EventBrowser extends javax.swing.JDialog
             } else {
                 model.addRow(new Object[]{
                     model.getRowCount(),
-                    (type == EventType.LOGGED
-                     ? df.format(new Date(up.getTime()))
+                    (logMode ? df.format(new Date(up.getTime()))
                      : ((double) (up.getTime() - offset) / 1000.0)),
                     df.format(eventProps.time),
                     eventProps.magnitude,
@@ -303,20 +368,19 @@ public class EventBrowser extends javax.swing.JDialog
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == createScenarioButton) {
-            if (application.getEventArchive().createScenario(selectedEvent)) {
-                reload();
+    public void treeExpanded(TreeExpansionEvent event) {
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
+        if (node != null) {
+            for (int i = 0; i < node.getChildCount(); ++i) {
+                DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(i);
+                if (loadChildren(child)) {
+                    treeModel.nodeStructureChanged(child);
+                }
             }
-        } else if (e.getSource() == deleteScenarioButton) {
-            if (application.getEventArchive().deleteScenario(selectedEvent)) {
-                reload();
-            }
-        } else if (e.getSource() == replayButton) {
-            if (selectedSequence != null) {
-                application.getEventFileScheduler().start(selectedSequence);
-            }
-            setVisible(false);
         }
+    }
+
+    @Override
+    public void treeCollapsed(TreeExpansionEvent event) {
     }
 }

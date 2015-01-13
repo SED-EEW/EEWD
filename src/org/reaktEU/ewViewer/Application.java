@@ -159,7 +159,6 @@ public class Application implements QMLListener, ActionListener {
     private StationLayer stationLayer = null;
     private EventLayer eventLayer = null;
     private ShakeMapLayer shakeMapLayer = null;
-    private EventBrowser eventBrowser = null;
 
     private Properties properties;
     private final EventArchive eventArchive;
@@ -508,31 +507,28 @@ public class Application implements QMLListener, ActionListener {
             };
             mapPanel.getMapHandler().add(openMapFrame);
             //openMapFrame.setTitle(title);
-            messaging.reportConnectionState();
         }
 
         openMapFrame.addWindowListener(
                 new WindowAdapter() {
                     @Override
-                    public void windowClosing(WindowEvent e
-                    ) {
+                    public void windowClosing(WindowEvent e) {
+                        if (messaging != null) {
+                            //messaging.close();
+                        }
                         System.exit(0);
                     }
                 }
         );
 
-        openMapFrame.setVisible(
-                true);
-        mapPanel.getMapBean()
-                .showLayerPalettes();
-        Debug.message(
-                "basic", "OpenMap: READY");
+        openMapFrame.setVisible(true);
+        mapPanel.getMapBean().showLayerPalettes();
+        Debug.message("basic", "OpenMap: READY");
     }
 
     private void addCustomMenuItems(JMenuBar menuBar) {
         JMenu fileMenu = null;
-        for (int i = 0; i < menuBar.getMenuCount();
-             ++i) {
+        for (int i = 0; i < menuBar.getMenuCount(); ++i) {
             if (menuBar.getMenu(i).getClass() == FileMenu.class) {
                 fileMenu = menuBar.getMenu(i);
             }
@@ -651,10 +647,7 @@ public class Application implements QMLListener, ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals(ActionEventBrowser)) {
-            if (eventBrowser == null) {
-                eventBrowser = new EventBrowser(this, openMapFrame, true);
-            }
-            eventBrowser.setVisible(true);
+            new EventBrowser(openMapFrame, true).setVisible(true);
         }
     }
 

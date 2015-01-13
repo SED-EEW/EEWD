@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.quakeml.xmlns.bedRt.x12.EventParameters;
-import org.reaktEU.ewViewer.Application;
 
 /**
  *
@@ -82,6 +81,10 @@ public class EventFileScheduler implements Runnable {
         EventParameters eventParameters = sequence.get(progress++).getEventParameters();
         for (QMLListener l : messageListeners) {
             l.processQML(eventParameters, offset);
+//            EventData event = l.processQML(eventParameters, offset);
+//            Application.getInstance().getEventArchive().log(
+//                    System.currentTimeMillis(),
+//                    eventParameters.toString(), event);
         }
     }
 

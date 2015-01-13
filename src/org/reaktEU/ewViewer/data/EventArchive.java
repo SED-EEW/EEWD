@@ -13,10 +13,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,56 +35,70 @@ import static org.reaktEU.ewViewer.Application.PropertyEventArchive;
  */
 public class EventArchive {
 
-    public enum EventType {
-
-        LOGGED, SCENARIO
-    }
-
     private static final Logger LOG = LogManager.getLogger(EventArchive.class);
 
-    private static final String EXTENSION = ".xml";
+    public static final String EXTENSION = ".xml";
     public static final String LOG_DIR = "log";
     public static final String SCENARIO_DIR = "scenario";
+    public static final String INVALID_DIR = "invalid";
+    //public static final long DAY_MILLIS = 24 * 60 * 60 * 1000;
+    //public static final long MAX_ORIGIN_MILLIS_JITTER = 5 * 60 * 1000;
 
-    protected File logDir;
-    protected File scenarioDir;
+    protected final File logDir;
+    protected final File scenarioDir;
+    protected final File invalidDir;
+    protected final DateFormat df;
 
     public EventArchive() {
         String path = Application.getInstance().getProperty(PropertyEventArchive,
                                                             "data/events");
         logDir = new File(path + "/" + LOG_DIR);
         scenarioDir = new File(path + "/" + SCENARIO_DIR);
+        invalidDir = new File(path + "/" + INVALID_DIR);
+
+        df = new SimpleDateFormat("yyyy/MM/dd");
+        df.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
-    public List<String> getEventList(EventType type) {
-        List<String> eventList = new ArrayList();
-        File path = getPath(type);
-        File[] listing = path.listFiles();
-        if (listing == null) {
-            LOG.warn(String.format("directory '%s' not found",
-                                   path.getAbsolutePath()));
-            return eventList;
-        }
-
-        for (File f : listing) {
-            if (f.isDirectory()) {
-                eventList.add(f.getName());
-            }
-        }
-
-        Collections.sort(eventList);
-        return eventList;
+    public final File getLogDir() {
+        return logDir;
     }
 
-    public List<EventFile> getEventSequence(EventType type, String eventID) {
+    public final File getScenarioDir() {
+        return scenarioDir;
+    }
+
+//    public List<File> getEventFiles(File dir) {
+//        List<File> eventList = new ArrayList();
+//        File[] listing = dir.listFiles();
+//        if (listing == null) {
+//            LOG.warn(String.format("directory '%s' not found",
+//                                   dir.getAbsolutePath()));
+//            return eventList;
+//        }
+//
+//        for (File f : listing) {
+//            if (f.isDirectory()) {
+//                eventList.add(f);
+//            }
+//        }
+//
+//        Collections.sort(eventList, new Comparator<File>() {
+//            @Override
+//            public int compare(File o1, File o2) {
+//                return o1.getName().compareTo(o2.getName());
+//            }
+//
+//        });
+//
+//        return eventList;
+//    }
+    public List<EventFile> getEventSequence(File dir) {
         List<EventFile> sequence = new ArrayList();
-        int idx = eventID.lastIndexOf('/') + 1;
-        String eventDir = idx > 0 ? eventID.substring(idx) : eventID;
-        File path = new File(getPath(type).getPath() + "/" + eventDir);
-        File[] listing = path.listFiles();
+        File[] listing = dir.listFiles();
         if (listing == null) {
             LOG.warn(String.format("directory '%s' not found",
-                                   path.getAbsolutePath()));
+                                   dir.getAbsolutePath()));
             return sequence;
         }
 
@@ -128,58 +148,79 @@ public class EventArchive {
         return sequence;
     }
 
-    public void log(long received, String payload, EventData event) {
+    synchronized public void log(long received, String payload, EventData event) {
+        File dir;
         if (event == null) {
-            // TODO: Store in invalid folder
+            dir = invalidDir;
+        } else {
+//            // check if we have to search event in different folder
+//            long millisOfDay = event.time % DAY_MILLIS;
+//            Long tmpDate = null;
+//            if (millisOfDay < MAX_ORIGIN_MILLIS_JITTER) {
+//                tmpDate = event.time - MAX_ORIGIN_MILLIS_JITTER;
+//            } else if (DAY_MILLIS - millisOfDay <= MAX_ORIGIN_MILLIS_JITTER) {
+//                tmpDate = event.time + MAX_ORIGIN_MILLIS_JITTER;
+//            }
+            String eventID = event.eventID.replaceAll("[^a-zA-Z0-9.-]", "_");
+            dir = new File(String.format("%s/%s/%s", logDir.getPath(),
+                                         df.format(event.time), eventID));
+
+//            if (tmpDate != null) {
+//                File tmpDir = new File(String.format("%s/%s/%s", logDir.getPath(),
+//                                                     df.format(tmpDate), eventID));
+//                if (tmpDir.isDirectory() && !dir.exists()) {
+//                    LOG.info("moving event from different date folder");
+//                    try {
+//                        File parent = tmpDir.getParentFile();
+//                        if (parent != null && !parent.exists() && !parent.mkdirs()) {
+//                            LOG.warn("could not create directory: " + parent.getAbsolutePath());
+//                        } else {
+//                            Files.move(tmpDir.toPath(), dir.toPath(), StandardCopyOption.ATOMIC_MOVE);
+//                        }
+//                    } catch (IOException ex) {
+//                        LOG.error("could not move event folder", ex);
+//                    }
+//                }
+//            }
         }
-        File eventDir = new File(String.format("%s/%s", getPath(EventType.LOGGED).getPath(),
-                                               event.eventID.replaceAll("[^a-zA-Z0-9.-]", "_")));
-        if (!eventDir.exists() && !eventDir.mkdirs()) {
-            LOG.warn("could not create event directory: "
-                     + eventDir.getAbsolutePath());
+
+        if (!dir.exists() && !dir.mkdirs()) {
+            LOG.warn("could not create directory: " + dir.getAbsolutePath());
             return;
         }
 
-        if (!eventDir.isDirectory()) {
-            LOG.warn("event directory path exists but is not a directory: "
-                     + eventDir.getAbsolutePath());
+        if (!dir.isDirectory()) {
+            LOG.warn("directory path exists but is not a directory: "
+                     + dir.getAbsolutePath());
             return;
         }
-        File file = new File(eventDir.getAbsolutePath()
-                             + String.format("/%d.xml", received));
+        File file = new File(dir.getAbsolutePath() + String.format("/%d.xml", received));
 
-        try {
-            OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(file), "utf-8");
+        try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(file), "utf-8")) {
             osw.write(payload);
-            osw.close();
         } catch (IOException ioe) {
-            LOG.error("could not write message to file: " + file.getAbsolutePath());
+            LOG.error("could not write message to file: " + file.getAbsolutePath(), ioe);
         }
     }
 
-    public boolean createScenario(String eventID) {
-        File scenarioPath = new File(String.format("%s/%s",
-                                                   getPath(EventType.SCENARIO).getPath(),
-                                                   eventID));
-        if (scenarioPath.exists()) {
+    public boolean createScenario(File logged) {
+        File scenario = new File(scenarioDir, logged.getName());
+        if (scenario.exists()) {
             LOG.warn(String.format("scenario directory already exists: %s",
-                                   scenarioPath.getAbsolutePath()));
+                                   scenario.getAbsolutePath()));
             return false;
         }
 
-        File loggedPath = new File(String.format("%s/%s",
-                                                 getPath(EventType.LOGGED).getPath(),
-                                                 eventID));
-        File[] listing = loggedPath.listFiles();
+        File[] listing = logged.listFiles();
         if (listing == null) {
             LOG.warn(String.format("event log directory not found: %s",
-                                   loggedPath.getAbsolutePath()));
+                                   logged.getAbsolutePath()));
             return false;
         }
 
-        if (!scenarioPath.mkdir()) {
+        if (!scenario.mkdir()) {
             LOG.warn(String.format("could not create scenario directory: %s",
-                                   scenarioPath.getAbsolutePath()));
+                                   scenario.getAbsolutePath()));
             return false;
         }
 
@@ -187,7 +228,7 @@ public class EventArchive {
             String name = src.getName();
             if (src.isFile() && name.endsWith(EXTENSION)) {
                 try {
-                    File dest = new File(scenarioPath, name);
+                    File dest = new File(scenario, name);
                     InputStream in = new FileInputStream(src);
                     OutputStream out = new FileOutputStream(dest);
                     byte[] buffer = new byte[1024];
@@ -206,12 +247,11 @@ public class EventArchive {
         return true;
     }
 
-    public boolean deleteScenario(String eventID) {
-        File path = new File(getPath(EventType.SCENARIO).getPath() + "/" + eventID);
-        File[] listing = path.listFiles();
+    public boolean deleteScenario(File scenario) {
+        File[] listing = scenario.listFiles();
         if (listing == null) {
             LOG.warn(String.format("scenario directory not found: %s",
-                                   path.getAbsolutePath()));
+                                   scenario.getAbsolutePath()));
             return false;
         }
 
@@ -223,16 +263,11 @@ public class EventArchive {
                 return false;
             }
         }
-        if (!path.delete()) {
+        if (!scenario.delete()) {
             LOG.warn(String.format("could not delete scenario directory: %s",
-                                   path.getAbsolutePath()));
+                                   scenario.getAbsolutePath()));
             return false;
         }
         return true;
     }
-
-    public final File getPath(EventType type) {
-        return type == EventType.LOGGED ? logDir : scenarioDir;
-    }
-
 }
