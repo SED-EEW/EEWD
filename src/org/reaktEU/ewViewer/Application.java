@@ -141,6 +141,8 @@ public class Application implements QMLListener, ActionListener {
     public static final String PropertyConTopic = "connection.topic";
     public static final String PropertyConUsername = "connection.username";
     public static final String PropertyConPassword = "connection.password";
+    public static final String PropertyConKeepaliveInterval = "connection.keepaliveInterval";
+    public static final String PropertyConMaxLatency = "connection.maxLatency";
 
     public static final double EarthAcceleration = 9.807;
     public static final double EarthAcceleration1 = 1 / EarthAcceleration;
@@ -514,7 +516,7 @@ public class Application implements QMLListener, ActionListener {
                     @Override
                     public void windowClosing(WindowEvent e) {
                         if (messaging != null) {
-                            //messaging.close();
+                            messaging.close();
                         }
                         System.exit(0);
                     }

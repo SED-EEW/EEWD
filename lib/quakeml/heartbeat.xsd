@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="http://heartbeat.reakteu.org"
+           targetNamespace="http://heartbeat.reakteu.org"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+  <xs:complexType name="Heartbeat">
+    <xs:attribute name="originator" type="xs:string" use="required"/>
+    <xs:attribute name="sender" type="xs:string" use="required"/>
+    <xs:attribute name="timestamp" type="xs:dateTime" use="required"/>
+  </xs:complexType>
+  <xs:element name="hb" type="Heartbeat"/>
+</xs:schema>
