@@ -7,8 +7,10 @@ package org.reaktEU.ewViewer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -79,9 +81,10 @@ public class Messaging implements Listener, Runnable {
 
     synchronized public void listen() {
         shouldListen = true;
+        lastUpdate = System.currentTimeMillis();
         if (executor == null && keepaliveInterval > 0) {
             executor = Executors.newScheduledThreadPool(1);
-            executor.schedule(this, keepaliveInterval / 2, TimeUnit.MILLISECONDS);
+            executor.scheduleAtFixedRate(this, 1, 1, TimeUnit.SECONDS);
         }
 
         try {
@@ -94,7 +97,6 @@ public class Messaging implements Listener, Runnable {
                 }
             });
             client.subscribe(topic, this);
-            reportConnectionState();
         } catch (IOException ioe) {
             LOG.error("could not connect to host " + host, ioe);
             client = null;
@@ -102,18 +104,22 @@ public class Messaging implements Listener, Runnable {
             LOG.error("could not login to host" + host, le);
             client = null;
         }
-
+        reportConnectionState();
     }
 
-    synchronized public void close() {
-        shouldListen = false;
-        lastDelay = 0;
+    synchronized private void disconnect() {
         if (client != null) {
             if (client.isConnected()) {
                 client.disconnect();
             }
             client = null;
         }
+    }
+
+    synchronized public void close() {
+        shouldListen = false;
+        lastDelay = 0;
+        disconnect();
         if (executor != null) {
             executor.shutdown();
             executor = null;
@@ -130,7 +136,7 @@ public class Messaging implements Listener, Runnable {
             if (now > lastUpdate + keepaliveInterval) {
                 LOG.error(String.format("no keepalive signal received within %.1f seconds, trying to reconnect",
                                         keepaliveInterval / 1000f));
-                close();
+                disconnect();
                 listen();
             }
         }
@@ -139,8 +145,6 @@ public class Messaging implements Listener, Runnable {
     @Override
     public void message(Map headers, String body) {
         long received = System.currentTimeMillis();
-        LOG.debug("received message");
-        LOG.trace(body);
 
         XmlOptions xmlOptions = new XmlOptions();
         List<XmlError> xmlErrors = null;
@@ -150,16 +154,19 @@ public class Messaging implements Listener, Runnable {
             xmlOptions.setLoadLineNumbers();
         }
 
-        XmlObject obj = null;
+        XmlObject obj;
         try {
             obj = XmlObject.Factory.parse(body, xmlOptions);
         } catch (XmlException ex) {
-            LOG.error("could not parse XML data", ex);
+            LOG.error("could not parse received message", ex);
             printXMLErrors(xmlErrors);
             return;
         }
 
         if (obj instanceof HbDocument) {
+            LOG.debug("received heartbeat message");
+            LOG.debug(body);
+
             HbDocument hbDoc = (HbDocument) obj;
             if (hbDoc.validate(xmlOptions)) {
                 // TODO: evaluate sender?
@@ -171,6 +178,8 @@ public class Messaging implements Listener, Runnable {
                 printXMLErrors(xmlErrors);
             }
         } else if (obj instanceof QuakemlDocument) {
+            LOG.debug("received event message");
+            LOG.trace(body);
             QuakemlDocument qmlDoc = (QuakemlDocument) obj;
             if (qmlDoc.validate(xmlOptions)) {
                 lastUpdate = received;
@@ -200,5 +209,4 @@ public class Messaging implements Listener, Runnable {
         }
         LOG.debug(errStr.toString());
     }
-
 }

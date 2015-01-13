@@ -7,7 +7,7 @@ Created on Mar 10, 2014
 """
 
 from stompy.simple import Client
-import sys
+import sys, time, datetime
 
 
 class AMQConnection:
@@ -45,13 +45,14 @@ class AMQConnection:
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('type', help="This can be either 'receiver' or 'sender'", type=str)
+    parser.add_argument('type', help="This can be either 'receiver', 'sender' or 'heartbeat'", type=str)
     parser.add_argument("-u", "--user", help="User name.", type=str)
     parser.add_argument("-p", "--password", help="Password.", type=str)
     parser.add_argument("-H", "--host", help="Server name that is running AMQ broker.", type=str)
     parser.add_argument("-P", "--port", help="STOMP port of AMQ broker.", type=int)
     parser.add_argument("-t", "--topic", help="AMQ topic to send message to.", type=str)
     parser.add_argument("-f", "--file", help="input/output file (optional)", type=str)
+    parser.add_argument("-i", "--interval", help="interval (s) to send heartbeat (optional)", type=int)
     args = parser.parse_args()
     if not args.user or not args.password or not args.host or \
        not args.port or not args.topic:
@@ -61,17 +62,28 @@ if __name__ == '__main__':
                            topic='/topic/' + args.topic,
                            username=args.user, password=args.password)
 
-    if args.type == 'sender':
-        data = '\nThis is a test message.\n'
-        if args.file:
-            with open(args.file, "r") as dataFile:
-                data = dataFile.read()
-        client.send(data)
-    elif args.type == 'receiver':
+    if args.type == 'receiver':
         if args.file:
             f = open(args.file, 'w+')
         else:
             f = sys.stdout
         client.receive(f)
+    elif args.type == 'sender':
+        data = '\nThis is a test message.\n'
+        if args.file:
+            with open(args.file, "r") as dataFile:
+                data = dataFile.read()
+        client.send(data)
+    elif args.type == 'heartbeat':
+        data = """<?xml version='1.0' encoding='UTF-8'?>
+<hb xmlns="http://heartbeat.reakteu.org"  originator="test1" sender="test2" timestamp="%s"/>"""
+        if args.file:
+            with open(args.file, "r") as dataFile:
+                data = dataFile.read()
+        while True:
+            client.send(data % datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%fZ'))
+            if not args.interval:
+                break
+            time.sleep(args.interval)
     else:
-        print "'type' has to be either 'sender' or 'receiver'"
+        print "'type' has to be either 'receiver', 'sender' or 'heartbeat'"
