@@ -228,6 +228,9 @@ public class Application implements QMLListener, ActionListener {
         // play countdown prior to S-wave arrival
         eventCountdown = new EventCountdown();
 
+        // messaging
+        messaging = new Messaging();
+
         // read targets and stations // read targets and stations
         stations = new HashMap();
         for (POI station : readPOIs(properties.getProperty(PropertyStationFile,
@@ -236,11 +239,6 @@ public class Application implements QMLListener, ActionListener {
         }
         targets = readPOIs(properties.getProperty(PropertyTargetFile,
                                                   "data/targets.csv"));
-
-        shakeMapLayer = new ShakeMapLayer();
-
-        shakeMapLayer.setName(
-                "Shake Map");
 
         controlPeriod = getProperty(PropertyControlPeriod, (Double) null);
         periods = getProperty(PropertySpecPeriods, (double[]) null);
@@ -253,8 +251,7 @@ public class Application implements QMLListener, ActionListener {
 
         // read spectrum parameter
         String param = properties.getProperty(Application.PropertySpecParameter);
-        if (param
-            != null) {
+        if (param != null) {
             spectrumParameter = Shaking.Type.valueOf(param);
             if (spectrumParameter == null) {
                 LOG.warn("invalid " + Application.PropertySpecParameter + " value: " + param);
@@ -263,21 +260,20 @@ public class Application implements QMLListener, ActionListener {
 
         // read shake map parameter
         param = properties.getProperty(Application.PropertySMParameter);
-        if (param
-            != null) {
+        if (param != null) {
             shakeMapParameter = Shaking.Type.valueOf(param);
             if (shakeMapParameter == null) {
                 LOG.warn("invalid " + Application.PropertySMParameter + " value: " + param);
             }
         }
 
-        shakingCalculator = new ShakingCalculator(targets, stations, shakeMapLayer);
+        shakeMapLayer = new ShakeMapLayer();
+        shakeMapLayer.setName("Shake Map");
 
+        shakingCalculator = new ShakingCalculator(targets, stations, shakeMapLayer);
         title = mapPropertyHandler.getProperties().getProperty("openmap.Title");
 
         configureMapPanel(mapPropertyHandler);
-
-        messaging = new Messaging();
 
         // Schedule a job for the event-dispatching thread:
         // creating and showing this application's GUI.

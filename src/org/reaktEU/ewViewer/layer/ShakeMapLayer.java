@@ -115,7 +115,7 @@ public class ShakeMapLayer extends OMGraphicHandlerLayer implements
         mapRaster = new OMScalingRaster(latNorth, lonWest, latSouth, lonEast, mapImages[2]);
 
         Shaking.Type smParam = app.getShakeMapParameter();
-        String labelText = smParam.toString().toUpperCase();
+        String labelText = smParam.labelString();
         if (smParam == Shaking.Type.PGA || smParam == Shaking.Type.PSA) {
             labelText += ", g";
         } else if (smParam == Shaking.Type.PGV || smParam == Shaking.Type.DRS) {
