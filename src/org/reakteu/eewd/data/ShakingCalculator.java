@@ -40,7 +40,7 @@ public class ShakingCalculator implements Runnable {
     private final AttenuationPGV gmpePGVImpl;
     private final AttenuationPSA gmpePSAImpl;
     private final AttenuationDRS gmpeDRSImpl;
-    private final AttenuationInt gmpeIntImpl;
+    private final AttenuationInt ipeIntImpl;
     private IntensityFromAcceleration gmicePGAImpl = null;
     private IntensityFromVelocity gmicePGVImpl = null;
 
@@ -75,13 +75,13 @@ public class ShakingCalculator implements Runnable {
         prefix = Application.PropertyGMPE + "." + Shaking.Type.DRS;
         gmpeDRSImpl = (AttenuationDRS) loadImpl(prefix, cache, AttenuationDRS.class);
 
-        // gmpe Intensity
-        prefix = Application.PropertyGMPE + "." + Shaking.Type.Intensity;
-        gmpeIntImpl = (AttenuationInt) loadImpl(prefix, cache, AttenuationInt.class);
+        // ipe Intensity
+        prefix = Application.PropertyIPE + "." + Shaking.Type.Intensity;
+        ipeIntImpl = (AttenuationInt) loadImpl(prefix, cache, AttenuationInt.class);
 
         // derive intensity from acceleration/velocity if gmpe intensity
         // implementation is not available
-        if (gmpeIntImpl == null) {
+        if (ipeIntImpl == null) {
             // gmice PGA
             prefix = Application.PropertyGMICE + "." + Shaking.Type.PGA;
             gmicePGAImpl = (IntensityFromAcceleration) loadImpl(prefix, cache, IntensityFromAcceleration.class);
@@ -161,7 +161,7 @@ public class ShakingCalculator implements Runnable {
             AttenuationPGV gmpePGV = gmpePGVImpl;
             AttenuationPSA gmpePSA = gmpePSAImpl;
             AttenuationDRS gmpeDRS = gmpeDRSImpl;
-            AttenuationInt gmpeInt = gmpeIntImpl;
+            AttenuationInt gmpeInt = ipeIntImpl;
 
             IntensityFromAcceleration gmicePGA = gmicePGAImpl;
             IntensityFromVelocity gmicePGV = gmicePGVImpl;

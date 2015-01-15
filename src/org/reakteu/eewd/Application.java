@@ -16,11 +16,13 @@ import javax.swing.JMenuBar;
 import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.PropertyHandler;
 import com.bbn.openmap.gui.BasicMapPanel;
+import com.bbn.openmap.gui.DefaultHelpMenu;
 import com.bbn.openmap.gui.FileMenu;
 import com.bbn.openmap.gui.MapPanel;
 import com.bbn.openmap.gui.OpenMapFrame;
 import com.bbn.openmap.gui.OverlayMapPanel;
 import com.bbn.openmap.gui.ToolPanel;
+import com.bbn.openmap.gui.menu.AboutMenuItem;
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.util.ArgParser;
 import com.bbn.openmap.util.Debug;
@@ -50,6 +52,7 @@ import java.util.Map;
 import java.util.Properties;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import org.apache.logging.log4j.LogManager;
@@ -61,10 +64,6 @@ import org.reakteu.eewd.data.ShakingCalculator;
 import org.reakteu.eewd.layer.LogoLayer;
 import org.reakteu.eewd.layer.ShakeMapLayer;
 
-// TODO:
-// int cores = Runtime.getRuntime().availableProcessors();
-//
-// javax.swing.SwingUtilities.isEventDispatchThread
 public class Application implements QMLListener, ActionListener {
 
     private static final Logger LOG = LogManager.getLogger(Application.class);
@@ -117,6 +116,7 @@ public class Application implements QMLListener, ActionListener {
 
     public static final String PropertyGMPE = "gmpe";
     public static final String PropertyGMICE = "gmice";
+    public static final String PropertyIPE = "ipe";
 
     public static final String PropertyControlPeriod = "controlPeriod";
 
@@ -151,6 +151,7 @@ public class Application implements QMLListener, ActionListener {
     public static final double DefaultVS = 3.3;
 
     private static final String ActionEventBrowser = "eventBrowser";
+    private static final String ActionAbout = "about";
 
     private static Application instance = null;
 
@@ -526,22 +527,42 @@ public class Application implements QMLListener, ActionListener {
 
     private void addCustomMenuItems(JMenuBar menuBar) {
         JMenu fileMenu = null;
+        JMenu helpMenu = null;
         for (int i = 0; i < menuBar.getMenuCount(); ++i) {
             if (menuBar.getMenu(i).getClass() == FileMenu.class) {
                 fileMenu = menuBar.getMenu(i);
+                // remove about menu item
+                for (int j = 0; j < fileMenu.getItemCount(); ++j) {
+                    if (fileMenu.getItem(j).getClass() == AboutMenuItem.class) {
+                        fileMenu.remove(j);
+                        break;
+                    }
+                }
+            } else if (menuBar.getMenu(i).getClass() == DefaultHelpMenu.class) {
+                helpMenu = menuBar.getMenu(i);
             }
         }
         if (fileMenu == null) {
             fileMenu = new JMenu("File");
             fileMenu.setMnemonic('F');
         }
+        if (helpMenu == null) {
+            helpMenu = new JMenu("Help");
+            helpMenu.setMnemonic('H');
+        }
 
-        JMenuItem eventBrowserMI = new JMenuItem("Event Browser...");
+        JMenuItem eventBrowserMI = new JMenuItem("Event Browser");
         eventBrowserMI.setMnemonic('B');
         eventBrowserMI.addActionListener(this);
         eventBrowserMI.setActionCommand(ActionEventBrowser);
         eventBrowserMI.setEnabled(eventArchive != null);
         fileMenu.add(eventBrowserMI, 0);
+
+        JMenuItem aboutMI = new JMenuItem("About");
+        aboutMI.setMnemonic('A');
+        aboutMI.addActionListener(this);
+        aboutMI.setActionCommand(ActionAbout);
+        helpMenu.add(aboutMI, 0);
     }
 
     private List<POI> readPOIs(String fileName) {
@@ -646,6 +667,18 @@ public class Application implements QMLListener, ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals(ActionEventBrowser)) {
             new EventBrowser(openMapFrame, true).setVisible(true);
+        }
+        if (e.getActionCommand().equals(ActionAbout)) {
+            String message = "<html><b>version: %s</b></html>";
+            String version = null;
+            Package p = getClass().getPackage();
+            if (p != null) {
+                version = p.getImplementationVersion();
+            }
+            message = String.format(message, version == null ? "unknown" : version);
+            JOptionPane.showMessageDialog(mapPanel, message,
+                                          "Earthquake Early Warning Display",
+                                          JOptionPane.PLAIN_MESSAGE);
         }
     }
 

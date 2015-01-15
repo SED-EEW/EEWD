@@ -191,9 +191,15 @@ public class EventLayer extends OMGraphicHandlerLayer implements EventTimeListen
             }
             Shaking s = target.shakingValues.get(preferredShaking);
             if (s != null) {
-                shaking = preferredShaking == Shaking.Type.Intensity
-                          ? RomanNumber.toString((int) (s.expectedSI + 0.5))
-                          : String.format("%.1f", s.expectedSI);
+                if (preferredShaking == Shaking.Type.Intensity) {
+                    shaking = RomanNumber.toString((int) (s.expectedSI + 0.5));
+                } else if (preferredShaking == Shaking.Type.PGA
+                           || preferredShaking == Shaking.Type.PSA) {
+                    shaking = String.format("%.1f", s.expectedSI * Application.EarthAcceleration1);
+                } else if (preferredShaking == Shaking.Type.PGV
+                           || preferredShaking == Shaking.Type.DRS) {
+                    shaking = String.format("%.1f", s.expectedSI * 100);
+                }
             }
         }
 
