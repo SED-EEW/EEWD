@@ -242,7 +242,7 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         add(pgvLabel, gridBagConstraints);
 
         drsCaptionLabel.setLabelFor(drsLabel);
-        drsCaptionLabel.setText("DRS (cm/s");
+        drsCaptionLabel.setText("DRS (cm");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 12;
