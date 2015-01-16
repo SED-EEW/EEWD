@@ -1,5 +1,6 @@
 Manifest-Version: 1.0
 X-COMMENT: Main-Class will be added automatically by build
-Name: org/reakteu/eewd
-Implementation-Title: org.reakteu.eewd
-Implementation-Version: 0.6.2
+Name: org/reakteu/eewd/
+Implementation-Title: Earquake Early Warning Display
+Implementation-Version: 0.6.3
+Implementation-Vendor: gempa GmbH

@@ -671,10 +671,12 @@ public class Application implements QMLListener, ActionListener {
         if (e.getActionCommand().equals(ActionAbout)) {
             String message = "<html><b>version: %s</b></html>";
             String version = null;
-            Package p = getClass().getPackage();
+
+            Package p = Application.class.getPackage();
             if (p != null) {
                 version = p.getImplementationVersion();
             }
+
             message = String.format(message, version == null ? "unknown" : version);
             JOptionPane.showMessageDialog(mapPanel, message,
                                           "Earthquake Early Warning Display",
