@@ -54,23 +54,23 @@ public class CEA2014 implements AttenuationPGA, AttenuationPGV, AttenuationPSA, 
 
         // Compute ground-motion prediction in log10 first, site amplification
         // based on VS30 is included here
-        double logpga = (Cofs[0][1]
-                         + Cofs[0][2] * Mw
-                         + Cofs[0][3] * Math.pow(Mw, 2)
-                         + (Cofs[0][4] + Cofs[0][5] * Mw) * Math.log10(Rrup + Cofs[0][6])
-                         + Cofs[0][10] * Math.log10(amplificationProxyValueSI / Cofs[0][12]))
-                        * (PI2_4 / (0.01 * 0.01));
+        double logdrs01site = Cofs[0][1]
+                            + Cofs[0][2] * Mw
+                            + Cofs[0][3] * Math.pow(Mw, 2)
+                            + (Cofs[0][4] + Cofs[0][5] * Mw) * Math.log10(Rrup + Cofs[0][6])
+                            + Cofs[0][10] * Math.log10(amplificationProxyValueSI / Cofs[0][12]);
+                        
 
         // Now compute plus/minus sigma bounds
-        double sigma = Cofs[0][19];
-        double logpgasiteplus = logpga + sigma;
-        double logpgasiteminus = logpga - sigma;
+        double sigma = Cofs[0][18];
+        double logdrs01siteplus = logdrs01site + sigma;
+        double logdrs01siteminus = logdrs01site - sigma;
 
         // Now in m/s2
         Shaking PGA = new Shaking();
-        PGA.expectedSI = Math.pow(10, logpga) / 100;
-        PGA.percentile84 = Math.pow(10, logpgasiteplus) / 100;
-        PGA.percentile16 = Math.pow(10, logpgasiteminus) / 100;
+        PGA.expectedSI = Math.pow(10, logdrs01site) * (PI2_4 / (0.01 * 0.01)) / 100;
+        PGA.percentile84 = Math.pow(10, logdrs01siteplus) * (PI2_4 / (0.01 * 0.01)) / 100;
+        PGA.percentile16 = Math.pow(10, logdrs01siteminus) * (PI2_4 / (0.01 * 0.01)) / 100;
 
         // Now should return Shaking ...
         return PGA;
@@ -101,20 +101,20 @@ public class CEA2014 implements AttenuationPGA, AttenuationPGV, AttenuationPSA, 
 
         // Compute ground-motion prediction in log10 first, site amplification
         // based on VS30 is included here
-        double logpgv = Cofs[9][1]
+        double logpgvsite = Cofs[9][1]
                         + Cofs[9][2] * Mw
                         + Cofs[9][3] * Math.pow(Mw, 2)
                         + (Cofs[9][4] + Cofs[9][5] * Mw) * Math.log10(Rrup + Cofs[9][6])
                         + Cofs[9][10] * Math.log10(amplificationProxyValueSI / Cofs[9][12]);
 
         // Now compute plus/minus sigma bounds
-        double sigma = Cofs[9][19];
-        double logpgvsiteplus = logpgv + sigma;
-        double logpgvsiteminus = logpgv - sigma;
+        double sigma = Cofs[9][18];
+        double logpgvsiteplus = logpgvsite + sigma;
+        double logpgvsiteminus = logpgvsite - sigma;
 
         // Now in m/s
         Shaking PGV = new Shaking();
-        PGV.expectedSI = Math.pow(10, logpgv) / 100;
+        PGV.expectedSI = Math.pow(10, logpgvsite) / 100;
         PGV.percentile84 = Math.pow(10, logpgvsiteplus) / 100;
         PGV.percentile16 = Math.pow(10, logpgvsiteminus) / 100;
 
@@ -151,48 +151,50 @@ public class CEA2014 implements AttenuationPGA, AttenuationPGV, AttenuationPSA, 
         // pick the right coefficients according to the spectral period
         if (period == 0.01) {
             cnt = 0;
-            sigma = Cofs[cnt][19];
+            sigma = Cofs[cnt][18];
         } else if (period == 0.02) {
             cnt = 1;
-            sigma = Cofs[cnt][19];
+            sigma = Cofs[cnt][18];
         } else if (period == 0.03) {
             cnt = 2;
-            sigma = Cofs[cnt][19];
+            sigma = Cofs[cnt][18];
         } else if (period == 0.05) {
             cnt = 3;
-            sigma = Cofs[cnt][19];
+            sigma = Cofs[cnt][18];
         } else if (period == 0.1) {
             cnt = 4;
-            sigma = Cofs[cnt][19];
+            sigma = Cofs[cnt][18];
         } else if (period == 0.2) {
             cnt = 5;
-            sigma = Cofs[cnt][19];
+            sigma = Cofs[cnt][18];
         } else if (period == 0.4) {
             cnt = 6;
-            sigma = Cofs[cnt][19];
+            sigma = Cofs[cnt][18];
         } else if (period == 1) {
             cnt = 7;
-            sigma = Cofs[cnt][19];
+            sigma = Cofs[cnt][18];
         } else if (period == 2) {
             cnt = 8;
-            sigma = Cofs[cnt][19];
+            sigma = Cofs[cnt][18];
         }
 
-        double logpsa = Cofs[cnt][1]
-                        + Cofs[cnt][2] * Mw
-                        + Cofs[cnt][3] * Math.pow(Mw, 2)
-                        + (Cofs[cnt][4] + Cofs[cnt][5] * Mw) * Math.log10(Rrup + Cofs[cnt][6])
-                        + Cofs[cnt][10] * Math.log10(amplificationProxyValueSI / Cofs[cnt][12]);
+        double logdrssite = Cofs[cnt][1]
+                          + Cofs[cnt][2] * Mw
+                          + Cofs[cnt][3] * Math.pow(Mw, 2)
+                          + (Cofs[cnt][4] + Cofs[cnt][5] * Mw) * Math.log10(Rrup + Cofs[cnt][6])
+                          + Cofs[cnt][10] * Math.log10(amplificationProxyValueSI / Cofs[cnt][12]);
+        
+       
 
         // Now compute plus/minus sigma bounds
-        double logpsasiteplus = logpsa + sigma;
-        double logpsasiteminus = logpsa - sigma;
+        double logdrssiteplus = logdrssite + sigma;
+        double logdrssiteminus = logdrssite - sigma;
 
         // Now in m/s2
         Shaking PSA = new Shaking();
-        PSA.expectedSI = Math.pow(10, logpsa) / 100;
-        PSA.percentile84 = Math.pow(10, logpsasiteplus) / 100;
-        PSA.percentile16 = Math.pow(10, logpsasiteminus) / 100;
+        PSA.expectedSI = Math.pow(10, logdrssite) * (PI2_4 / (period * period)) / 100;
+        PSA.percentile84 = Math.pow(10, logdrssiteplus) * (PI2_4 / (period * period)) / 100;
+        PSA.percentile16 = Math.pow(10, logdrssiteminus) * (PI2_4 / (period * period)) / 100;
 
         // Now should return Shaking ...
         return PSA;
