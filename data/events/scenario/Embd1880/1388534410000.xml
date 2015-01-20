@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<q:quakeml xmlns="http://quakeml.org/xmlns/bed-rt/1.2"
+           xmlns:q="http://quakeml.org/xmlns/quakeml-rt/1.2"
+           xmlns:vs="http://quakeml.org/xmlns/vstypes/0.1">
+  <eventParameters publicID="smi:ch.ethz.sed/EEW/1">
+    
+    <event publicID="smi:ch.ethz.sed/event/Embd1880">
+      <preferredOriginID>smi:ch.ethz.sed/event/Embd1880/origin/1</preferredOriginID>
+      <preferredMagnitudeID>smi:ch.ethz.sed/event/Embd1880/magnitude/1</preferredMagnitudeID>
+      <originReference>smi:ch.ethz.sed/event/Embd1880/origin/1</originReference>
+      <type>earthquake</type>
+      <vs:likelihood>1</vs:likelihood>
+    </event>
+    
+    <origin publicID="smi:ch.ethz.sed/event/Embd1880/origin/1">
+      <time>
+        <value>2014-01-01T00:00:00.000Z</value>
+      </time>
+      <latitude>
+        <value>46.22</value>
+        <uncertainty>50</uncertainty>
+      </latitude>
+      <longitude>
+        <value>7.8</value>
+        <uncertainty>50</uncertainty>
+      </longitude>
+      <depth>
+        <value>10000</value>
+      </depth>
+      
+    </origin>
+    <magnitude publicID="smi:ch.ethz.sed/event/Embd1880/magnitude/1">
+      <mag>
+        <value>5.2</value>
+      </mag>
+      <type>Mw</type>
+      <originID>smi:ch.ethz.sed/event/Embd1880/origin/1</originID>
+    </magnitude>
+    
+  </eventParameters>
+</q:quakeml>
