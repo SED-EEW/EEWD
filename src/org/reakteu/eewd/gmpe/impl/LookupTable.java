@@ -46,20 +46,18 @@ public class LookupTable implements AttenuationPGA, AttenuationPGV, AttenuationP
             dir = app.getProperty(PropertyDataDir, dir);
             periods = app.getPeriods();
 
-            if (periods != null) {
-                FloatTable[] t;
-                for (int i = 0; i < periods.length; ++i) {
-                    // PSA
-                    t = readTables(dir + "/" + Shaking.Type.PSA.toString() + i);
-                    if (t[0] != null) {
-                        psa.put(periods[i], t);
-                    }
+            FloatTable[] t;
+            for (int i = 0; i < periods.length; ++i) {
+                // PSA
+                t = readTables(dir + "/" + Shaking.Type.PSA.toString() + i);
+                if (t[0] != null) {
+                    psa.put(periods[i], t);
+                }
 
-                    // DRS
-                    t = readTables(dir + "/" + Shaking.Type.PSA.toString() + i);
-                    if (t[0] != null) {
-                        psa.put(periods[i], t);
-                    }
+                // DRS
+                t = readTables(dir + "/" + Shaking.Type.PSA.toString() + i);
+                if (t[0] != null) {
+                    psa.put(periods[i], t);
                 }
             }
         }

@@ -26,6 +26,8 @@ import com.bbn.openmap.gui.menu.AboutMenuItem;
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.util.ArgParser;
 import com.bbn.openmap.util.Debug;
+import java.awt.Desktop;
+import java.awt.EventQueue;
 import java.awt.Point;
 import org.reakteu.eewd.data.EventArchive;
 import org.reakteu.eewd.data.EventData;
@@ -37,11 +39,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,11 +54,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import javax.swing.JEditorPane;
+import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.quakeml.xmlns.bedRt.x12.EventParameters;
@@ -101,6 +109,7 @@ public class Application implements QMLListener, ActionListener {
     public static final String PropertyVS = "vs";
     public static final String PropertyEventIcon = "eventIcon";
     public static final String PropertyTimeoutAfterOriginTime = "timeoutAfterOriginTime";
+    public static final String PropertyToFront = "toFront";
     public static final String PropertyAlertSound = "alertSound";
     public static final String PropertyAlertSoundLoop = "alertSoundLoop";
     public static final String PropertyCountdownSound = "countdownSound";
@@ -242,7 +251,7 @@ public class Application implements QMLListener, ActionListener {
                                                   "data/targets.csv"));
 
         controlPeriod = getProperty(PropertyControlPeriod, (Double) null);
-        periods = getProperty(PropertySpecPeriods, (double[]) null);
+        periods = getProperty(PropertySpecPeriods, new double[0]);
         useFrequencies = getProperty(PropertyUseFrequencies, false);
 
         Arrays.sort(periods);
@@ -435,8 +444,7 @@ public class Application implements QMLListener, ActionListener {
 
         eventPanel = new EventPanel(targets);
 
-        ToolPanel toolPanel = (ToolPanel) mapHandler.get(ToolPanel.class
-        );
+        ToolPanel toolPanel = (ToolPanel) mapHandler.get(ToolPanel.class);
         if (toolPanel
             == null) {
             toolPanel = new ToolPanel();
@@ -445,12 +453,10 @@ public class Application implements QMLListener, ActionListener {
 
         mapHandler.add(eventPanel);
 
-        mainPanel.getSlider()
-                .setLeftComponent(eventPanel);
+        mainPanel.getSlider().setLeftComponent(eventPanel);
 
         LayerHandler layerHandler = (LayerHandler) mapHandler.get(LayerHandler.class);
-        if (layerHandler
-            != null) {
+        if (layerHandler != null) {
             LogoLayer logoLayer = new LogoLayer();
             logoLayer.setName("Logo");
             layerHandler.addLayer(logoLayer, 0);
@@ -663,13 +669,63 @@ public class Application implements QMLListener, ActionListener {
         }
     }
 
+    public void toFront() {
+        if (openMapFrame != null) {
+            LOG.debug("TOFRONT1");
+            EventQueue.invokeLater(new Runnable() {
+                private final WindowListener l = new WindowAdapter() {
+                    @Override
+                    public void windowDeiconified(WindowEvent e) {
+                        // Window now deiconified so bring it to the front.
+                        bringToFront();
+
+                        // Remove "one-shot" WindowListener to prevent memory leak.
+                        openMapFrame.removeWindowListener(this);
+                    }
+                };
+
+                @Override
+                public void run() {
+                    if (openMapFrame.getExtendedState() == JFrame.ICONIFIED) {
+                        // Add listener and await callback once window has been deiconified.
+                        openMapFrame.addWindowListener(l);
+                        openMapFrame.setExtendedState(JFrame.NORMAL);
+                    } else {
+                        // Bring to front synchronously.
+                        bringToFront();
+                    }
+                }
+
+                private void bringToFront() {
+                    openMapFrame.getGlassPane().setVisible(!openMapFrame.getGlassPane().isVisible());
+                    openMapFrame.toFront();
+                    openMapFrame.repaint();
+                }
+            });
+        }
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals(ActionEventBrowser)) {
             new EventBrowser(openMapFrame, true).setVisible(true);
         }
         if (e.getActionCommand().equals(ActionAbout)) {
-            String message = "<html><b>version: %s</b></html>";
+            String message = "<html>"
+                             + "The Earthquake Early Warning Display is a product of REAKT,<br>"
+                             + "Strategies and Tools for Real-Time Earthquake Risk Reduction,<br>"
+                             + "FP7/2007-2013, contract no. 282862; <a href=\"http://www.reaktproject.eu\">www.reaktproject.eu</a>.<br><br>"
+                             + "Version %s<br><br>"
+                             + "Copyright (C) by<br>"
+                             + "<ul>"
+                             + "<li>Swiss Seismological Service (SED) at ETH Zurich;</li>"
+                             + "<li>RISSC-Lab, the Seismological laboratory of the Department of Physics, University of Naples Federico II.</li>"
+                             + "</ul>"
+                             + "Developed by <a href=\"http://www.gempa.de\">gempa GmbH</a>.<br><br>"
+                             + "Please cite as:<br></br>"
+                             + "Cauzzi C, Behr J, Clinton J, Kaestli P, Elia L, Zollo A and Herrnkind S (2015) Basic specifications for a European Earthquake Early Warning Display (EEWD).<br>"
+                             + "Available at <a href=\"http://www.reaktproject.eu\">www.reaktproject.eu</a> -> WP7 or WP4 deliverables -> Earthquake Early Warning Display (EEWD)"
+                             + "</html>";
             String version = null;
 
             Package p = Application.class.getPackage();
@@ -678,7 +734,24 @@ public class Application implements QMLListener, ActionListener {
             }
 
             message = String.format(message, version == null ? "unknown" : version);
-            JOptionPane.showMessageDialog(mapPanel, message,
+            final JEditorPane pane = new JEditorPane("text/html", message);
+
+            pane.setEditable(false);
+            pane.addHyperlinkListener(new HyperlinkListener() {
+
+                @Override
+                public void hyperlinkUpdate(HyperlinkEvent e) {
+                    if (HyperlinkEvent.EventType.ACTIVATED == e.getEventType()) {
+                        try {
+                            Desktop.getDesktop().browse(e.getURL().toURI());
+                        } catch (URISyntaxException | IOException ex) {
+                            LOG.error("could not open URL", ex);
+                        }
+                    }
+                }
+            });
+
+            JOptionPane.showMessageDialog(mapPanel, pane,
                                           "Earthquake Early Warning Display",
                                           JOptionPane.PLAIN_MESSAGE);
         }

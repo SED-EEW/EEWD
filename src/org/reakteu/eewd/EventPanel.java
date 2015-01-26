@@ -9,18 +9,17 @@ import org.reakteu.eewd.data.EventTimeListener;
 import org.reakteu.eewd.utils.GeoCalc;
 import org.reakteu.eewd.data.POI;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import static java.lang.Math.abs;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.TimeZone;
+import javax.swing.Box.Filler;
 import javax.swing.ComboBoxModel;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
@@ -450,7 +449,9 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         eventChanged = true;
         timeChanged = true;
 
-        graph = new SpectrumPlot(app.getPeriods());
+        if (app.getPeriods().length > 0) {
+            graph = new SpectrumPlot(app.getPeriods());
+        }
 
         initComponents();
 
@@ -504,13 +505,17 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
         c.weighty = 1.0;
         c.insets = new java.awt.Insets(7, 7, 7, 7);
 
-        add(graph, c);
+        if (graph == null) {
+            add(new Filler(new Dimension(0, 0), new Dimension(0, 0), new Dimension(0, 32767)), c);
+        } else {
+            add(graph, c);
+        }
     }
 
     @Override
     synchronized public void processEventTime(EventData event, Long originTimeOffset) {
         eventChanged = event != this.event;
-        timeChanged = originTimeOffset != this.originTimeOffset;
+        timeChanged = this.originTimeOffset == null || !this.originTimeOffset.equals(originTimeOffset);
         this.event = event;
         this.originTimeOffset = originTimeOffset;
         SwingUtilities.invokeLater(new Runnable() {
@@ -542,9 +547,9 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
                 eventLabel.setText(event.eventID);
                 magnitudeLabel.setText(String.format("%.1f", event.magnitude));
                 locationLabel.setText(String.format("%.2f%s %.2f%s, %.1fkm",
-                                                    abs(event.latitude),
+                                                    Math.abs(event.latitude),
                                                     event.latitude < 0 ? "S" : "N",
-                                                    abs(event.longitude),
+                                                    Math.abs(event.longitude),
                                                     event.longitude < 0 ? "W" : "E",
                                                     event.depth / 1000.0));
                 if (event.likelihood != null) {
@@ -566,7 +571,9 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
 
         // update target information
         POI target = (POI) targetCombo.getSelectedItem();
-        graph.setTarget(target);
+        if (graph != null) {
+            graph.setTarget(target);
+        }
         if (target == null) {
             timeRemainingLabel.setText("-");
             distanceLabel.setText("-");
@@ -637,7 +644,9 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
 
         eventChanged = false;
         timeChanged = false;
-        graph.repaint();
+        if (graph != null) {
+            graph.repaint();
+        }
     }
 
     private void setPercentile(JLabel label, Shaking s, String format, double factor) {

@@ -4,7 +4,6 @@
  */
 package org.reakteu.eewd.data;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
@@ -77,7 +76,11 @@ public class EventData {
         // get event
         assertOne(eventParameters.getEventArray(), "event");
         Event event = eventParameters.getEventArray(0);
-        eventID = event.getPublicID();
+
+        int idx = event.getPublicID().lastIndexOf('/') + 1;
+        eventID = idx > 0 && idx < event.getPublicID().length()
+                  ? event.getPublicID().substring(idx)
+                  : event.getPublicID();
 
         isFakeEvent = event.getTypeArray().length == 1
                       && event.getTypeArray(0).equals(EventType.NOT_EXISTING);

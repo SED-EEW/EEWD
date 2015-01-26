@@ -33,6 +33,7 @@ public class EventTimeScheduler implements Runnable {
 
     private final long maxUpdateMillis;
     private final Set<EventTimeListener> updateListeners;
+    private final boolean toFront;
     private final File alertSound;
     private final int alertSoundLoop;
 
@@ -48,6 +49,7 @@ public class EventTimeScheduler implements Runnable {
 
         Application app = Application.getInstance();
 
+        toFront = app.getProperty(Application.PropertyToFront, true);
         String fileName = app.getProperty(Application.PropertyAlertSound, (String) null);
         alertSound = fileName == null ? null : new File(fileName);
         alertSoundLoop = app.getProperty(Application.PropertyAlertSoundLoop, 1);
@@ -78,16 +80,22 @@ public class EventTimeScheduler implements Runnable {
         executor.scheduleAtFixedRate(this, 0, UpdateInterval, TimeUnit.MILLISECONDS);
 
         // play sound for new events
-        if (newEvent && alertSound != null) {
-            try {
-                AudioInputStream inputStream = AudioSystem.getAudioInputStream(alertSound);
-                AudioFormat format = inputStream.getFormat();
-                DataLine.Info info = new DataLine.Info(Clip.class, format);
-                Clip clip = (Clip) AudioSystem.getLine(info);
-                clip.open(inputStream);
-                clip.loop(alertSoundLoop);
-            } catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
-                LOG.error("could not play alert sound", e);
+        if (newEvent) {
+            Application app = Application.getInstance();
+            if (app != null && toFront) {
+                app.toFront();
+            }
+            if (alertSound != null) {
+                try {
+                    AudioInputStream inputStream = AudioSystem.getAudioInputStream(alertSound);
+                    AudioFormat format = inputStream.getFormat();
+                    DataLine.Info info = new DataLine.Info(Clip.class, format);
+                    Clip clip = (Clip) AudioSystem.getLine(info);
+                    clip.open(inputStream);
+                    clip.loop(alertSoundLoop);
+                } catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
+                    LOG.error("could not play alert sound", e);
+                }
             }
         }
 
