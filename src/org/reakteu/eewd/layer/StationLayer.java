@@ -58,7 +58,7 @@ public class StationLayer extends OMGraphicHandlerLayer
     public StationLayer(Map<String, POI> stations) {
         Application app = Application.getInstance();
         this.stations = stations;
-        setSize(12);
+        setSize(8);
 
         showNames = app.getProperty(Application.PropertyShowStationName, false);
         //setProjectionChangePolicy(new com.bbn.openmap.layer.policy.NullProjectionChangePolicy());
@@ -93,7 +93,7 @@ public class StationLayer extends OMGraphicHandlerLayer
         for (POI station : stations.values()) {
             poly = new OMPoly(station.latitude, station.longitude,
                               xs, ys, COORDMODE_ORIGIN);
-            poly.setFillPaint(Color.GREEN);
+            poly.setFillPaint(Color.ORANGE);
             poly.setAppObject(station);
             if (drawTriggered && station.triggered) {
                 poly.setLinePaint(Color.RED);
