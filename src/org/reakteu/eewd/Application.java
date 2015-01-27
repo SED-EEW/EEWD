@@ -722,8 +722,9 @@ public class Application implements QMLListener, ActionListener {
                              + "<li>RISSC-Lab, the Seismological laboratory of the Department of Physics, University of Naples Federico II.</li>"
                              + "</ul>"
                              + "Developed by <a href=\"http://www.gempa.de\">gempa GmbH</a>.<br><br>"
+                             + "License: http://www.gnu.org/licenses/gpl.html GPL version 2 or higher<br></br>"
                              + "Please cite as:<br></br>"
-                             + "Cauzzi C, Behr J, Clinton J, Kaestli P, Elia L, Zollo A and Herrnkind S (2015) Basic specifications for a European Earthquake Early Warning Display (EEWD).<br>"
+                             + "Cauzzi C, Behr Y, Clinton J, Kaestli P, Elia L, Zollo A and Herrnkind S (2015) Basic specifications for an Earthquake Early Warning Display (EEWD) for Europe.<br>"
                              + "Available at <a href=\"http://www.reaktproject.eu\">www.reaktproject.eu</a> -> WP7 or WP4 deliverables -> Earthquake Early Warning Display (EEWD)"
                              + "</html>";
             String version = null;
