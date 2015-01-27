@@ -4,7 +4,6 @@ package org.reakteu.eewd.gmice.impl;
  * Implementation of GMICE of
  * Faenza and Michelini (2010), used in Switzerland
  */
-// import useful packages
 import org.reakteu.eewd.data.Shaking;
 import org.reakteu.eewd.gmice.IntensityFromVelocity;
 

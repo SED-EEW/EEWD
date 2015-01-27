@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by gempa GmbH - http://gempa.de
+ * Copyright (C) 2014-2015 by gempa GmbH - http://gempa.de
  * License: http://www.gnu.org/licenses/gpl.html GPL version 2 or higher
  */
 package org.reakteu.eewd;
@@ -10,7 +10,6 @@ import org.reakteu.eewd.data.EventFile;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

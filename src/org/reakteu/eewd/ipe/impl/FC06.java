@@ -10,7 +10,6 @@ import org.quakeml.xmlns.bedRt.x12.EventParameters;
 
 import static java.lang.Math.*;
 import org.reakteu.eewd.ipe.AttenuationInt;
-import org.reakteu.eewd.ipe.AttenuationInt;
 
 public class FC06 implements AttenuationInt {
     // Returns mean I, plus / minus one sigma

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by gempa GmbH - http://gempa.de
+ * Copyright (C) 2014-2015 by gempa GmbH - http://gempa.de
  * License: http://www.gnu.org/licenses/gpl.html GPL version 2 or higher
  */
 package org.reakteu.eewd;
@@ -23,6 +23,10 @@ import org.apache.logging.log4j.Logger;
 import org.reakteu.eewd.data.POI;
 import org.reakteu.eewd.data.Shaking;
 
+/**
+ *
+ * @author Stephan Herrnkind <herrnkind@gempa.de>
+ */
 @SuppressWarnings("serial")
 public class SpectrumPlot extends JPanel {
 
@@ -295,8 +299,8 @@ public class SpectrumPlot extends JPanel {
         }
 
         Point p, prevP = null;
-        for (int i = 0; i < points.size(); i++) {
-            p = points.get(i);
+        for (Point point : points) {
+            p = point;
             if (prevP != null) {
                 g.drawLine(prevP.x, prevP.y, p.x, p.y);
                 g.fillOval(prevP.x - PointRadius, prevP.y - PointRadius, PointRadius2, PointRadius2);

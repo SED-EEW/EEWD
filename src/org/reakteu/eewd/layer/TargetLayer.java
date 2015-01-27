@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by gempa GmbH - http://gempa.de
+ * Copyright (C) 2014-2015 by gempa GmbH - http://gempa.de
  * License: http://www.gnu.org/licenses/gpl.html GPL version 2 or higher
  */
 package org.reakteu.eewd.layer;
@@ -72,6 +72,7 @@ public class TargetLayer extends OMGraphicHandlerLayer implements MapMouseListen
         showNames = app.getProperty(Application.PropertyShowTargetName, false);
     }
 
+    @Override
     public synchronized OMGraphicList prepare() {
 
         OMGraphicList list = new OMGraphicList();
@@ -201,6 +202,7 @@ public class TargetLayer extends OMGraphicHandlerLayer implements MapMouseListen
             JPanel layerPanel = PaletteHelper.createPaletteJPanel("Station Layer Options");
 
             ActionListener al = new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     String ac = e.getActionCommand();
 

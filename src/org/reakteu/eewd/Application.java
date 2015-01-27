@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by gempa GmbH - http://gempa.de
+ * Copyright (C) 2014-2015 by gempa GmbH - http://gempa.de
  * License: http://www.gnu.org/licenses/gpl.html GPL version 2 or higher
  */
 package org.reakteu.eewd;
@@ -27,7 +27,6 @@ import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.util.ArgParser;
 import com.bbn.openmap.util.Debug;
 import java.awt.Desktop;
-import java.awt.EventQueue;
 import java.awt.Point;
 import org.reakteu.eewd.data.EventArchive;
 import org.reakteu.eewd.data.EventData;
@@ -39,7 +38,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -55,7 +53,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import javax.swing.JEditorPane;
-import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -72,6 +69,10 @@ import org.reakteu.eewd.data.ShakingCalculator;
 import org.reakteu.eewd.layer.LogoLayer;
 import org.reakteu.eewd.layer.ShakeMapLayer;
 
+/**
+ *
+ * @author Stephan Herrnkind <herrnkind@gempa.de>
+ */
 public class Application implements QMLListener, ActionListener {
 
     private static final Logger LOG = LogManager.getLogger(Application.class);
@@ -670,39 +671,39 @@ public class Application implements QMLListener, ActionListener {
     }
 
     public void toFront() {
-        if (openMapFrame != null) {
-            LOG.debug("TOFRONT1");
-            EventQueue.invokeLater(new Runnable() {
-                private final WindowListener l = new WindowAdapter() {
-                    @Override
-                    public void windowDeiconified(WindowEvent e) {
-                        // Window now deiconified so bring it to the front.
-                        bringToFront();
-
-                        // Remove "one-shot" WindowListener to prevent memory leak.
-                        openMapFrame.removeWindowListener(this);
-                    }
-                };
-
-                @Override
-                public void run() {
-                    if (openMapFrame.getExtendedState() == JFrame.ICONIFIED) {
-                        // Add listener and await callback once window has been deiconified.
-                        openMapFrame.addWindowListener(l);
-                        openMapFrame.setExtendedState(JFrame.NORMAL);
-                    } else {
-                        // Bring to front synchronously.
-                        bringToFront();
-                    }
-                }
-
-                private void bringToFront() {
-                    openMapFrame.getGlassPane().setVisible(!openMapFrame.getGlassPane().isVisible());
-                    openMapFrame.toFront();
-                    openMapFrame.repaint();
-                }
-            });
-        }
+//        if (openMapFrame != null) {
+//            LOG.debug("TOFRONT1");
+//            EventQueue.invokeLater(new Runnable() {
+//                private final WindowListener l = new WindowAdapter() {
+//                    @Override
+//                    public void windowDeiconified(WindowEvent e) {
+//                        // Window now deiconified so bring it to the front.
+//                        bringToFront();
+//
+//                        // Remove "one-shot" WindowListener to prevent memory leak.
+//                        openMapFrame.removeWindowListener(this);
+//                    }
+//                };
+//
+//                @Override
+//                public void run() {
+//                    if (openMapFrame.getExtendedState() == JFrame.ICONIFIED) {
+//                        // Add listener and await callback once window has been deiconified.
+//                        openMapFrame.addWindowListener(l);
+//                        openMapFrame.setExtendedState(JFrame.NORMAL);
+//                    } else {
+//                        // Bring to front synchronously.
+//                        bringToFront();
+//                    }
+//                }
+//
+//                private void bringToFront() {
+//                    openMapFrame.getGlassPane().setVisible(!openMapFrame.getGlassPane().isVisible());
+//                    openMapFrame.toFront();
+//                    openMapFrame.repaint();
+//                }
+//            });
+//        }
     }
 
     @Override
