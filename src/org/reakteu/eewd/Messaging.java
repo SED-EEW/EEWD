@@ -5,6 +5,8 @@
 package org.reakteu.eewd;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +33,7 @@ import org.reakteu.heartbeat.HbDocument;
 public class Messaging implements Listener, Runnable {
 
     private static final Logger LOG = LogManager.getLogger(Messaging.class);
+    private static final long DAY_MILLIS = 24 * 60 * 60 * 1000;
 
     private static String host;
     private static int port;
@@ -45,6 +48,7 @@ public class Messaging implements Listener, Runnable {
     private long lastUpdate = 0;
     private long lastDelay = 0;
     private boolean shouldListen = false;
+    private final DateFormat dfTime;
 
     public Messaging() {
         Application app = Application.getInstance();
@@ -61,12 +65,13 @@ public class Messaging implements Listener, Runnable {
         password = app.getProperty(Application.PropertyConPassword, "");
         keepaliveInterval = (long) (app.getProperty(Application.PropertyConKeepaliveInterval, 0.f) * 1000.f);
         maxLatency = (long) (app.getProperty(Application.PropertyConMaxLatency, (Float) 1.f) * 1000.f);
+        dfTime = new SimpleDateFormat("HH:mm:ss");
     }
 
     synchronized public void reportConnectionState() {
         String state = "offline";
         if (client != null && client.isConnected()) {
-            state = topic + "@" + host;
+            state = "connected to " + host;
             if (lastDelay > maxLatency) {
                 state += ", slow connection detected";
             }
@@ -131,7 +136,7 @@ public class Messaging implements Listener, Runnable {
         } else {
             long now = System.currentTimeMillis();
             if (now > lastUpdate + keepaliveInterval) {
-                LOG.error(String.format("no keepalive signal received within %.1f seconds, trying to reconnect",
+                LOG.error(String.format("no message received within %.1f seconds, trying to reconnect",
                                         keepaliveInterval / 1000f));
                 disconnect();
                 listen();
@@ -141,6 +146,7 @@ public class Messaging implements Listener, Runnable {
 
     @Override
     public void message(Map headers, String body) {
+        Application app = Application.getInstance();
         long received = System.currentTimeMillis();
 
         XmlOptions xmlOptions = new XmlOptions();
@@ -170,6 +176,9 @@ public class Messaging implements Listener, Runnable {
                 lastUpdate = received;
                 lastDelay = received - hbDoc.getHb().getTimestamp().getTimeInMillis();
                 reportConnectionState();
+                if (app != null) {
+                    app.updateHeartbeat("heartbeat: " + dfTime.format(received));
+                }
             } else {
                 LOG.warn("received invalid heartbeat document");
                 printXMLErrors(xmlErrors);
@@ -181,9 +190,10 @@ public class Messaging implements Listener, Runnable {
             if (qmlDoc.validate(xmlOptions)) {
                 lastUpdate = received;
                 reportConnectionState();
-                Application app = Application.getInstance();
-                EventData event = app.processQML(qmlDoc.getQuakeml().getEventParameters(), 0);
-                app.getEventArchive().log(received, body, event);
+                if (app != null) {
+                    EventData event = app.processQML(qmlDoc.getQuakeml().getEventParameters(), 0);
+                    app.getEventArchive().log(received, body, event);
+                }
             } else {
                 LOG.warn("received invalid QuakeML document");
                 printXMLErrors(xmlErrors);

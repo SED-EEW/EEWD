@@ -4,6 +4,7 @@
  */
 package org.reakteu.eewd;
 
+import com.bbn.openmap.InformationDelegator;
 import org.reakteu.eewd.layer.TargetLayer;
 import org.reakteu.eewd.layer.StationLayer;
 import org.reakteu.eewd.data.POI;
@@ -206,7 +207,6 @@ public class Application implements QMLListener, ActionListener {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
             LOG.warn("could net set system default look and feel", ex);
         }
-
         String mapProps = properties.getProperty(PropertyMapProperties,
                                                  "file:data/openmap.properties");
 
@@ -446,8 +446,7 @@ public class Application implements QMLListener, ActionListener {
         eventPanel = new EventPanel(targets);
 
         ToolPanel toolPanel = (ToolPanel) mapHandler.get(ToolPanel.class);
-        if (toolPanel
-            == null) {
+        if (toolPanel == null) {
             toolPanel = new ToolPanel();
             mapHandler.add(toolPanel);
         }
@@ -762,6 +761,11 @@ public class Application implements QMLListener, ActionListener {
         if (openMapFrame != null) {
             openMapFrame.setTitle(title + " [ " + state + " ]");
         }
+    }
+
+    public void updateHeartbeat(String hb) {
+        InformationDelegator infoDelegator = (InformationDelegator) mapPanel.getMapHandler().get(InformationDelegator.class);
+        infoDelegator.displayInfoLine(hb);
     }
 
     /**
