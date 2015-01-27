@@ -63,7 +63,7 @@ public class BEA2014 implements AttenuationPGA, AttenuationPGV, AttenuationPSA, 
         double Rref = 1;
         double Mh = 6.75;
         double Vref = 800;
-        double FM = 0; //init
+        double FM;
 
         double FD = (Cofs[1][23] + Cofs[2][23] * (Mw - Mref)) * log10(sqrt(pow(Rh, 2) + pow(Cofs[3][23], 2)) / Rref) - Cofs[4][23] * (sqrt(pow(Rh, 2) + pow(Cofs[3][23], 2)) - Rref);
 
@@ -119,7 +119,7 @@ public class BEA2014 implements AttenuationPGA, AttenuationPGV, AttenuationPSA, 
         double Rref = 1;
         double Mh = 6.75;
         double Vref = 800;
-        double FM = 0; //init
+        double FM; //init
 
         double FD = (Cofs[1][24] + Cofs[2][24] * (Mw - Mref)) * log10(sqrt(pow(Rh, 2) + pow(Cofs[3][24], 2)) / Rref) - Cofs[4][24] * (sqrt(pow(Rh, 2) + pow(Cofs[3][24], 2)) - Rref);
 
@@ -177,36 +177,27 @@ public class BEA2014 implements AttenuationPGA, AttenuationPGV, AttenuationPSA, 
         double Rref = 1;
         double Mh = 6.75;
         double Vref = 800;
-        double FM = 0; //init
+        double FM; //init
 
         // pick the right coefficients according to the spectral period
         if (period == 0.01) { // using published coeffs for 0.02
             cnt = 0;
-
         } else if (period == 0.02) {
             cnt = 0;
-
         } else if (period == 0.03) { // using published coeffs for 0.04
             cnt = 1;
-
         } else if (period == 0.05) { // using published coeffs for 0.04
             cnt = 1;
-
         } else if (period == 0.1) {
             cnt = 3;
-
         } else if (period == 0.2) {
             cnt = 5;
-
         } else if (period == 0.4) {
             cnt = 9;
-
         } else if (period == 1) {
             cnt = 16;
-
         } else if (period == 2) {
             cnt = 20;
-
         }
 
         double FD = (Cofs[1][cnt] + Cofs[2][cnt] * (Mw - Mref)) * log10(sqrt(pow(Rh, 2) + pow(Cofs[3][cnt], 2)) / Rref) - Cofs[4][cnt] * (sqrt(pow(Rh, 2) + pow(Cofs[3][cnt], 2)) - Rref);

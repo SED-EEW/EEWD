@@ -55,9 +55,9 @@ public class LookupTable implements AttenuationPGA, AttenuationPGV, AttenuationP
                 }
 
                 // DRS
-                t = readTables(dir + "/" + Shaking.Type.PSA.toString() + i);
+                t = readTables(dir + "/" + Shaking.Type.DRS.toString() + i);
                 if (t[0] != null) {
-                    psa.put(periods[i], t);
+                    drs.put(periods[i], t);
                 }
             }
         }
