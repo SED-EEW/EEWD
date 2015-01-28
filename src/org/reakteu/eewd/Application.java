@@ -712,7 +712,7 @@ public class Application implements QMLListener, ActionListener {
         }
         if (e.getActionCommand().equals(ActionAbout)) {
             String message = "<html>"
-                             + "The Earthquake Early Warning Display is a product of REAKT,<br>"
+                             + "The first public release of the Earthquake Early Warning Display (EEWD) for Europe is a product of REAKT,<br>"
                              + "Strategies and Tools for Real-Time Earthquake Risk Reduction,<br>"
                              + "FP7/2007-2013, contract no. 282862; <a href=\"http://www.reaktproject.eu\">www.reaktproject.eu</a>.<br><br>"
                              + "Version %s<br><br>"
@@ -722,7 +722,7 @@ public class Application implements QMLListener, ActionListener {
                              + "<li>RISSC-Lab, the Seismological laboratory of the Department of Physics, University of Naples Federico II.</li>"
                              + "</ul>"
                              + "Developed by <a href=\"http://www.gempa.de\">gempa GmbH</a>.<br><br>"
-                             + "License: http://www.gnu.org/licenses/gpl.html GPL version 2 or higher<br></br>"
+                             + "License: http://www.gnu.org/licenses/gpl.html GPL version 2 or higher<br><br>"
                              + "Please cite as:<br></br>"
                              + "Cauzzi C, Behr Y, Clinton J, Kaestli P, Elia L, Zollo A and Herrnkind S (2015) Basic specifications for an Earthquake Early Warning Display (EEWD) for Europe.<br>"
                              + "Available at <a href=\"http://www.reaktproject.eu\">www.reaktproject.eu</a> -> WP7 or WP4 deliverables -> Earthquake Early Warning Display (EEWD)"
