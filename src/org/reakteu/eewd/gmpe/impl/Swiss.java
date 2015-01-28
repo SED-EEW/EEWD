@@ -62,7 +62,7 @@ public class Swiss implements AttenuationPGA, AttenuationPGV, AttenuationPSA, At
         // Mag is the magnitude from the EW message
         // ampType in Switzerland is deltaI, i.e. intensity increments
         // GMP coefficients are region dependent, i.e. different in the Swiss Alps and in the Swiss Foreland
-        double rmin = 3; // set cut-off distance
+        double rmin = 3; // simplified cut-off distance
         double Mw = magnitude;	// reasonable assumption in CH
         double[][] cofs = getCofs(sourceLat, sourceLon);
 
@@ -74,8 +74,13 @@ public class Swiss implements AttenuationPGA, AttenuationPGV, AttenuationPSA, At
         double Rh = distance / 1000; // in kilometers
 
         // end of hypocentral distance computation
-        // Assume Rrup ~ Rh
+        // Assume Rrup ~ Rh for magnitude < 5.8
         double Rrup = Rh;
+        // else estimate Rrup based on Cauzzi et al. (2014)
+        
+        if (Mw >= 5.8){
+            Rrup = Rh + 7.5 * Mw - 38 - 1.38 - 0.014 * exp(Mw); // 7.5 * Mw + 38 included to avoid negative distances at points with Rh = 0 ... 
+        }
 
         // define the distance cut-off
         double Ru = max(rmin, Rrup);
@@ -129,6 +134,11 @@ public class Swiss implements AttenuationPGA, AttenuationPGV, AttenuationPSA, At
         // end of hypocentral distance computation
         // Assume Rrup ~ Rh
         double Rrup = Rh;
+        // else estimate Rrup based on Cauzzi et al. (2014)
+        
+        if (Mw >= 5.8){
+            Rrup = Rh + 7.5 * Mw - 38 - 1.38 - 0.014 * exp(Mw); // 7.5 * Mw + 38 included to avoid negative distances at points with Rh = 0 ...
+        }
 
         // define the distance cut-off
         double Ru = max(rmin, Rrup);
@@ -185,6 +195,11 @@ public class Swiss implements AttenuationPGA, AttenuationPGV, AttenuationPSA, At
         // end of hypocentral distance computation
         // Assume Rrup ~ Rh
         double Rrup = Rh;
+        // else estimate Rrup based on Cauzzi et al. (2014)
+        
+        if (Mw >= 5.8){
+            Rrup = Rh + 7.5 * Mw - 38 - 1.38 - 0.014 * exp(Mw); // 7.5 * Mw + 38 included to avoid negative distances at points with Rh = 0 ...
+        }
 
         // define the distance cut-off
         double Ru = max(rmin, Rrup);
