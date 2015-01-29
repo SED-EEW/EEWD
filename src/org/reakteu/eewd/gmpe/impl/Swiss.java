@@ -146,7 +146,7 @@ public class Swiss implements AttenuationPGA, AttenuationPGV, AttenuationPSA, At
         // define the distance metric used in the attenuation formulas
         double d = log10(Ru);
 
-        double logpgv = cofs[10][0] + cofs[10][1] * Mw + cofs[10][2] * pow(Mw, 2) + cofs[10][3] * pow(Mw, 3) + cofs[10][4] * pow(Mw, 4) + cofs[10][5] * pow(Mw, 5) + cofs[10][6] * pow(Mw, 6) + (cofs[10][7] + cofs[10][8] * Mw + cofs[10][9] * pow(Mw, 2) + cofs[10][10] * pow(Mw, 3)) * d + (cofs[10][11] + cofs[10][12] * Mw + cofs[10][13] * pow(Mw, 2) + cofs[10][14] * pow(Mw, 3)) * pow(d, 2) + (cofs[0][15] + cofs[10][16] * Mw + cofs[10][17] * pow(Mw, 2) + cofs[10][18] * pow(Mw, 3)) * pow(d, 3) + (cofs[10][19] + cofs[10][20] * Mw + cofs[10][21] * pow(Mw, 2) + cofs[10][22] * pow(Mw, 3)) * pow(d, 4);
+        double logpgv = cofs[10][0] + cofs[10][1] * Mw + cofs[10][2] * pow(Mw, 2) + cofs[10][3] * pow(Mw, 3) + cofs[10][4] * pow(Mw, 4) + cofs[10][5] * pow(Mw, 5) + cofs[10][6] * pow(Mw, 6) + (cofs[10][7] + cofs[10][8] * Mw + cofs[10][9] * pow(Mw, 2) + cofs[10][10] * pow(Mw, 3)) * d + (cofs[10][11] + cofs[10][12] * Mw + cofs[10][13] * pow(Mw, 2) + cofs[10][14] * pow(Mw, 3)) * pow(d, 2) + (cofs[10][15] + cofs[10][16] * Mw + cofs[10][17] * pow(Mw, 2) + cofs[10][18] * pow(Mw, 3)) * pow(d, 3) + (cofs[10][19] + cofs[10][20] * Mw + cofs[10][21] * pow(Mw, 2) + cofs[10][22] * pow(Mw, 3)) * pow(d, 4);
 
         // Now add site term
         double logpgvsite = logpgv + (amplificationProxyValueSI / 2.35);
