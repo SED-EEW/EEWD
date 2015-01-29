@@ -13,6 +13,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -28,6 +29,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlCursor;
+import org.quakeml.xmlns.bedRt.x12.EventParameters;
 
 /**
  *
@@ -260,6 +262,7 @@ public class EventBrowser extends javax.swing.JDialog
         if (dir != null) {
             File[] files = dir.listFiles();
             if (files != null) {
+                Arrays.sort(files);
                 for (File f : files) {
                     if (f.isDirectory()) {
                         node.add(createNode(f));
@@ -347,7 +350,10 @@ public class EventBrowser extends javax.swing.JDialog
         for (EventFile up : selectedSequence) {
             EventData eventProps = null;
             try {
-                eventProps = new EventData(up.getEventParameters(), 0, null);
+                EventParameters ep = up.getEventParameters();
+                if (ep != null) {
+                    eventProps = new EventData(ep, 0, null);
+                }
             } catch (EventData.InvalidEventDataException ex) {
                 LOG.error(ex);
             }
