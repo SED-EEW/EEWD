@@ -1,0 +1,4 @@
+# list of targets, format:
+# name, latitude, longitude, elevation(m), amplification proxy
+Naples,   14.183400, 40.837700, 110, 0.5
+S.Angelo, 15.180000, 40.930000, 872, 0.5

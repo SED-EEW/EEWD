@@ -82,6 +82,11 @@ public class Messaging implements Listener, Runnable {
     }
 
     synchronized public void listen() {
+        if (host == null || host.isEmpty() || topic == null || topic.isEmpty()) {
+            shouldListen = false;
+            reportConnectionState();
+            return;
+        }
         shouldListen = true;
         lastUpdate = System.currentTimeMillis();
         if (executor == null && keepaliveInterval > 0) {

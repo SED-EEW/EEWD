@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+<q:quakeml xmlns='http://quakeml.org/xmlns/bed-rt/1.2' xmlns:q='http://quakeml.org/xmlns/quakeml-rt/1.2'>
+<eventParameters publicID='smi:org.presto/ew/1'>
+<event publicID='smi:org.presto/ev/Irpinia_1980_M6.9_0'><type>earthquake</type>
+<preferredOriginID>smi:org.presto/or/Irpinia_1980_M6.9_0</preferredOriginID>
+<preferredMagnitudeID>smi:org.presto/ma/Irpinia_1980_M6.9_0</preferredMagnitudeID>
+</event>
+<origin publicID='smi:org.presto/or/Irpinia_1980_M6.9_0'>
+	<time><value>1980-11-23T18:34:52.18Z</value></time>
+	<longitude><value>15.3238</value><uncertainty>0.00558451</uncertainty></longitude>
+	<latitude><value>40.7802</value><uncertainty>0.00553258</uncertainty></latitude>
+	<depth><value>789.1</value><uncertainty>1045.91</uncertainty></depth>
+</origin>
+<magnitude publicID='smi:org.presto/ma/Irpinia_1980_M6.9_0'><mag><value>7.2</value><lowerUncertainty>0.0999999</lowerUncertainty><upperUncertainty>0.1</upperUncertainty></mag></magnitude>
+<pick publicID='smi:org.presto/pi/343852495.VDS3'><time><value>1980-11-23T18:34:55.30Z</value></time><waveformID networkCode='IX' stationCode='VDS3' /></pick>
+<pick publicID='smi:org.presto/pi/343852495.COL3'><time><value>1980-11-23T18:34:55.40Z</value></time><waveformID networkCode='IX' stationCode='COL3' /></pick>
+<pick publicID='smi:org.presto/pi/343852496.CSG3'><time><value>1980-11-23T18:34:55.90Z</value></time><waveformID networkCode='IX' stationCode='CSG3' /></pick>
+<pick publicID='smi:org.presto/pi/343852496.SNR3'><time><value>1980-11-23T18:34:55.90Z</value></time><waveformID networkCode='IX' stationCode='SNR3' /></pick>
+<pick publicID='smi:org.presto/pi/343852496.CLT3'><time><value>1980-11-23T18:34:56.20Z</value></time><waveformID networkCode='IX' stationCode='CLT3' /></pick>
+<pick publicID='smi:org.presto/pi/343852497.AND3'><time><value>1980-11-23T18:34:56.70Z</value></time><waveformID networkCode='IX' stationCode='AND3' /></pick>
+<pick publicID='smi:org.presto/pi/343852497.SCL3'><time><value>1980-11-23T18:34:56.70Z</value></time><waveformID networkCode='IX' stationCode='SCL3' /></pick>
+<pick publicID='smi:org.presto/pi/343852497.LIO3'><time><value>1980-11-23T18:34:56.93Z</value></time><waveformID networkCode='IX' stationCode='LIO3' /></pick>
+<pick publicID='smi:org.presto/pi/343852497.NSC3'><time><value>1980-11-23T18:34:57.20Z</value></time><waveformID networkCode='IX' stationCode='NSC3' /></pick>
+<pick publicID='smi:org.presto/pi/343852497.RDM3'><time><value>1980-11-23T18:34:57.30Z</value></time><waveformID networkCode='IX' stationCode='RDM3' /></pick>
+<pick publicID='smi:org.presto/pi/343852498.SFL3'><time><value>1980-11-23T18:34:57.55Z</value></time><waveformID networkCode='IX' stationCode='SFL3' /></pick>
+<pick publicID='smi:org.presto/pi/343852498.CMP3'><time><value>1980-11-23T18:34:58.07Z</value></time><waveformID networkCode='IX' stationCode='CMP3' /></pick>
+<pick publicID='smi:org.presto/pi/343852498.RSF3'><time><value>1980-11-23T18:34:58.18Z</value></time><waveformID networkCode='IX' stationCode='RSF3' /></pick>
+<pick publicID='smi:org.presto/pi/343852498.PST3'><time><value>1980-11-23T18:34:58.25Z</value></time><waveformID networkCode='IX' stationCode='PST3' /></pick>
+<pick publicID='smi:org.presto/pi/343852499.BSC3'><time><value>1980-11-23T18:34:58.68Z</value></time><waveformID networkCode='IX' stationCode='BSC3' /></pick>
+<pick publicID='smi:org.presto/pi/343852499.BEL3'><time><value>1980-11-23T18:34:58.73Z</value></time><waveformID networkCode='IX' stationCode='BEL3' /></pick>
+<pick publicID='smi:org.presto/pi/343852499.MNT3'><time><value>1980-11-23T18:34:58.90Z</value></time><waveformID networkCode='IX' stationCode='MNT3' /></pick>
+<pick publicID='smi:org.presto/pi/343852499.VDP3'><time><value>1980-11-23T18:34:59.00Z</value></time><waveformID networkCode='IX' stationCode='VDP3' /></pick>
+<pick publicID='smi:org.presto/pi/343852500.CGG3'><time><value>1980-11-23T18:34:59.65Z</value></time><waveformID networkCode='IX' stationCode='CGG3' /></pick>
+<pick publicID='smi:org.presto/pi/343852500.AVG3'><time><value>1980-11-23T18:35:00.23Z</value></time><waveformID networkCode='IX' stationCode='AVG3' /></pick>
+<pick publicID='smi:org.presto/pi/343852500.SRN3'><time><value>1980-11-23T18:35:00.27Z</value></time><waveformID networkCode='IX' stationCode='SRN3' /></pick>
+<pick publicID='smi:org.presto/pi/343852500.SSB3'><time><value>1980-11-23T18:35:00.30Z</value></time><waveformID networkCode='IX' stationCode='SSB3' /></pick>
+<pick publicID='smi:org.presto/pi/343852501.STN3'><time><value>1980-11-23T18:35:01.23Z</value></time><waveformID networkCode='IX' stationCode='STN3' /></pick>
+<pick publicID='smi:org.presto/pi/343852503.PGN3'><time><value>1980-11-23T18:35:02.68Z</value></time><waveformID networkCode='IX' stationCode='PGN3' /></pick>
+<pick publicID='smi:org.presto/pi/343852504.MRN3'><time><value>1980-11-23T18:35:03.50Z</value></time><waveformID networkCode='IX' stationCode='MRN3' /></pick>
+</eventParameters>
+</q:quakeml>

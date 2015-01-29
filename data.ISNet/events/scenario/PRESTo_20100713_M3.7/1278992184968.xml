@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<q:quakeml xmlns='http://quakeml.org/xmlns/bed-rt/1.2' xmlns:q='http://quakeml.org/xmlns/quakeml-rt/1.2'>
+<eventParameters publicID='smi:org.presto/ew/1'>
+<event publicID='smi:org.presto/ev/0'><type>earthquake</type>
+<preferredOriginID>smi:org.presto/or/0</preferredOriginID>
+<preferredMagnitudeID>smi:org.presto/ma/0</preferredMagnitudeID>
+</event>
+<origin publicID='smi:org.presto/or/0'>
+	<time><value>2010-07-13T03:36:18.78Z</value></time>
+	<longitude><value>15.4597</value><uncertainty>0.00947985</uncertainty></longitude>
+	<latitude><value>40.601</value><uncertainty>0.0101747</uncertainty></latitude>
+	<depth><value>6367.2</value><uncertainty>3578.83</uncertainty></depth>
+</origin>
+<magnitude publicID='smi:org.presto/ma/0'><mag><value>3.6</value><lowerUncertainty>0.4</lowerUncertainty><upperUncertainty>0.4</upperUncertainty></mag></magnitude>
+<pick publicID='smi:org.presto/pi/1278992182.VDP3'><time><value>2010-07-13T03:36:21.70Z</value></time><waveformID networkCode='IX' stationCode='VDP3' /></pick>
+<pick publicID='smi:org.presto/pi/1278992182.CGG3'><time><value>2010-07-13T03:36:21.73Z</value></time><waveformID networkCode='IX' stationCode='CGG3' /></pick>
+<pick publicID='smi:org.presto/pi/1278992182.SCL3'><time><value>2010-07-13T03:36:21.95Z</value></time><waveformID networkCode='IX' stationCode='SCL3' /></pick>
+<pick publicID='smi:org.presto/pi/1278992182.SRN3'><time><value>2010-07-13T03:36:22.35Z</value></time><waveformID networkCode='IX' stationCode='SRN3' /></pick>
+<pick publicID='smi:org.presto/pi/1278992183.COL3'><time><value>2010-07-13T03:36:22.58Z</value></time><waveformID networkCode='IX' stationCode='COL3' /></pick>
+<pick publicID='smi:org.presto/pi/1278992183.VDS3'><time><value>2010-07-13T03:36:22.81Z</value></time><waveformID networkCode='IX' stationCode='VDS3' /></pick>
+<pick publicID='smi:org.presto/pi/1278992183.STN3'><time><value>2010-07-13T03:36:22.82Z</value></time><waveformID networkCode='IX' stationCode='STN3' /></pick>
+<pick publicID='smi:org.presto/pi/1278992183.PST3'><time><value>2010-07-13T03:36:23.34Z</value></time><waveformID networkCode='IX' stationCode='PST3' /></pick>
+<pick publicID='smi:org.presto/pi/1278992184.BEL3'><time><value>2010-07-13T03:36:23.71Z</value></time><waveformID networkCode='IX' stationCode='BEL3' /></pick>
+</eventParameters>
+</q:quakeml>

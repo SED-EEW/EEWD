@@ -258,9 +258,12 @@ public class EventBrowser extends javax.swing.JDialog
 
         File dir = getFile(node);
         if (dir != null) {
-            for (File f : dir.listFiles()) {
-                if (f.isDirectory()) {
-                    node.add(createNode(f));
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    if (f.isDirectory()) {
+                        node.add(createNode(f));
+                    }
                 }
             }
         }

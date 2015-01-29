@@ -526,6 +526,7 @@ public class Application implements QMLListener, ActionListener {
                 }
         );
 
+        setConnectionState("offline");
         openMapFrame.setVisible(true);
         mapPanel.getMapBean().showLayerPalettes();
         Debug.message("basic", "OpenMap: READY");

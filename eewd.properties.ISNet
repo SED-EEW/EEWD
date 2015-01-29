@@ -1,11 +1,11 @@
 # URL of the map properties file
-mapProperties = file:data/openmap.properties
+mapProperties = file:data.ISNet/openmap.properties
 
 # path to the log and scenario directory
-eventArchive = data/events
+eventArchive = data.ISNet/events
 
 # path to the target configuration file
-targetFile = data/targets.csv
+targetFile = data.ISNet/targets.csv
 
 # path to the target icon
 targetIcon = data/icons/target.png
@@ -14,8 +14,8 @@ targetIcon = data/icons/target.png
 showTargetName = true
 
 # radius of the blind zone surrounding a target in which the lead time of the
-# approaching S-wave is negative
-blindZoneRadius = 40
+# approaching S-wave is negative due to the processing time
+blindZoneRadius = 20
 
 # show all configured stations
 showStations = true
@@ -24,9 +24,9 @@ showStations = true
 showStationName = false
 
 # path to the station configuration file
-stationFile = data/stations.csv
+stationFile = data.ISNet/stations.csv
 
-# highlight stations contributing to the alert
+# highlight stations participating in an ongoing event
 showUsedStations = true
 
 # color the station according to the amplitude of the preferred shaking parameter
@@ -57,39 +57,39 @@ toFront = true
 alertSound = data/sound/event.wav
 
 # number of times to repeat alert sound, default = 0
-alertSoundLoop = 5
+alertSoundLoop = 10
 
 # countdown sound to play prior to S-Wave arrival
 countdownSound = data/sound/countdown.wav
 
 # number of seconds prior to S-wave arrival to start playing countdownSound
-countdownSeconds = 10.0
+countdownSeconds = 10.8
 
-# regional shaking scenario configuration file
-shakeMap.file = data/RegionalAmpliProxy.csv
+# shake map configuration file
+shakeMap.file = data.ISNet/RegionalAmpliProxy.csv
 
 # allowed values: PGA, PGV, PSA, DRS, Intensity
-shakeMap.parameter = Intensity
+shakeMap.parameter = PGV
 
 # minimum value to pin to the first color of the gradient
-shakeMap.minValue = 2
+shakeMap.minValue = 0.08
 
 # maximum value to pin to the last color of the gradient
-shakeMap.maxValue = 9
+shakeMap.maxValue = 28.0
 
 # use a logarithmic scale for distributing the shake map colors between minValue
 # and maxValue
-shakeMap.logScale = false
+shakeMap.logScale = true
 
 # path to the logo icon
 logoIcon = data/icons/reakt.png
 
 # ground motion implementations and parameters
-gmpe.pga.class = org.reakteu.eewd.gmpe.impl.Swiss
-gmpe.pgv.class = org.reakteu.eewd.gmpe.impl.Swiss
-gmpe.psa.class = org.reakteu.eewd.gmpe.impl.Swiss
+gmpe.pga.class = org.reakteu.eewd.gmpe.impl.ISNet
+gmpe.pgv.class = org.reakteu.eewd.gmpe.impl.ISNet
+#gmpe.psa.class = org.reakteu.eewd.gmpe.impl.ISNet
 #gmpe.psa.class = org.reakteu.eewd.gmpe.impl.LookupTable
-gmpe.drs.class = org.reakteu.eewd.gmpe.impl.Swiss
+#gmpe.drs.class = org.reakteu.eewd.gmpe.impl.ISNet
 #ipe.intensity.class = org.reakteu.eewd.ipe.impl.FC06
 
 # directory containing gmpe lookup tables, search names
@@ -104,18 +104,18 @@ lookupTable.dataDir = data/gmpe
 gmice.pgv.class = org.reakteu.eewd.gmice.impl.Swiss
 
 # used for PSA and DRS calculation
-controlPeriod = .5
+controlPeriod = 1
 
 # vector of spectral periods to compute PSA/DRS values visible in spectrum plot
 # NOTE: Make sure that the configured PSA/DRS implementation supports the configured periods
-spectrum.periods = 0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.4, 1, 2
+#spectrum.periods = 0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.4, 1, 2
 
 # use a logarithmic scale for the periods on the X-axis
 spectrum.logScale = true
 
 # reference values shown as green and red graph in spectrum plot
-spectrum.reference1 = 0.13, 0.16, 0.19, 0.25, 0.25, 0.25, 0.16, 0.061881188, 0.018021915
-spectrum.reference2 = 0.052, 0.064, 0.076, 0.1, 0.1, 0.1, 0.065, 0.024752475, 0.007208766
+spectrum.reference1 = 0.01, 0.025, 0.075, 0.1, 0.075, 0.05, 0.04, 0.03, 0.02
+spectrum.reference2 = 0.1, 0.25, 0.75, 1, 0.75, 0.5, 0.4, 0.3, 0.2
 
 # allowed values: PSA, DRS
 spectrum.parameter = PSA
@@ -123,29 +123,29 @@ spectrum.parameter = PSA
 # display periods as frequencies
 useFrequencies = true
 
-# calculate distances from hypocenter or epicenter
+# calculate distances in respected to hypocenter or epicenter
 # NOT YET IMPLEMENTED
 rIsHypocentral = true
 
-ampliProxyName = "deltaI"
+ampliProxyName = "VS30"
 
 radiusOfInfluence = 5
 stationDisplacementThreshold = 0.002
 stationTauCThreshold = 0.
 
 # minimum magnitude threshold
-#filter.minimumMagnitude = 3.0
+#filter.minimumMagnitude = 8.0
 
 # minimum likelihood threshold, if sets events without likelihood information
 # are ignored
 #filter.minimumLikelihood = 0.5
 
 # messaging connection parameters - please contact your EEW provider 
-#connection.host = 
-#connection.port = 
-#connection.topic = 
-#connection.username = 
-#connection.password = 
+connection.host = 
+connection.port = 
+connection.topic = 
+connection.username = 
+connection.password = 
 
 # interval in seconds a keep alive message is expected, if no message is
 # received a reconnect attempt is made, use 0 to deactivate this feature
