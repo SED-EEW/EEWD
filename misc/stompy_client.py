@@ -8,12 +8,13 @@ Created on Mar 10, 2014
 
 from stompy.simple import Client
 import sys, time, datetime
+import xml.etree.ElementTree as ET
 
 
 class AMQConnection:
 
     def __init__(self, host=None, port=None, topic=None, username=None,
-                 password=None):
+                 password=None, continuous=False):
         try:
             self.topic = topic
             self.username = username
@@ -25,6 +26,7 @@ class AMQConnection:
         except Exception, e:
             raise Exception('Cannot connect to message broker (%s@%s:%d): %s.'\
                                % (username, host, port, e))
+        self.continuous = continuous
 
     def send(self, msg):
         try:
@@ -32,13 +34,27 @@ class AMQConnection:
         except Exception, e:
                 raise Exception('Cannot reconnect to server: %s' % e)
 
-    def receive(self, f):
+    def receive(self, f, nohb=False):
         self.stomp.subscribe(self.topic)
-        while True:
+        if self.continuous:
+            while True:
+                message = self.stomp.get()
+                if nohb:
+                    tree = ET.fromstring(message.body)
+                    if tree.tag.endswith('hb'):
+                        pass
+                    else:
+                        print >> f, message.body
+                        print >> f, "{:-^80}".format("")
+                else:
+                    print >> f, message.body
+                    print >> f, "{:-^80}".format("")
+                time.sleep(1)
+            self.stomp.unsubscribe(self.topic)
+            self.stomp.disconnect()
+        else:
             message = self.stomp.get()
             print >> f, message.body
-            #self.stomp.ack(message)
-
         self.stomp.unsubscribe(self.topic)
         self.stomp.disconnect()
 
@@ -51,8 +67,12 @@ if __name__ == '__main__':
     parser.add_argument("-H", "--host", help="Server name that is running AMQ broker.", type=str)
     parser.add_argument("-P", "--port", help="STOMP port of AMQ broker.", type=int)
     parser.add_argument("-t", "--topic", help="AMQ topic to send message to.", type=str)
+    parser.add_argument("-c", help="Keep listening for messages instead of \
+    closing the connection after the first received message.", action='store_true')
     parser.add_argument("-f", "--file", help="input/output file (optional)", type=str)
     parser.add_argument("-i", "--interval", help="interval (s) to send heartbeat (optional)", type=int)
+    parser.add_argument("--nohb", help="When in 'receiver' mode ignore heartbeat messages.",
+                        action="store_true")
     args = parser.parse_args()
     if not args.user or not args.password or not args.host or \
        not args.port or not args.topic:
@@ -60,14 +80,14 @@ if __name__ == '__main__':
         sys.exit(1)
     client = AMQConnection(host=args.host, port=args.port,
                            topic='/topic/' + args.topic,
-                           username=args.user, password=args.password)
-
+                           username=args.user, password=args.password,
+                           continuous=args.c)
     if args.type == 'receiver':
         if args.file:
             f = open(args.file, 'w+')
         else:
             f = sys.stdout
-        client.receive(f)
+        client.receive(f, nohb=args.nohb)
     elif args.type == 'sender':
         data = '\nThis is a test message.\n'
         if args.file:
