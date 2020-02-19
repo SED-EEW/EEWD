@@ -20,10 +20,12 @@ import org.quakeml.xmlns.bedRt.x12.Pick;
 import org.quakeml.xmlns.bedRt.x12.RealQuantity;
 import org.quakeml.xmlns.bedRt.x12.TimeQuantity;
 import org.quakeml.xmlns.vstypes.x01.Likelihood;
+import org.quakeml.xmlns.vstypes.x01.Rupturestrike;
+import org.quakeml.xmlns.vstypes.x01.Rupturelength;
 
 /**
  *
- * @author Stephan Herrnkind <herrnkind@gempa.de>
+ * @author Stephan Herrnkind herrnkind at gempa dot de
  */
 public class EventData {
 
@@ -49,6 +51,8 @@ public class EventData {
     public final double depth;
     public final double magnitude;
     public final Float likelihood;
+    public final Float ruptureStrike;
+    public final Float ruptureLength;
 
     public EventParameters eventParameters = null;
 
@@ -64,6 +68,8 @@ public class EventData {
         this.depth = depth;
         this.magnitude = magnitude;
         this.likelihood = null;
+        this.ruptureStrike = null;
+        this.ruptureLength = null;
     }
 
     public EventData(EventParameters eventParameters, long offset,
@@ -139,6 +145,32 @@ public class EventData {
             }
         }
         likelihood = tmp;
+
+        // RuptureStrike
+        Float tmpstrike = null;
+        XmlObject[] objsstrike = event.selectChildren(Rupturestrike.type.getName());
+        if (objsstrike.length > 0) {
+            try {
+                Rupturestrike lstrike = Rupturestrike.Factory.parse(objsstrike[0].xmlText());
+                tmpstrike = lstrike.getFloatValue();
+            } catch (XmlException ex) {
+                LOG.warn("could not parse ruptureStrike");
+            }
+        }
+        ruptureStrike = tmpstrike;
+
+        // RuptureLength
+        Float tmplength = null;
+        XmlObject[] objslength = event.selectChildren(Rupturelength.type.getName());
+        if (objslength.length > 0) {
+            try {
+                Rupturelength llength = Rupturelength.Factory.parse(objslength[0].xmlText());
+                tmplength = llength.getFloatValue();
+            } catch (XmlException ex) {
+                LOG.warn("could not parse ruptureLength");
+            }
+        }
+        ruptureLength = tmplength;
 
         // station information
         if (stations == null || stations.isEmpty()) {
@@ -231,6 +263,8 @@ public class EventData {
         hash = 43 * hash + (int) (Double.doubleToLongBits(this.depth) ^ (Double.doubleToLongBits(this.depth) >>> 32));
         hash = 43 * hash + (int) (Double.doubleToLongBits(this.magnitude) ^ (Double.doubleToLongBits(this.magnitude) >>> 32));
         hash = 43 * hash + Objects.hashCode(this.likelihood);
+        hash = 43 * hash + Objects.hashCode(this.ruptureStrike);
+        hash = 43 * hash + Objects.hashCode(this.ruptureLength);
         hash = 43 * hash + (int) (Double.doubleToLongBits(this.latitudeUncertainty) ^ (Double.doubleToLongBits(this.latitudeUncertainty) >>> 32));
         hash = 43 * hash + (int) (Double.doubleToLongBits(this.longitudeUncertainty) ^ (Double.doubleToLongBits(this.longitudeUncertainty) >>> 32));
         hash = 43 * hash + Objects.hashCode(this.eventParameters);
@@ -267,6 +301,12 @@ public class EventData {
         if (!Objects.equals(this.likelihood, other.likelihood)) {
             return false;
         }
+        if (!Objects.equals(this.ruptureStrike, other.ruptureStrike)) {
+            return false;
+        }
+        if (!Objects.equals(this.ruptureLength, other.ruptureLength)) {
+            return false;
+        }
         if (Double.doubleToLongBits(this.latitudeUncertainty) != Double.doubleToLongBits(other.latitudeUncertainty)) {
             return false;
         }
@@ -281,6 +321,6 @@ public class EventData {
 
     @Override
     public String toString() {
-        return "EventData{" + "eventID=" + eventID + ", time=" + time + ", latitude=" + latitude + ", longitude=" + longitude + ", depth=" + depth + ", magnitude=" + magnitude + ", likelihood=" + likelihood + ", latitudeUncertainty=" + latitudeUncertainty + ", longitudeUncertainty=" + longitudeUncertainty + ", eventParameters=" + eventParameters + '}';
+        return "EventData{" + "eventID=" + eventID + ", time=" + time + ", latitude=" + latitude + ", longitude=" + longitude + ", depth=" + depth + ", magnitude=" + magnitude + ", likelihood=" + likelihood+ ", ruptureStrike=" + ruptureStrike+ ", ruptureLength=" + ruptureLength + ", latitudeUncertainty=" + latitudeUncertainty + ", longitudeUncertainty=" + longitudeUncertainty + ", eventParameters=" + eventParameters + '}';
     }
 }

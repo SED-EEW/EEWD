@@ -10,7 +10,9 @@
       <originReference>smi:ch.ethz.sed/event/Basel1650/origin/1</originReference>
       <type>earthquake</type>
       <vs:likelihood>1</vs:likelihood>
-    </event>
+      <vs:rupturelength>100</vs:rupturelength>
+      <vs:rupturestrike>45</vs:rupturestrike>
+  </event>
     
     <origin publicID="smi:ch.ethz.sed/event/Basel1650/origin/1">
       <time>

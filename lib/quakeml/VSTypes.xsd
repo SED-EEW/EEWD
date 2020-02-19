@@ -13,4 +13,20 @@
     </xs:annotation>
     <xs:restriction base="xs:float"/>
   </xs:simpleType>
+  <xs:simpleType name="rupturestrike">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Strike of the fault rupture from an early warning earthquake definition. In degrees.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:float"/>
+  </xs:simpleType>
+  <xs:simpleType name="rupturelength">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Length of the fault rupture from an early warning earthquake definition. In kilometers.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:float"/>
+  </xs:simpleType>
 </xs:schema>

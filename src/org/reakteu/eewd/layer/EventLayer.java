@@ -10,6 +10,7 @@ import com.bbn.openmap.omGraphics.OMEllipse;
 import com.bbn.openmap.omGraphics.OMGraphicAdapter;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMRaster;
+import com.bbn.openmap.omGraphics.OMLine;
 import com.bbn.openmap.proj.Length;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 import java.awt.AlphaComposite;
@@ -38,7 +39,7 @@ import org.reakteu.eewd.utils.RomanNumber;
 
 /**
  *
- * @author Stephan Herrnkind <herrnkind@gempa.de>
+ * @author Stephan Herrnkind herrnkind at gempa dot de
  */
 public class EventLayer extends OMGraphicHandlerLayer implements EventTimeListener {
 
@@ -162,6 +163,23 @@ public class EventLayer extends OMGraphicHandlerLayer implements EventTimeListen
         }
 
         list.add(symbol);
+        
+        // source line
+        if (event.ruptureLength != null && event.ruptureStrike != null) {
+            double strikeRad = Math.toRadians(event.ruptureStrike);
+            double cosstrike = Math.cos(strikeRad);
+            double sinstrike = Math.sin(strikeRad);
+            symbol = new OMLine(event.latitude - event.ruptureLength / 220.0 * cosstrike, 
+                                event.longitude - event.ruptureLength / 220.0 * sinstrike,
+                                event.latitude + event.ruptureLength / 220.0 * cosstrike, 
+                                event.longitude + event.ruptureLength / 220.0 * sinstrike,
+                                OMLine.LINETYPE_STRAIGHT);
+            symbol.setLinePaint(CLocationLine);
+            //symbol.setLinePaint(Color.BLACK);
+            symbol.setStroke(new BasicStroke(3));
+            list.add(symbol);
+        }
+
         if (event.latitudeUncertainty > 0.0 && event.longitudeUncertainty > 0.0) {
             symbol = new OMEllipse(new LatLonPoint.Double(event.latitude, event.longitude),
                                    event.longitudeUncertainty, event.latitudeUncertainty,
