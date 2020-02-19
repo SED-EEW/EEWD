@@ -6,7 +6,7 @@ package org.reakteu.eewd.utils;
 
 /**
  *
- * @author Stephan Herrnkind <herrnkind@gempa.de>
+ * @author Stephan Herrnkind herrnkind at gempa dot de
  */
 public class RomanNumber {
 

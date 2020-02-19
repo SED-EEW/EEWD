@@ -28,7 +28,7 @@ import org.reakteu.eewd.utils.RomanNumber;
 
 /**
  *
- * @author Stephan Herrnkind <herrnkind@gempa.de>
+ * @author Stephan Herrnkind herrnkind at gempa dot de
  */
 public class EventPanel extends javax.swing.JPanel implements EventTimeListener {
 

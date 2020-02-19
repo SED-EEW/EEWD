@@ -15,7 +15,7 @@ import org.apache.logging.log4j.Logger;
 
 /**
  *
- * @author Stephan Herrnkind <herrnkind@gempa.de>
+ * @author Stephan Herrnkind herrnkind at gempa dot de
  */
 public class MainPanel extends OMComponentPanel {
 

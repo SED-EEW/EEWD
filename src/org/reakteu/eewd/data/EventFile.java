@@ -19,7 +19,7 @@ import org.quakeml.xmlns.quakemlRt.x12.QuakemlDocument;
 
 /**
  *
- * @author Stephan Herrnkind <herrnkind@gempa.de>
+ * @author Stephan Herrnkind herrnkind at gempa dot de
  */
 public class EventFile {
 

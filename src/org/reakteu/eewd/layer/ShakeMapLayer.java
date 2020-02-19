@@ -30,7 +30,7 @@ import org.reakteu.eewd.utils.Gradient;
 
 /**
  *
- * @author Stephan Herrnkind <herrnkind@gempa.de>
+ * @author Stephan Herrnkind herrnkind at gempa dot de
  */
 public class ShakeMapLayer extends OMGraphicHandlerLayer implements
         ActionListener {

@@ -6,7 +6,7 @@ package org.reakteu.eewd.data;
 
 /**
  *
- * @author Stephan Herrnkind <herrnkind@gempa.de>
+ * @author Stephan Herrnkind herrnkind at gempa dot de
  */
 public class Shaking {
 

@@ -21,7 +21,7 @@ import org.reakteu.eewd.utils.GeoCalc;
 
 /**
  *
- * @author Stephan Herrnkind <herrnkind@gempa.de>
+ * @author Stephan Herrnkind herrnkind at gempa dot de
  */
 public class LookupTable implements AttenuationPGA, AttenuationPGV, AttenuationPSA, AttenuationDRS {
 

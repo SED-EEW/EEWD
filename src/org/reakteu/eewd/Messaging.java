@@ -28,7 +28,7 @@ import org.reakteu.heartbeat.HbDocument;
 
 /**
  *
- * @author Stephan Herrnkind <herrnkind@gempa.de>
+ * @author Stephan Herrnkind herrnkind at gempa dot de
  */
 public class Messaging implements Listener, Runnable {
 

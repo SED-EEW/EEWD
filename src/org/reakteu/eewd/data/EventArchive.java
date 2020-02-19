@@ -25,7 +25,7 @@ import static org.reakteu.eewd.Application.PropertyEventArchive;
 
 /**
  *
- * @author Stephan Herrnkind <herrnkind@gempa.de>
+ * @author Stephan Herrnkind herrnkind at gempa dot de
  */
 public class EventArchive {
 

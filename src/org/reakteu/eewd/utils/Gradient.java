@@ -10,7 +10,7 @@ import java.util.TreeMap;
 
 /**
  *
- * @author Stephan Herrnkind <herrnkind@gempa.de>
+ * @author Stephan Herrnkind herrnkind at gempa dot de
  */
 public class Gradient extends TreeMap<Double, Color> {
 

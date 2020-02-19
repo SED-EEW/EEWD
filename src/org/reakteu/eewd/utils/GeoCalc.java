@@ -8,7 +8,7 @@ package org.reakteu.eewd.utils;
  * Provides conversion and distance calculations on geodetic and Cartesian
  * coordinates
  *
- * @author Stephan Herrnkind <herrnkind@gempa.de>
+ * @author Stephan Herrnkind herrnkind at gempa dot de
  */
 public class GeoCalc {
 

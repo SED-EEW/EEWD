@@ -23,7 +23,7 @@ import org.reakteu.eewd.layer.ShakeMapLayer;
 
 /**
  *
- * @author Stephan Herrnkind <herrnkind@gempa.de>
+ * @author Stephan Herrnkind herrnkind at gempa dot de
  */
 public class ShakingCalculator implements Runnable {
 

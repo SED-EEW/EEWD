@@ -33,7 +33,7 @@ import org.quakeml.xmlns.bedRt.x12.EventParameters;
 
 /**
  *
- * @author Stephan Herrnkind <herrnkind@gempa.de>
+ * @author Stephan Herrnkind herrnkind at gempa dot de
  */
 public class EventBrowser extends javax.swing.JDialog
         implements ActionListener, TreeSelectionListener, TreeExpansionListener {

@@ -16,7 +16,7 @@ import org.reakteu.eewd.Application;
 
 /**
  *
- * @author Stephan Herrnkind <herrnkind@gempa.de>
+ * @author Stephan Herrnkind herrnkind at gempa dot de
  */
 public class LogoLayer extends OMGraphicHandlerLayer {
 

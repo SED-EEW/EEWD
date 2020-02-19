@@ -25,7 +25,7 @@ import org.reakteu.eewd.data.Shaking;
 
 /**
  *
- * @author Stephan Herrnkind <herrnkind@gempa.de>
+ * @author Stephan Herrnkind herrnkind at gempa dot de
  */
 @SuppressWarnings("serial")
 public class SpectrumPlot extends JPanel {

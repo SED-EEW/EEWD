@@ -32,7 +32,7 @@ import org.reakteu.eewd.data.EventTimeListener;
 
 /**
  *
- * @author Stephan Herrnkind <herrnkind@gempa.de>
+ * @author Stephan Herrnkind herrnkind at gempa dot de
  */
 public class StationLayer extends OMGraphicHandlerLayer
         implements MapMouseListener, EventTimeListener {
