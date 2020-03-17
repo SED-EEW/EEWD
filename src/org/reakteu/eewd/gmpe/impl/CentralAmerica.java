@@ -28,7 +28,9 @@ public class CentralAmerica implements AttenuationPGA, AttenuationPSA, Attenuati
 			double sourceDepthM, double targetLat, double targetLon,
 			double targetElevM, String amplificationType,
 			double amplificationProxyValueSI,
-			EventParameters eventParameters) {
+			EventParameters eventParameters,
+            Float ruptureLength,
+            Float ruptureStrike) {
 
 		//compute hypodepth in km
 		double depth = sourceDepthM / 1000; //depth in km
@@ -42,12 +44,12 @@ public class CentralAmerica implements AttenuationPGA, AttenuationPSA, Attenuati
 		Cli94 cli94 = new Cli94();
 		Shaking PGA_Cli94 = cli94.getPGA(magnitude, sourceLat, sourceLon, sourceDepthM,
 				targetLat, targetLon, targetElevM,
-				amplificationType, amplificationProxyValueSI, null);
+				amplificationType, amplificationProxyValueSI, null, ruptureLength, ruptureStrike);
 
 		ZEA06ASC zea06asc = new ZEA06ASC();
 		Shaking PGA_zea06asc = zea06asc.getPGA(magnitude, sourceLat, sourceLon, sourceDepthM,
 				targetLat, targetLon, targetElevM,
-				amplificationType, amplificationProxyValueSI, null);
+				amplificationType, amplificationProxyValueSI, null, ruptureLength, ruptureStrike);
 
 		PGA.expectedSI = 0.5 * (PGA_Cli94.expectedSI + PGA_zea06asc.expectedSI);
 		PGA.percentile16 = 0.5 * (PGA_Cli94.percentile16 + PGA_zea06asc.percentile16);
@@ -59,7 +61,7 @@ public class CentralAmerica implements AttenuationPGA, AttenuationPSA, Attenuati
 			YOU97IFC you97ifc = new YOU97IFC();
 			PGA = you97ifc.getPGA(magnitude, sourceLat, sourceLon, sourceDepthM,
 					targetLat, targetLon, targetElevM,
-					amplificationType, amplificationProxyValueSI, null);
+					amplificationType, amplificationProxyValueSI, null, ruptureLength, ruptureStrike);
 
 			//        double accelerationToDisplacement = period * period / PI2_4;
 			//        PSA.expectedSI *= accelerationToDisplacement;
@@ -75,12 +77,12 @@ public class CentralAmerica implements AttenuationPGA, AttenuationPSA, Attenuati
 			YOU97ITS you97its = new YOU97ITS();
 			Shaking PGA_you97its = you97its.getPGA(magnitude, sourceLat, sourceLon, sourceDepthM,
 					targetLat, targetLon, targetElevM,
-					amplificationType, amplificationProxyValueSI, null);
+					amplificationType, amplificationProxyValueSI, null, ruptureLength, ruptureStrike);
 
 			ZEA06ITS zea06its = new ZEA06ITS();
 			Shaking PGA_zea06its = zea06its.getPGA(magnitude, sourceLat, sourceLon, sourceDepthM,
 					targetLat, targetLon, targetElevM,
-					amplificationType, amplificationProxyValueSI, null);
+					amplificationType, amplificationProxyValueSI, null, ruptureLength, ruptureStrike);
 
 			PGA.expectedSI = 0.5 * (PGA_you97its.expectedSI + PGA_zea06its.expectedSI);
 			PGA.percentile16 = 0.5 * (PGA_you97its.percentile16 + PGA_zea06its.percentile16);
@@ -101,7 +103,9 @@ public class CentralAmerica implements AttenuationPGA, AttenuationPSA, Attenuati
 			double sourceDepthM, double targetLat, double targetLon,
 			double targetElevM, String amplificationType,
 			double amplificationProxyValueSI, double period,
-			EventParameters eventML) {
+			EventParameters eventML,
+            Float ruptureLength,
+            Float ruptureStrike) {
 
 		//compute hypodepth in km
 		double depth = sourceDepthM / 1000; //depth in km
@@ -116,13 +120,13 @@ public class CentralAmerica implements AttenuationPGA, AttenuationPSA, Attenuati
 		Shaking PSA_Cli94 = cli94.getPSA(magnitude, sourceLat, sourceLon, sourceDepthM,
 				targetLat, targetLon, targetElevM,
 				amplificationType, amplificationProxyValueSI,
-				period, eventML);
+				period, eventML, ruptureLength, ruptureStrike);
 
 		ZEA06ASC zea06asc = new ZEA06ASC();
 		Shaking PSA_zea06asc = zea06asc.getPSA(magnitude, sourceLat, sourceLon, sourceDepthM,
 				targetLat, targetLon, targetElevM,
 				amplificationType, amplificationProxyValueSI,
-				period, eventML);
+				period, eventML, ruptureLength, ruptureStrike);
 
 		PSA.expectedSI = 0.5 * (PSA_Cli94.expectedSI + PSA_zea06asc.expectedSI);
 		PSA.percentile16 = 0.5 * (PSA_Cli94.percentile16 + PSA_zea06asc.percentile16);
@@ -135,7 +139,7 @@ public class CentralAmerica implements AttenuationPGA, AttenuationPSA, Attenuati
 			PSA = you97ifc.getPSA(magnitude, sourceLat, sourceLon, sourceDepthM,
 					targetLat, targetLon, targetElevM,
 					amplificationType, amplificationProxyValueSI,
-					period, eventML);
+					period, eventML, ruptureLength, ruptureStrike);
 
 			//        double accelerationToDisplacement = period * period / PI2_4;
 			//        PSA.expectedSI *= accelerationToDisplacement;
@@ -152,13 +156,13 @@ public class CentralAmerica implements AttenuationPGA, AttenuationPSA, Attenuati
 			Shaking PSA_you97its = you97its.getPSA(magnitude, sourceLat, sourceLon, sourceDepthM,
 					targetLat, targetLon, targetElevM,
 					amplificationType, amplificationProxyValueSI,
-					period, eventML);
+					period, eventML, ruptureLength, ruptureStrike);
 
 			ZEA06ITS zea06its = new ZEA06ITS();
 			Shaking PSA_zea06its = zea06its.getPSA(magnitude, sourceLat, sourceLon, sourceDepthM,
 					targetLat, targetLon, targetElevM,
 					amplificationType, amplificationProxyValueSI,
-					period, eventML);
+					period, eventML, ruptureLength, ruptureStrike);
 
 			PSA.expectedSI = 0.5 * (PSA_you97its.expectedSI + PSA_zea06its.expectedSI);
 			PSA.percentile16 = 0.5 * (PSA_you97its.percentile16 + PSA_zea06its.percentile16);
@@ -180,12 +184,14 @@ public class CentralAmerica implements AttenuationPGA, AttenuationPSA, Attenuati
 			double sourceDepthM, double targetLat, double targetLon,
 			double targetElevM, String amplificationType,
 			double amplificationProxyValueSI, double period,
-			EventParameters eventML) {
+			EventParameters eventML,
+            Float ruptureLength,
+            Float ruptureStrike) {
 
 		Shaking PSA = getPSA(magnitude, sourceLat, sourceLon, sourceDepthM,
 				targetLat, targetLon, targetElevM,
 				amplificationType, amplificationProxyValueSI,
-				period, null);
+				period, null, ruptureLength, ruptureStrike);
 
 		double accelerationToDisplacement = period * period / PI2_4;
 		PSA.expectedSI *= accelerationToDisplacement;

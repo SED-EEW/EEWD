@@ -430,7 +430,7 @@ public class Application implements QMLListener, ActionListener {
      * use the standard OpenMap application, you could add these components to
      * the MapHandler, instead.
      *
-     * @param propertyHandler
+     * @param propertyHandler no description
      */
     protected void configureMapPanel(PropertyHandler propertyHandler) {
         OverlayMapPanel overlayMapPanel = new OverlayMapPanel(propertyHandler, true);
@@ -773,7 +773,7 @@ public class Application implements QMLListener, ActionListener {
     /**
      * The main OpenMap application.
      *
-     * @param args
+     * @param args no description
      */
     static public void main(String args[]) {
         System.setProperty("user.timezone", "UTC");

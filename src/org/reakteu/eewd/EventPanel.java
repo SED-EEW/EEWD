@@ -435,7 +435,7 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
     /**
      * Creates new form EventPanel1
      *
-     * @param targets
+     * @param targets target points
      */
     public EventPanel(List<POI> targets) {
         Application app = Application.getInstance();
@@ -592,9 +592,29 @@ public class EventPanel extends javax.swing.JPanel implements EventTimeListener 
                 timeRemainingLabel.setText("-");
                 distanceLabel.setText("-");
             } else {
-                double[] pEvent = GeoCalc.Geo2Cart(event.latitude, event.longitude, -event.depth);
-                double[] pTarget = GeoCalc.Geo2Cart(target.latitude, target.longitude, target.altitude);
-                double distance = GeoCalc.Distance3D(pEvent, pTarget);
+                // double[] pEvent = GeoCalc.Geo2Cart(event.latitude, event.longitude, -event.depth); deprecated
+                // double[] pTarget = GeoCalc.Geo2Cart(target.latitude, target.longitude, target.altitude); deprecated
+                double[] pEvent = {event.latitude, event.longitude, -event.depth};
+                double[] pTarget = {target.latitude, target.longitude, target.altitude};
+                // double distance = GeoCalc.Distance3D(pEvent, pTarget); deprecated
+                //double distance = GeoCalc.Distance3DDegToM(pEvent, pTarget);
+                double distance;
+                
+                if (event.ruptureLength != null) {
+                	
+                	double[] lExtremes = GeoCalc.CentroidToExtremes(event.ruptureStrike, event.ruptureLength, event.longitude, event.latitude, -event.depth);
+                    double[] start = {lExtremes[1],lExtremes[0],lExtremes[2]};
+                    double[] end = {lExtremes[4],lExtremes[3],lExtremes[5]};
+                    double[] current = {pTarget[0],pTarget[1]};
+                    double d = GeoCalc.DistanceFromLine(start, end, current);
+                    distance = Math.sqrt(d * d + (event.depth + target.altitude) * (event.depth + target.altitude));
+                     
+                    
+                } else {
+                
+                	distance = GeoCalc.Distance3DDegToM(pEvent, pTarget);
+                }
+                
                 double eta = distance / vs - originTimeOffset;
                 timeRemainingLabel.setText(String.format("%d", (int) (eta / 1000.0)));
                 distanceLabel.setText(String.format("%dkm", (int) (distance / 1000.0)));

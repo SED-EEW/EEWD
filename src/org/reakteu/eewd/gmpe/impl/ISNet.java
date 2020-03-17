@@ -22,11 +22,34 @@ public class ISNet implements AttenuationPGA, AttenuationPGV {
                           double sourceDepthM, double targetLat, double targetLon,
                           double targetElevM, String amplificationType,
                           double amplificationProxyValueSI,
-                          EventParameters eventParameters) {
-        // Compute hypocentral distance
-        double[] pEvent = GeoCalc.Geo2Cart(sourceLat, sourceLon, -sourceDepthM);
-        double[] pTarget = GeoCalc.Geo2Cart(targetLat, targetLon, targetElevM);
-        double distance = GeoCalc.Distance3D(pEvent, pTarget);
+                          EventParameters eventParameters,
+                          Float ruptureLength,
+                          Float ruptureStrike) {
+    	// Compute distance
+        //double[] pEvent = GeoCalc.Geo2Cart(sourceLat, sourceLon, -sourceDepthM); deprecated
+        //double[] pTarget = GeoCalc.Geo2Cart(targetLat, targetLon, targetElevM); deprectaed
+        
+        double[] pEvent = {sourceLat, sourceLon, -sourceDepthM};
+        double[] pTarget = {targetLat, targetLon, targetElevM};
+        
+        
+        double distance;
+        
+        if (ruptureLength != null) {
+        	
+        	double[] lExtremes = GeoCalc.CentroidToExtremes(ruptureStrike, ruptureLength, sourceLon, sourceLat, -sourceDepthM);
+            double[] start = {lExtremes[1],lExtremes[0],lExtremes[2]};
+            double[] end = {lExtremes[4],lExtremes[3],lExtremes[5]};
+            double[] current = {pTarget[0],pTarget[1]};
+            double d = GeoCalc.DistanceFromLine(start, end, current);
+            distance = Math.sqrt(d * d + (sourceDepthM + targetElevM) * (sourceDepthM + targetElevM));
+             
+            
+        } else {
+        
+        	distance = GeoCalc.Distance3DDegToM(pEvent, pTarget);
+        }
+
 
         double R = distance / 1000; // in kilometers
 
@@ -56,11 +79,34 @@ public class ISNet implements AttenuationPGA, AttenuationPGV {
                           double sourceDepthM, double targetLat, double targetLon,
                           double targetElevM, String amplificationType,
                           double amplificationProxyValueSI,
-                          EventParameters eventParameters) {
-        // Compute hypocentral distance
-        double[] pEvent = GeoCalc.Geo2Cart(sourceLat, sourceLon, -sourceDepthM);
-        double[] pTarget = GeoCalc.Geo2Cart(targetLat, targetLon, targetElevM);
-        double distance = GeoCalc.Distance3D(pEvent, pTarget);
+                          EventParameters eventParameters,
+                          Float ruptureLength,
+                          Float ruptureStrike) {
+    	// Compute distance
+        //double[] pEvent = GeoCalc.Geo2Cart(sourceLat, sourceLon, -sourceDepthM); deprecated
+        //double[] pTarget = GeoCalc.Geo2Cart(targetLat, targetLon, targetElevM); deprectaed
+        
+        double[] pEvent = {sourceLat, sourceLon, -sourceDepthM};
+        double[] pTarget = {targetLat, targetLon, targetElevM};
+        
+        
+        double distance;
+        
+        if (ruptureLength != null) {
+        	
+        	double[] lExtremes = GeoCalc.CentroidToExtremes(ruptureStrike, ruptureLength, sourceLon, sourceLat, -sourceDepthM);
+            double[] start = {lExtremes[1],lExtremes[0],lExtremes[2]};
+            double[] end = {lExtremes[4],lExtremes[3],lExtremes[5]};
+            double[] current = {pTarget[0],pTarget[1]};
+            double d = GeoCalc.DistanceFromLine(start, end, current);
+            distance = Math.sqrt(d * d + (sourceDepthM + targetElevM) * (sourceDepthM + targetElevM));
+             
+            
+        } else {
+        
+        	distance = GeoCalc.Distance3DDegToM(pEvent, pTarget);
+        }
+
 
         double R = distance / 1000; // in kilometers
 

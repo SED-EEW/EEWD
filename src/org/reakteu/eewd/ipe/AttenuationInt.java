@@ -13,6 +13,8 @@ public interface AttenuationInt {
                           double sourceDepthM, double targetLat, double targetLon,
                           double targetElevM, String amplificationType,
                           double amplificationProxyValueSI,
-                          EventParameters eventParameters);
+                          EventParameters eventParameters,
+                          Float ruptureLength,
+                          Float ruptureStrike);
 
 }

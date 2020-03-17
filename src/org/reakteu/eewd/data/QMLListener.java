@@ -13,7 +13,7 @@ import org.quakeml.xmlns.bedRt.x12.EventParameters;
 public interface QMLListener {
 
     /**
-     * @param eventParameters
+     * @param eventParameters Event parameters
      * @param offset Time in milliseconds to add to the origin time. Used in
      * scenario replay and set to 0 for actual events received through
      * messaging.

@@ -166,13 +166,15 @@ public class EventLayer extends OMGraphicHandlerLayer implements EventTimeListen
         
         // source line
         if (event.ruptureLength != null && event.ruptureStrike != null) {
+        	double scale = GeoCalc.Haversine (event.latitude, event.longitude, event.latitude+0.7071, event.longitude+0.7071) / 1000;
+        	
             double strikeRad = Math.toRadians(event.ruptureStrike);
             double cosstrike = Math.cos(strikeRad);
             double sinstrike = Math.sin(strikeRad);
-            symbol = new OMLine(event.latitude - event.ruptureLength / 220.0 * cosstrike, 
-                                event.longitude - event.ruptureLength / 220.0 * sinstrike,
-                                event.latitude + event.ruptureLength / 220.0 * cosstrike, 
-                                event.longitude + event.ruptureLength / 220.0 * sinstrike,
+            symbol = new OMLine(event.latitude - event.ruptureLength / (2 * scale) * cosstrike, 
+                                event.longitude - event.ruptureLength / (2 * scale) * sinstrike,
+                                event.latitude + event.ruptureLength / (2 * scale) * cosstrike, 
+                                event.longitude + event.ruptureLength / (2 * scale) * sinstrike,
                                 OMLine.LINETYPE_STRAIGHT);
             symbol.setLinePaint(CLocationLine);
             //symbol.setLinePaint(Color.BLACK);
@@ -200,9 +202,29 @@ public class EventLayer extends OMGraphicHandlerLayer implements EventTimeListen
         String shaking = "-";
         if (target != null) {
             if (originTimeOffset != null) {
-                double[] pEvent = GeoCalc.Geo2Cart(event.latitude, event.longitude, -event.depth);
-                double[] pTarget = GeoCalc.Geo2Cart(target.latitude, target.longitude, target.altitude);
-                double d = GeoCalc.Distance3D(pEvent, pTarget);
+            	// double[] pEvent = GeoCalc.Geo2Cart(event.latitude, event.longitude, -event.depth); deprecated
+                // double[] pTarget = GeoCalc.Geo2Cart(target.latitude, target.longitude, target.altitude); deprecated
+                double[] pEvent = {event.latitude, event.longitude, -event.depth};
+                double[] pTarget = {target.latitude, target.longitude, target.altitude};
+                // double d = GeoCalc.Distance3D(pEvent, pTarget); deprecated
+                //double d = GeoCalc.Distance3DDegToM(pEvent, pTarget);
+                double d;
+                
+                if (event.ruptureLength != null) {
+                	
+                	double[] lExtremes = GeoCalc.CentroidToExtremes(event.ruptureStrike, event.ruptureLength, event.longitude, event.latitude, -event.depth);
+                    double[] start = {lExtremes[1],lExtremes[0],lExtremes[2]};
+                    double[] end = {lExtremes[4],lExtremes[3],lExtremes[5]};
+                    double[] current = {pTarget[0],pTarget[1]};
+                    double di = GeoCalc.DistanceFromLine(start, end, current);
+                    d = Math.sqrt(di * di + (event.depth + target.altitude) * (event.depth + target.altitude));
+                     
+                    
+                } else {
+                
+                	d = GeoCalc.Distance3DDegToM(pEvent, pTarget);
+                }
+                
                 double eta = d / vs - originTimeOffset;
                 remaining = String.format("%d", (int) (eta / 1000.0));
                 distance = String.format("distance: %dkm", (int) (d / 1000.0));

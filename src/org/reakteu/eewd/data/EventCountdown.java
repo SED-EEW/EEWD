@@ -100,9 +100,12 @@ public class EventCountdown implements Runnable {
             return;
         }
 
-        double[] pEvent = GeoCalc.Geo2Cart(event.latitude, event.longitude, -event.depth);
-        double[] pTarget = GeoCalc.Geo2Cart(target.latitude, target.longitude, target.altitude);
-        double d = GeoCalc.Distance3D(pEvent, pTarget);
+        // double[] pEvent = GeoCalc.Geo2Cart(event.latitude, event.longitude, -event.depth); deprecated
+        // double[] pTarget = GeoCalc.Geo2Cart(target.latitude, target.longitude, target.altitude); deprecated
+        double[] pEvent = {event.latitude, event.longitude, -event.depth};
+        double[] pTarget = {target.latitude, target.longitude, target.altitude};
+        // double d = GeoCalc.Distance3D(pEvent, pTarget); deprecated
+        double d = GeoCalc.Distance3DDegToM(pEvent, pTarget);        
         long eta = event.time + (long) (d / vs);
 
         if (lastETA > 0 && Math.abs(lastETA - eta) < maxJitter) {

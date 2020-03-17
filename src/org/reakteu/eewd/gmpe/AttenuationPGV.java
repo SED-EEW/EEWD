@@ -6,6 +6,7 @@ package org.reakteu.eewd.gmpe;
 
 import org.reakteu.eewd.data.Shaking;
 import org.quakeml.xmlns.bedRt.x12.EventParameters;
+import org.reakteu.eewd.data.EventData;
 
 public interface AttenuationPGV {
 
@@ -13,6 +14,8 @@ public interface AttenuationPGV {
                           double sourceDepthM, double targetLat, double targetLon,
                           double targetElevM, String amplificationType,
                           double amplificationProxyValueSI,
-                          EventParameters eventParameters);
+                          EventParameters eventParameters,
+                          Float ruptureLength,
+                          Float ruptureStrike);
 
 }

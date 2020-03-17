@@ -174,7 +174,9 @@ public class ShakingCalculator implements Runnable {
                                 event.magnitude, event.latitude, event.longitude,
                                 event.depth, target.latitude, target.longitude,
                                 target.altitude, ampliProxyName, target.amplification,
-                                event.eventParameters);
+                                event.eventParameters,
+                                event.ruptureLength,
+                                event.ruptureStrike);
                         target.shakingValues.put(Shaking.Type.PGA, s);
                         if (gmpeInt == null && gmicePGA != null) {
                             s = gmicePGA.getIntensityFromAcceleration(s);
@@ -186,7 +188,9 @@ public class ShakingCalculator implements Runnable {
                                 event.magnitude, event.latitude, event.longitude,
                                 event.depth, target.latitude, target.longitude,
                                 target.altitude, ampliProxyName, target.amplification,
-                                event.eventParameters);
+                                event.eventParameters,
+                                event.ruptureLength,
+                                event.ruptureStrike);
                         target.shakingValues.put(Shaking.Type.PGV, s);
                         if (gmpeInt == null && gmicePGV != null) {
                             s = gmicePGV.getIntensityFromVelocity(s);
@@ -199,7 +203,9 @@ public class ShakingCalculator implements Runnable {
                                     event.magnitude, event.latitude, event.longitude,
                                     event.depth, target.latitude, target.longitude,
                                     target.altitude, ampliProxyName, target.amplification,
-                                    controlPeriod, event.eventParameters);
+                                    controlPeriod, event.eventParameters,
+                                    event.ruptureLength,
+                                    event.ruptureStrike);
                             target.shakingValues.put(Shaking.Type.PSA, s);
                         }
                         if (app.getSpectrumParameter() == Shaking.Type.PSA) {
@@ -208,7 +214,9 @@ public class ShakingCalculator implements Runnable {
                                         event.magnitude, event.latitude, event.longitude,
                                         event.depth, target.latitude, target.longitude,
                                         target.altitude, ampliProxyName, target.amplification,
-                                        p, event.eventParameters));
+                                        p, event.eventParameters,
+                                        event.ruptureLength,
+                                        event.ruptureStrike));
                             }
                         }
                     }
@@ -218,7 +226,9 @@ public class ShakingCalculator implements Runnable {
                                     event.magnitude, event.latitude, event.longitude,
                                     event.depth, target.latitude, target.longitude,
                                     target.altitude, ampliProxyName, target.amplification,
-                                    controlPeriod, event.eventParameters);
+                                    controlPeriod, event.eventParameters,
+                                    event.ruptureLength,
+                                    event.ruptureStrike);
                             target.shakingValues.put(Shaking.Type.DRS, s);
                         }
                         if (app.getSpectrumParameter() == Shaking.Type.DRS) {
@@ -227,7 +237,9 @@ public class ShakingCalculator implements Runnable {
                                         event.magnitude, event.latitude, event.longitude,
                                         event.depth, target.latitude, target.longitude,
                                         target.altitude, ampliProxyName, target.amplification,
-                                        p, event.eventParameters));
+                                        p, event.eventParameters,
+                                        event.ruptureLength,
+                                        event.ruptureStrike));
                             }
                         }
                     }
@@ -254,7 +266,9 @@ public class ShakingCalculator implements Runnable {
                                 event.magnitude, event.latitude, event.longitude,
                                 event.depth, p.latitude, p.longitude, p.altitude,
                                 ampliProxyName, p.amplification,
-                                event.eventParameters).expectedSI * Application.EarthAcceleration1;
+                                event.eventParameters,
+                                event.ruptureLength,
+                                event.ruptureStrike).expectedSI * Application.EarthAcceleration1;
                     }
                 } else if (shakeMapParameter == Shaking.Type.PGV && gmpePGV != null) {
                     for (ShakeMapLayer.Point p : shakeMap.getPoints()) {
@@ -262,7 +276,9 @@ public class ShakingCalculator implements Runnable {
                                 event.magnitude, event.latitude, event.longitude,
                                 event.depth, p.latitude, p.longitude, p.altitude,
                                 ampliProxyName, p.amplification,
-                                event.eventParameters).expectedSI * 100;
+                                event.eventParameters,
+                                event.ruptureLength,
+                                event.ruptureStrike).expectedSI * 100;
                     }
                 } else if (shakeMapParameter == Shaking.Type.PSA && gmpePSA != null) {
                     if (controlPeriod != null) {
@@ -271,7 +287,9 @@ public class ShakingCalculator implements Runnable {
                                     event.magnitude, event.latitude, event.longitude,
                                     event.depth, p.latitude, p.longitude, p.altitude,
                                     ampliProxyName, p.amplification, controlPeriod,
-                                    event.eventParameters).expectedSI * Application.EarthAcceleration1;
+                                    event.eventParameters,
+                                    event.ruptureLength,
+                                    event.ruptureStrike).expectedSI * Application.EarthAcceleration1;
                         }
                     }
                 } else if (shakeMapParameter == Shaking.Type.DRS && gmpeDRS != null) {
@@ -281,7 +299,9 @@ public class ShakingCalculator implements Runnable {
                                     event.magnitude, event.latitude, event.longitude,
                                     event.depth, p.latitude, p.longitude, p.altitude,
                                     ampliProxyName, p.amplification, controlPeriod,
-                                    event.eventParameters).expectedSI * 100;
+                                    event.eventParameters,
+                                    event.ruptureLength,
+                                    event.ruptureStrike).expectedSI * 100;
                         }
                     }
                 } else if (shakeMapParameter == Shaking.Type.Intensity) {
@@ -294,7 +314,9 @@ public class ShakingCalculator implements Runnable {
                                                 event.longitude, event.depth,
                                                 p.latitude, p.longitude, p.altitude,
                                                 ampliProxyName, p.amplification,
-                                                event.eventParameters)).expectedSI;
+                                                event.eventParameters,
+                                                event.ruptureLength,
+                                                event.ruptureStrike)).expectedSI;
                             }
                         } else if (gmicePGV != null && gmpePGV != null) {
                             for (ShakeMapLayer.Point p : shakeMap.getPoints()) {
@@ -304,7 +326,9 @@ public class ShakingCalculator implements Runnable {
                                                 event.longitude, event.depth,
                                                 p.latitude, p.longitude, p.altitude,
                                                 ampliProxyName, p.amplification,
-                                                event.eventParameters)).expectedSI;
+                                                event.eventParameters,
+                                                event.ruptureLength,
+                                                event.ruptureStrike)).expectedSI;
                             }
                         } else {
                             success = false;
