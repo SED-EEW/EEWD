@@ -8,7 +8,7 @@ package org.reakteu.eewd.gmpe.impl;
  * GROUND MOTION PREDICTION MODELS FOR CENTRAL AMERICA USING DATA FROM 1972 TO
  * 2010
  *
- * The GMPE are for shallow or crustal earthquakes in Central America and subduction earthquakes for Costa Rica.
+ * The GMPEs are for shallow or crustal earthquakes in Central America and subduction earthquakes for Costa Rica.
  * 
  * An Earthquake is considered to be Shallow is its focal deep is less than 25 km and its
  * equation for PGA and PSA is
@@ -179,13 +179,13 @@ public class SCH2014 implements AttenuationPGA, AttenuationPSA, AttenuationDRS {
             // The original PGA is in cm/s*2 
             // So it is applied a basic conversion from cm to m
             Shaking PGA = new Shaking();
-            //PGA.expectedSI = exp(logpgasite) / 100.;
-            //PGA.percentile84 = exp(logpgasiteplus) / 100.;
-            //PGA.percentile16 = exp(logpgasiteminus) / 100.;
+//            PGA.expectedSI = pow(10,logpgasite)/100;
+//            PGA.percentile84 = pow(10,logpgasiteplus)/100;
+//            PGA.percentile16 = pow(10,logpgasiteminus)/100;
 
-            PGA.expectedSI = exp(logpgasite);
-            PGA.percentile84 = exp(logpgasiteplus);
-            PGA.percentile16 = exp(logpgasiteminus);
+            PGA.expectedSI = pow(10,logpgasite);
+            PGA.percentile84 = pow(10,logpgasiteplus);
+            PGA.percentile16 = pow(10,logpgasiteminus);
 
             return PGA;
         } //Subduction Events
@@ -202,13 +202,13 @@ public class SCH2014 implements AttenuationPGA, AttenuationPSA, AttenuationDRS {
             // So it is applied a basic conversion from cm to m
             // and the PGA is in m/s*2
             Shaking PGA = new Shaking();
-            //PGA.expectedSI = exp(logpgasite) / 100.;
-            //PGA.percentile84 = exp(logpgasiteplus) / 100.;
-            //PGA.percentile16 = exp(logpgasiteminus) / 100.;
+//            PGA.expectedSI = pow(10,logpgasite)/100;
+//            PGA.percentile84 = pow(10,logpgasiteplus)/100;
+//            PGA.percentile16 = pow(10,logpgasiteminus)/100;
 
-            PGA.expectedSI = exp(logpgasite);
-            PGA.percentile84 = exp(logpgasiteplus);
-            PGA.percentile16 = exp(logpgasiteminus);
+            PGA.expectedSI = pow(10,logpgasite);
+            PGA.percentile84 = pow(10,logpgasiteplus);
+            PGA.percentile16 = pow(10,logpgasiteminus);
 
             return PGA;
 
@@ -345,14 +345,14 @@ public class SCH2014 implements AttenuationPGA, AttenuationPSA, AttenuationDRS {
             double logpsasiteminus = logpsasite - Cofs[cnt][8];
 
             Shaking PSA = new Shaking();
-            //PSA divided by 100 to have in m/s**2
-            //PSA.expectedSI = exp(logpsasite)/100.0;
-            //PSA.percentile84 = exp(logpsasiteplus)/100.0;
-            //PSA.percentile16 = exp(logpsasiteminus)/100.0;   
+//            PSA divided by 100 to have in m/s**2
+//            PSA.expectedSI = pow(10,logpsasite)/100;
+//            PSA.percentile84 = pow(10,logpsasiteplus)/100;
+//            PSA.percentile16 = pow(10,logpsasiteminus)/100;  
 
-            PSA.expectedSI = exp(logpsasite);
-            PSA.percentile84 = exp(logpsasiteplus);
-            PSA.percentile16 = exp(logpsasiteminus);
+            PSA.expectedSI = pow(10,logpsasite);
+            PSA.percentile84 = pow(10,logpsasiteplus);
+            PSA.percentile16 = pow(10,logpsasiteminus);
             return PSA;
         } 
         //Depth >= 25 km
@@ -434,13 +434,13 @@ public class SCH2014 implements AttenuationPGA, AttenuationPSA, AttenuationDRS {
 
             Shaking PSA = new Shaking();
             //PSA divided by 100 to have in m/s**2
-            //PSA.expectedSI = exp(logpsasite) / 100.0;
-            //PSA.percentile84 = exp(logpsasiteplus) / 100.0;
-            //PSA.percentile16 = exp(logpsasiteminus) / 100.0;
+//            PSA.expectedSI = pow(10,logpsasite)/100;
+//            PSA.percentile84 = pow(10,logpsasiteplus)/100;
+//            PSA.percentile16 = pow(10,logpsasiteminus)/100;
 
-            PSA.expectedSI = exp(logpsasite);
-            PSA.percentile84 = exp(logpsasiteplus);
-            PSA.percentile16 = exp(logpsasiteminus);
+            PSA.expectedSI = pow(10,logpsasite);
+            PSA.percentile84 = pow(10,logpsasiteplus);
+            PSA.percentile16 = pow(10,logpsasiteminus);
             return PSA;
         }
 
