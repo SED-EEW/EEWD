@@ -23,7 +23,7 @@ import org.reakteu.eewd.utils.GeoCalc;
  *
  * @author Stephan Herrnkind herrnkind at gempa dot de
  */
-public class LookupTable implements AttenuationPGA, AttenuationPGV, AttenuationPSA, AttenuationDRS {
+public abstract class LookupTable implements AttenuationPGA, AttenuationPGV, AttenuationPSA, AttenuationDRS {
 
     private static final Logger LOG = LogManager.getLogger(LookupTable.class);
 
@@ -66,7 +66,7 @@ public class LookupTable implements AttenuationPGA, AttenuationPGV, AttenuationP
         pga = readTables(dir + "/" + Shaking.Type.PGA.toString());
     }
 
-    @Override
+    //@Override
     public Shaking getPGA(double magnitude, double sourceLat, double sourceLon,
                           double sourceDepthM, double targetLat,
                           double targetLon, double targetElevM,
@@ -76,7 +76,7 @@ public class LookupTable implements AttenuationPGA, AttenuationPGV, AttenuationP
                           targetLat, targetLon, targetElevM, amplification);
     }
 
-    @Override
+    //@Override
     public Shaking getPGV(double magnitude, double sourceLat, double sourceLon,
                           double sourceDepthM, double targetLat,
                           double targetLon, double targetElevM,
@@ -86,7 +86,7 @@ public class LookupTable implements AttenuationPGA, AttenuationPGV, AttenuationP
                           targetLat, targetLon, targetElevM, amplification);
     }
 
-    @Override
+    //@Override
     public Shaking getPSA(double magnitude, double sourceLat, double sourceLon,
                           double sourceDepthM, double targetLat,
                           double targetLon, double targetElevM,
@@ -99,7 +99,7 @@ public class LookupTable implements AttenuationPGA, AttenuationPGV, AttenuationP
                             amplification);
     }
 
-    @Override
+    //@Override
     public Shaking getDRS(double magnitude, double sourceLat, double sourceLon,
                           double sourceDepthM, double targetLat,
                           double targetLon, double targetElevM,

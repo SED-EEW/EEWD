@@ -248,7 +248,7 @@ public class ShakingCalculator implements Runnable {
                                 event.magnitude, event.latitude, event.longitude,
                                 event.depth, target.latitude, target.longitude,
                                 target.altitude, ampliProxyName, target.amplification,
-                                event.eventParameters);
+                                event.eventParameters,event.ruptureLength,event.ruptureStrike);
                         target.shakingValues.put(Shaking.Type.Intensity, s);
                     }
                 }
@@ -339,7 +339,7 @@ public class ShakingCalculator implements Runnable {
                                     event.magnitude, event.latitude, event.longitude,
                                     event.depth, p.latitude, p.longitude, p.altitude,
                                     ampliProxyName, p.amplification,
-                                    event.eventParameters).expectedSI;
+                                    event.eventParameters,event.ruptureLength,event.ruptureStrike).expectedSI;
                         }
                     }
                 } else {
