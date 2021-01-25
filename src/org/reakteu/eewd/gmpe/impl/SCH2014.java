@@ -158,10 +158,9 @@ public class SCH2014 implements AttenuationPGA, AttenuationPSA, AttenuationDRS {
         }
 
         if (amplificationProxyValueSI == -1) {
-            //S II firm or steady soil 
             // 
-            S = 0;
-            H = 1;
+            S = log(-1);
+            H = 0;
         }
 
         double depthKm = sourceDepthM / 1000.; // Depth in km
@@ -268,11 +267,10 @@ public class SCH2014 implements AttenuationPGA, AttenuationPSA, AttenuationDRS {
             H = 0;
         }
 
-        if (amplificationProxyValueSI == -1) {
-            //S II firm or steady soil 
+        if (amplificationProxyValueSI == -1) { 
             // 
-            S = 0;
-            H = 1;
+            S = log(-1);
+            H = 0;
         }
 
         double depthKm = sourceDepthM / 1000.0; //depth in km
