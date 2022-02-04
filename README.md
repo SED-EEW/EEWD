@@ -21,4 +21,4 @@ java -jar "dist/eewd.jar" -help
 ```
 
 # Configuration
-Back-up and adjust the `eewd.property` file following the enclosed instructions, another example is provided in `eewd.property.ISNET`. 
+Back-up and adjust the `eewd.properties` file following the enclosed instructions, another example is provided in `eewd.properties.ISNET`. 
