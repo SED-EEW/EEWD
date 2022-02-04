@@ -7,18 +7,18 @@ EEWD connects to the EEW system via an [activeMQ](https://activemq.apache.org) b
 
 Further information on EEWD and the EEW methods developed by the Swiss seismological Service (ETHZ) for seismic monitoring services can be found at  http://www.seismo.ethz.ch/en/research-and-teaching/fields_of_research/earthquake-early-warning/.
 
-# Compilation
+## Compilation
 Compilation is straightforward:
 ```
 ant
 ```
 The `eewd.jar` Java archive package should be compiled in about four seconds in the directory `dist/`. 
 
-# Usage
+## Usage
 To run the project from the command line, go to the dist folder and use:
 ```
 java -jar "dist/eewd.jar" -help
 ```
 
-# Configuration
+## Configuration
 Back-up and adjust the `eewd.properties` file following the enclosed instructions, another example is provided in `eewd.properties.ISNET`. 
